@@ -9,18 +9,30 @@
     regexp: true,
     stupid: true
 */
-(function (local) {
+(function () {
     'use strict';
-    var require;
+    var local;
 
 
 
     // run shared js-env code - pre-init
     (function () {
-        // init require
-        require = function (key) {
-            return local[key] || local.require2(key);
-        };
+        // init local
+        local = {};
+        // init modeJs
+        local.modeJs = (function () {
+            try {
+                return typeof navigator.userAgent === 'string' &&
+                    typeof document.querySelector('body') === 'object' &&
+                    typeof XMLHttpRequest.prototype.open === 'function' &&
+                    'browser';
+            } catch (errorCaughtBrowser) {
+                return module.exports &&
+                    typeof process.versions.node === 'string' &&
+                    typeof require('http').createServer === 'function' &&
+                    'node';
+            }
+        }());
         // init global
         local.global = local.modeJs === 'browser'
             ? window
@@ -28,7 +40,7 @@
         // init lib utility2
         local.utility2 = local.modeJs === 'browser'
             ? local.global.utility2
-            : require('utility2');
+            : module.utility2 || require('utility2');
         // init lib swgg
         local.swgg = local.utility2.local.swgg = {
             idDomElementDict: {},
@@ -2571,32 +2583,4 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
         // init state
         local.swgg.stateInit({});
     }());
-}(
-    (function () {
-        'use strict';
-        var local;
-        // init local
-        local = {};
-        // init modeJs
-        local.modeJs = (function () {
-            try {
-                return typeof navigator.userAgent === 'string' &&
-                    typeof document.querySelector('body') === 'object' &&
-                    typeof XMLHttpRequest.prototype.open === 'function' &&
-                    'browser';
-            } catch (errorCaughtBrowser) {
-                return module.exports &&
-                    typeof process.versions.node === 'string' &&
-                    typeof require('http').createServer === 'function' &&
-                    'node';
-            }
-        }());
-        // init module
-        if (local.modeJs === 'node') {
-            local = module;
-            local.modeJs = 'node';
-            local.require2 = require;
-        }
-        return local;
-    }())
-));
+}());

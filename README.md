@@ -19,6 +19,7 @@ this package will run a virtual swagger-ui server with persistent storage in the
 
 # documentation
 #### todo
+- npm publish 2016.9.2
 - allow secure remote db export / import / reset to backend
 - add middlewareAcl
 - datatable - add sort-by-field
@@ -31,9 +32,8 @@ this package will run a virtual swagger-ui server with persistent storage in the
 - add cached version crudGetManyByQueryCached
 - none
 
-#### change since 687f23ef
-- npm publish 2016.9.1
-- update utility2 dependency
+#### change since c6983e51
+- streamline tests
 - none
 
 #### this package requires
@@ -342,9 +342,6 @@ body > button {\n\
             {{/if envDict.npm_package_homepage}}\n\
             target="_blank"\n\
         >{{envDict.npm_package_name}} v{{envDict.npm_package_version}}</a>\n\
-        {{#if envDict.NODE_ENV}}\n\
-        (NODE_ENV={{envDict.NODE_ENV}})\n\
-        {{/if envDict.NODE_ENV}}\n\
     </h1>\n\
     <h3>{{envDict.npm_package_description}}</h3>\n\
     <h4><a download href="assets.app.js">download standalone app</a></h4>\n\
@@ -760,7 +757,7 @@ body > button {\n\
     "author": "kai zhu <kaizhu256@gmail.com>",
     "bin": { "swagger-lite": "index.js" },
     "dependencies": {
-        "utility2": "2016.9.1"
+        "utility2": "kaizhu256/node-utility2#alpha"
     },
     "description": "{{packageJson.description}}",
     "devDependencies": {
@@ -794,7 +791,7 @@ export npm_config_mode_auto_restart=1 && \
 utility2 shRun shIstanbulCover test.js",
         "test": "export PORT=$(utility2 shServerPortRandom) && utility2 test test.js"
     },
-    "version": "2016.9.1"
+    "version": "2016.9.2"
 }
 ```
 

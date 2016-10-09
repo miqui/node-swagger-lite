@@ -61,7 +61,7 @@
         /*
          * this function will set default-values for options
          */
-            options = local.utility2.objectSetDefault(options || {}, defaults);
+            options = local.utility2.objectSetDefault(options, defaults);
             switch (options._tags0) {
             case 'pet':
                 local.utility2.objectSetDefault(options, {
@@ -105,7 +105,8 @@
                 });
             }
             local.swgg.keyUniqueInit(options);
-            return options;
+            // shallow-copy options
+            return local.utility2.objectSetDefault({}, options);
         };
 
         // init tests
@@ -137,21 +138,16 @@
             options.forEach(function (options) {
                 onParallel.counter += 1;
                 local.utility2.ajax(options, function (error, xhr) {
-                    local.utility2.tryCatchOnError(function () {
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(
-                            error.statusCode,
-                            options.statusCode
-                        );
-                        // validate error is in jsonapi-format
-                        if (options.url !== '/api/v0/_test/undefined.map') {
-                            error = JSON.parse(xhr.responseText);
-                            local.utility2.assert(error.errors[0], error);
-                        }
-                        onParallel();
-                    }, onError);
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(error.statusCode, options.statusCode);
+                    // validate error is in jsonapi-format
+                    if (options.url !== '/api/v0/_test/undefined.map') {
+                        error = JSON.parse(xhr.responseText);
+                        local.utility2.assert(error.errors[0], error);
+                    }
+                    onParallel();
                 });
             });
             onParallel();
@@ -161,36 +157,29 @@
         /*
          * this function will test crudCountManyByQuery's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: '00_test_crudCountManyByQuery'
-                        });
-                        // ajax - crudCountManyByQuery
-                        options.crudCountManyByQuery._ajax({
-                            paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
-                        }, onNext);
-                        break;
-                    case 2:
-                        // validate data
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assert(data.responseJson.data[0] ===
-                            1, data.responseJson);
-                        onNext();
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudCountManyByQuery'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudCountManyByQuery
+                    options.crudCountManyByQuery._ajax({
+                        paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // validate data
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(data.responseJson.data[0] === 1, data.responseJson);
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudCreateReplaceUpdateDeleteMany_default = function (options, onError) {
@@ -234,259 +223,232 @@
         /*
          * this function will test crudCreateReplaceUpdateDeleteOne's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            data: {}
-                        });
-                        // test crudCreateOrReplaceOneByKeyUnique's create handling-behavior
-                        local.testCase_crudCreateOrReplaceOneByKeyUnique_default(
-                            options,
-                            onNext
-                        );
-                        break;
-                    case 2:
-                        // test crudCreateOrReplaceOneByKeyUnique's replace handling-behavior
-                        local.testCase_crudCreateOrReplaceOneByKeyUnique_default(
-                            options,
-                            onNext
-                        );
-                        break;
-                    case 3:
-                        // test crudUpdateOneByKeyUnique's default handling-behavior
-                        local.testCase_crudUpdateOneByKeyUnique_default(
-                            options,
-                            onNext
-                        );
-                        break;
-                    case 4:
-                        // test crudDeleteOneByKeyUnique's default handling-behavior
-                        local.testCase_crudDeleteOneByKeyUnique_default(options, onNext);
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = local.crudOptionsSetDefault(options, {
+                data: {}
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // test crudCreateOrReplaceOneByKeyUnique's create handling-behavior
+                    local.testCase_crudCreateOrReplaceOneByKeyUnique_default(
+                        options,
+                        options.onNext
+                    );
+                    break;
+                case 2:
+                    // test crudCreateOrReplaceOneByKeyUnique's replace handling-behavior
+                    local.testCase_crudCreateOrReplaceOneByKeyUnique_default(
+                        options,
+                        options.onNext
+                    );
+                    break;
+                case 3:
+                    // test crudUpdateOneByKeyUnique's default handling-behavior
+                    local.testCase_crudUpdateOneByKeyUnique_default(options, options.onNext);
+                    break;
+                case 4:
+                    // test crudDeleteOneByKeyUnique's default handling-behavior
+                    local.testCase_crudDeleteOneByKeyUnique_default(options, options.onNext);
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudCreateOrReplaceMany_default = function (options, onError) {
         /*
          * this function will test crudCreateOrReplaceMany's default handling-behavior
          */
-            var modeNext, onNext, onParallel;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            data: [{
-                                id: '00_test_crudCreateOrReplaceMany_01',
-                                propRequired: true
-                            }, {
-                                id: '00_test_crudCreateOrReplaceMany_02',
-                                propRequired: true
-                            }]
-                        });
-                        // ajax - crudCreateOrReplaceMany
-                        options.crudCreateOrReplaceMany._ajax({ paramDict: {
-                            body: options.data
-                        } }, onNext);
-                        break;
-                    case 2:
-                        onParallel = local.utility2.onParallel(onNext);
+            var onParallel;
+            options = local.crudOptionsSetDefault(options, {
+                data: [{
+                    id: '00_test_crudCreateOrReplaceMany_01',
+                    propRequired: true
+                }, {
+                    id: '00_test_crudCreateOrReplaceMany_02',
+                    propRequired: true
+                }]
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudCreateOrReplaceMany
+                    options.crudCreateOrReplaceMany._ajax({
+                        paramDict: { body: options.data }
+                    }, options.onNext);
+                    break;
+                case 2:
+                    onParallel = local.utility2.onParallel(options.onNext);
+                    onParallel.counter += 1;
+                    options.data.forEach(function (element) {
                         onParallel.counter += 1;
-                        options.data.forEach(function (element) {
-                            onParallel.counter += 1;
-                            // test crudGetOneByKeyUnique's default handling-behavior
-                            local.testCase_crudGetOneByKeyUnique_default({
-                                keyValue: element.id
-                            }, onParallel);
-                        });
-                        onParallel();
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+                        // test crudGetOneByKeyUnique's default handling-behavior
+                        local.testCase_crudGetOneByKeyUnique_default({
+                            keyValue: element.id
+                        }, onParallel);
+                    });
+                    onParallel();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudCreateOrReplaceOneByKeyUnique_default = function (options, onError) {
         /*
          * this function will test crudCreateOrReplaceOneByKeyUnique's default handling-behavior
          */
-            var modeNext, onNext, paramDict;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            data: {
-                                // test dataReadonlyRemove handling-behavior
-                                createdAt: '1970-01-01T00:00:00.000Z',
-                                updatedAt: '1970-01-01T00:00:00.000Z',
-                                id: '00_test_crudCreateOrReplaceOneByKeyUnique'
-                            },
-                            dataValidateReplace: { propRequired: true }
-                        });
-                        // init paramDict
-                        paramDict = {};
-                        paramDict.body = local.utility2.objectSetOverride(
-                            local.utility2.jsonCopy(options.data),
-                            options.dataValidateReplace
-                        );
-                        // ajax - crudCreateOrReplaceOneByKeyUnique
-                        options.crudCreateOrReplaceOneByKeyUnique._ajax({
-                            paramDict: paramDict
-                        }, onNext);
-                        break;
-                    case 2:
-                        // init id
-                        options.data.id = data.responseJson.data[0].id;
-                        // validate time createdAt
-                        local.utility2.assert(data.responseJson.data[0].createdAt >
-                            '1970-01-01T00:00:00.000Z', data.responseJson);
-                        local.utility2.assert(data.responseJson.data[0].createdAt <
-                            new Date().toISOString(), data.responseJson);
-                        // validate time updatedAt
-                        local.utility2.assert(data.responseJson.data[0].updatedAt >
-                            '1970-01-01T00:00:00.000Z', data.responseJson);
-                        local.utility2.assert(data.responseJson.data[0].updatedAt <
-                            new Date().toISOString(), data.responseJson);
-                        // test crudGetOneByKeyUnique's default handling-behavior
-                        options.dataValidate = options.dataValidateReplace;
-                        local.testCase_crudGetOneByKeyUnique_default(options, onNext);
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            var paramDict;
+            options = local.crudOptionsSetDefault(options, {
+                data: {
+                    // test dataReadonlyRemove handling-behavior
+                    createdAt: '1970-01-01T00:00:00.000Z',
+                    updatedAt: '1970-01-01T00:00:00.000Z',
+                    id: '00_test_crudCreateOrReplaceOneByKeyUnique'
+                },
+                dataValidateReplace: { propRequired: true }
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // init paramDict
+                    paramDict = {};
+                    paramDict.body = local.utility2.objectSetOverride(
+                        local.utility2.jsonCopy(options.data),
+                        options.dataValidateReplace
+                    );
+                    // ajax - crudCreateOrReplaceOneByKeyUnique
+                    options.crudCreateOrReplaceOneByKeyUnique._ajax({
+                        paramDict: paramDict
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // init id
+                    options.data.id = data.responseJson.data[0].id;
+                    // validate time createdAt
+                    local.utility2.assert(data.responseJson.data[0].createdAt >
+                        '1970-01-01T00:00:00.000Z', data.responseJson);
+                    local.utility2.assert(data.responseJson.data[0].createdAt <
+                        new Date().toISOString(), data.responseJson);
+                    // validate time updatedAt
+                    local.utility2.assert(data.responseJson.data[0].updatedAt >
+                        '1970-01-01T00:00:00.000Z', data.responseJson);
+                    local.utility2.assert(data.responseJson.data[0].updatedAt <
+                        new Date().toISOString(), data.responseJson);
+                    // test crudGetOneByKeyUnique's default handling-behavior
+                    options.dataValidate = options.dataValidateReplace;
+                    local.testCase_crudGetOneByKeyUnique_default(options, options.onNext);
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudDeleteManyByQuery_default = function (options, onError) {
         /*
          * this function will test crudDeleteManyByQuery's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: '00_test_crudDeleteManyByQuery'
-                        });
-                        // ajax - crudCreateOrReplaceOneByKeyUnique
-                        options.crudCreateOrReplaceOneByKeyUnique._ajax({
-                            paramDict: { body: {
-                                id: '00_test_crudDeleteManyByQuery',
-                                propRequired: true
-                            } }
-                        }, onNext);
-                        break;
-                    case 2:
-                        // ajax - crudDeleteManyByQuery
-                        options.crudDeleteManyByQuery._ajax({
-                            paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
-                        }, onNext);
-                        break;
-                    case 3:
-                        // ajax - crudGetOneByKeyUnique
-                        options.crudGetOneByKeyUnique._ajax({
-                            paramDict: options.queryByKeyUnique
-                        }, onNext);
-                        break;
-                    case 4:
-                        // validate data was removed
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assert(data.responseJson.data[0] ===
-                            null, data.responseJson);
-                        onNext();
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudDeleteManyByQuery'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudCreateOrReplaceOneByKeyUnique
+                    options.crudCreateOrReplaceOneByKeyUnique._ajax({
+                        paramDict: { body: {
+                            id: '00_test_crudDeleteManyByQuery',
+                            propRequired: true
+                        } }
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // ajax - crudDeleteManyByQuery
+                    options.crudDeleteManyByQuery._ajax({
+                        paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
+                    }, options.onNext);
+                    break;
+                case 3:
+                    // ajax - crudGetOneByKeyUnique
+                    options.crudGetOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 4:
+                    // validate data was removed
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(
+                        data.responseJson.data[0] === null,
+                        data.responseJson
+                    );
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudDeleteOneByKeyUnique_default = function (options, onError) {
         /*
          * this function will test crudDeleteOneByKeyUnique's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: '00_test_crudDeleteOneByKeyUnique'
-                        });
-                        if (options.keyValue === '00_test_crudDeleteOneByKeyUnique') {
-                            // ajax - crudCreateOrReplaceOneByKeyUnique
-                            options.crudCreateOrReplaceOneByKeyUnique._ajax({
-                                paramDict: { body: {
-                                    id: '00_test_crudDeleteOneByKeyUnique',
-                                    propRequired: true
-                                } }
-                            }, onNext);
-                        } else {
-                            onNext();
-                        }
-                        break;
-                    case 2:
-                        // ajax - crudDeleteOneByKeyUnique
-                        options.crudDeleteOneByKeyUnique._ajax({
-                            paramDict: options.queryByKeyUnique
-                        }, onNext);
-                        break;
-                    case 3:
-                        // ajax - crudGetOneByKeyUnique
-                        options.crudGetOneByKeyUnique._ajax({
-                            paramDict: options.queryByKeyUnique
-                        }, onNext);
-                        break;
-                    case 4:
-                        // validate data was removed
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assert(data.responseJson.data[0] ===
-                            null, data.responseJson);
-                        onNext();
-                        break;
-                    default:
-                        onError(error, data);
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudDeleteOneByKeyUnique'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    if (options.keyValue === '00_test_crudDeleteOneByKeyUnique') {
+                        // ajax - crudCreateOrReplaceOneByKeyUnique
+                        options.crudCreateOrReplaceOneByKeyUnique._ajax({
+                            paramDict: { body: {
+                                id: '00_test_crudDeleteOneByKeyUnique',
+                                propRequired: true
+                            } }
+                        }, options.onNext);
+                        return;
                     }
-                }, onError);
-            };
-            onNext();
+                    options.onNext();
+                    break;
+                case 2:
+                    // ajax - crudDeleteOneByKeyUnique
+                    options.crudDeleteOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 3:
+                    // ajax - crudGetOneByKeyUnique
+                    options.crudGetOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 4:
+                    // validate data was removed
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(
+                        data.responseJson.data[0] === null,
+                        data.responseJson
+                    );
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudErrorXxx_default = function (options, onError) {
@@ -510,13 +472,11 @@
                 onParallel.counter += 1;
                 options = {};
                 local.swgg.apiDict[key]._ajax(options, function (error, data) {
-                    local.utility2.tryCatchOnError(function () {
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 500);
-                        onParallel();
-                    }, onError);
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 500);
+                    onParallel();
                 });
             });
             onParallel();
@@ -526,156 +486,138 @@
         /*
          * this function will test crudExistsOneByKeyUnique's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: '00_test_crudExistsOneByKeyUnique'
-                        });
-                        // ajax - crudExistsOneByKeyUnique
-                        options.crudExistsOneByKeyUnique._ajax({
-                            paramDict: options.queryByKeyUnique
-                        }, onNext);
-                        break;
-                    case 2:
-                        // validate data exists
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assertJsonEqual(
-                            data.responseJson.data[0],
-                            true
-                        );
-                        onNext();
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudExistsOneByKeyUnique'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudExistsOneByKeyUnique
+                    options.crudExistsOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // validate data exists
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assertJsonEqual(
+                        data.responseJson.data[0],
+                        true
+                    );
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudGetManyByQuery_default = function (options, onError) {
         /*
          * this function will test crudGetManyByQuery's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: '00_test_crudGetManyByQuery'
-                        });
-                        // ajax - crudGetManyByQuery
-                        options.crudGetManyByQuery._ajax({
-                            paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
-                        }, onNext);
-                        break;
-                    case 2:
-                        // validate data
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assert(data.responseJson.data[0][options.keyAlias] ===
-                            options.keyValue, data.responseJson);
-                        onNext();
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudGetManyByQuery'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudGetManyByQuery
+                    options.crudGetManyByQuery._ajax({
+                        paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // validate data
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(
+                        data.responseJson.data[0][options.keyAlias] === options.keyValue,
+                        data.responseJson
+                    );
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudGetOneByKeyUnique_default = function (options, onError) {
         /*
          * this function will test crudGetOneByKeyUnique's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            dataValidate: {},
-                            keyValue: '00_test_crudGetOneByKeyUnique'
-                        });
-                        // ajax - crudGetOneByKeyUnique
-                        options.crudGetOneByKeyUnique._ajax({
-                            paramDict: options.queryByKeyUnique
-                        }, onNext);
-                        break;
-                    case 2:
-                        // validate data
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assert(data.responseJson.data[0][options.keyAlias] ===
-                            options.keyValue, data.responseJson);
-                        // validate dataValidate
-                        Object.keys(options.dataValidate).forEach(function (key) {
-                            local.utility2.assert(
-                                data.responseJson.data[0][key] === options.dataValidate[key],
-                                [key, data.responseJson.data[0][key], options.dataValidate[key]]
-                            );
-                        });
-                        // cleanup dataValidate
-                        options.dataValidate = {};
-                        onNext(null, data);
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = local.crudOptionsSetDefault(options, {
+                dataValidate: {},
+                keyValue: '00_test_crudGetOneByKeyUnique'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudGetOneByKeyUnique
+                    options.crudGetOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // validate data
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(
+                        data.responseJson.data[0][options.keyAlias] === options.keyValue,
+                        data.responseJson
+                    );
+                    // validate dataValidate
+                    Object.keys(options.dataValidate).forEach(function (key) {
+                        local.utility2.assert(
+                            data.responseJson.data[0][key] === options.dataValidate[key],
+                            [key, data.responseJson.data[0][key], options.dataValidate[key]]
+                        );
+                    });
+                    // cleanup dataValidate
+                    options.dataValidate = {};
+                    options.onNext(null, data);
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudGetOneByQuery_default = function (options, onError) {
         /*
          * this function will test crudGetOneByQuery's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: '00_test_crudGetOneByQuery'
-                        });
-                        // ajax - crudGetOneByQuery
-                        options.crudGetOneByQuery._ajax({
-                            paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
-                        }, onNext);
-                        break;
-                    case 2:
-                        // validate data
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assert(data.responseJson.data[0][options.keyAlias] ===
-                            options.keyValue, data.responseJson);
-                        onNext();
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudGetOneByQuery'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudGetOneByQuery
+                    options.crudGetOneByQuery._ajax({
+                        paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // validate data
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(
+                        data.responseJson.data[0][options.keyAlias] === options.keyValue,
+                        data.responseJson
+                    );
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_crudNullXxx_default = function (options, onError) {
@@ -705,77 +647,80 @@
         /*
          * this function will test crudUpdateOneByKeyUnique's default handling-behavior
          */
-            var modeNext, onNext, paramDict;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            data: { id: '00_test_crudUpdateOneByKeyUnique' },
-                            dataValidateUpdate1: { propRequired: true },
-                            dataValidateUpdate2: { propRequired: false }
-                        });
-                        // test crudGetOneByKeyUnique's default handling-behavior
-                        options.dataValidate = options.dataValidateUpdate1;
-                        if (options.data.id === '00_test_crudUpdateOneByKeyUnique') {
-                            // ajax - crudCreateOrReplaceOneByKeyUnique
-                            options.crudCreateOrReplaceOneByKeyUnique._ajax({
-                                paramDict: { body: {
-                                    id: '00_test_crudUpdateOneByKeyUnique',
-                                    propRequired: true
-                                } }
-                            }, onNext);
-                        } else {
-                            onNext();
-                        }
-                        break;
-                    case 2:
-                        local.testCase_crudGetOneByKeyUnique_default(options, onNext);
-                        break;
-                    case 3:
-                        options.createdAt = data.responseJson.data[0].createdAt;
-                        options.updatedAt = data.responseJson.data[0].updatedAt;
-                        // init paramDict
-                        paramDict = local.utility2.jsonCopy(options.queryByKeyUnique);
-                        paramDict.body = local.utility2.objectSetOverride(
-                            local.utility2.jsonCopy(options.data),
-                            options.dataValidateUpdate2
-                        );
-                        // test application/x-www-form-urlencoded's handling-behavior
-                        local.utility2.objectSetOverride(paramDict, paramDict.body);
-                        // ajax - crudUpdateOneByKeyUnique
-                        options.crudUpdateOneByKeyUnique._ajax({
-                            paramDict: paramDict
-                        }, onNext);
-                        break;
-                    case 4:
-                        // validate time createdAt
-                        local.utility2.assert(data.responseJson.data[0].createdAt ===
-                            options.createdAt, data.responseJson);
-                        local.utility2.assert(data.responseJson.data[0].createdAt <
-                            new Date().toISOString(), data.responseJson);
-                        // validate time updatedAt
-                        local.utility2.assert(data.responseJson.data[0].updatedAt >
-                            options.updatedAt, data.responseJson);
-                        local.utility2.assert(data.responseJson.data[0].updatedAt <
-                            new Date().toISOString(), data.responseJson);
-                        // test crudGetOneByKeyUnique's default handling-behavior
-                        options.dataValidate = local.utility2.objectSetOverride(
-                            local.utility2.jsonCopy(options.dataValidateUpdate1),
-                            options.dataValidateUpdate2
-                        );
-                        local.testCase_crudGetOneByKeyUnique_default(options, onNext);
-                        break;
-                    default:
-                        onError(error, data);
+            var paramDict;
+            options = local.crudOptionsSetDefault(options, {
+                data: { id: '00_test_crudUpdateOneByKeyUnique' },
+                dataValidateUpdate1: { propRequired: true },
+                dataValidateUpdate2: { propRequired: false }
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // test crudGetOneByKeyUnique's default handling-behavior
+                    options.dataValidate = options.dataValidateUpdate1;
+                    if (options.data.id === '00_test_crudUpdateOneByKeyUnique') {
+                        // ajax - crudCreateOrReplaceOneByKeyUnique
+                        options.crudCreateOrReplaceOneByKeyUnique._ajax({
+                            paramDict: { body: {
+                                id: '00_test_crudUpdateOneByKeyUnique',
+                                propRequired: true
+                            } }
+                        }, options.onNext);
+                        return;
                     }
-                }, onError);
-            };
-            onNext();
+                    options.onNext();
+                    break;
+                case 2:
+                    local.testCase_crudGetOneByKeyUnique_default(options, options.onNext);
+                    break;
+                case 3:
+                    options.createdAt = data.responseJson.data[0].createdAt;
+                    options.updatedAt = data.responseJson.data[0].updatedAt;
+                    // init paramDict
+                    paramDict = local.utility2.jsonCopy(options.queryByKeyUnique);
+                    paramDict.body = local.utility2.objectSetOverride(
+                        local.utility2.jsonCopy(options.data),
+                        options.dataValidateUpdate2
+                    );
+                    // test application/x-www-form-urlencoded's handling-behavior
+                    local.utility2.objectSetOverride(paramDict, paramDict.body);
+                    // ajax - crudUpdateOneByKeyUnique
+                    options.crudUpdateOneByKeyUnique._ajax({
+                        paramDict: paramDict
+                    }, options.onNext);
+                    break;
+                case 4:
+                    // validate time createdAt
+                    local.utility2.assert(
+                        data.responseJson.data[0].createdAt === options.createdAt,
+                        data.responseJson
+                    );
+                    local.utility2.assert(
+                        data.responseJson.data[0].createdAt < new Date().toISOString(),
+                        data.responseJson
+                    );
+                    // validate time updatedAt
+                    local.utility2.assert(
+                        data.responseJson.data[0].updatedAt > options.updatedAt,
+                        data.responseJson
+                    );
+                    local.utility2.assert(
+                        data.responseJson.data[0].updatedAt < new Date().toISOString(),
+                        data.responseJson
+                    );
+                    // test crudGetOneByKeyUnique's default handling-behavior
+                    options.dataValidate = local.utility2.objectSetOverride(
+                        local.utility2.jsonCopy(options.dataValidateUpdate1),
+                        options.dataValidateUpdate2
+                    );
+                    local.testCase_crudGetOneByKeyUnique_default(options, options.onNext);
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_fileGetOneByKeyUnique_default = function (options, onError) {
@@ -785,44 +730,44 @@
             var modeNext, onNext;
             modeNext = 0;
             onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: '00_test_fileGetOneByKeyUnique'
-                        });
-                        // ajax - fileGetOneByKeyUnique
-                        local.swgg.apiDict['file fileGetOneByKeyUnique.id.id']._ajax({
-                            paramDict: options.queryByKeyUnique
-                        }, onNext);
-                        break;
-                    case 2:
-                        // validate no error occurred
-                        local.utility2.assert(!error, error);
-                        // validate Content-Type
-                        options.data = data.getResponseHeader('content-type');
-                        local.utility2.assertJsonEqual(options.data, 'image/png');
-                        // validate response
-                        options.data = local.utility2.bufferToString(data.response, 'base64');
-                        local.utility2.assert(options.data ===
-                            local.swgg.templateSwaggerUiLogoSmallBase64, options.data);
-                        // test fileGetOneByKeyUnique's 404 handling-behavior
-                        local.swgg.apiDict['file fileGetOneByKeyUnique.id.id']._ajax({
-                            paramDict: { id: '00_test_undefined' }
-                        }, onNext);
-                        break;
-                    case 3:
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 404);
-                        onNext();
-                        break;
-                    default:
-                        onError(error, data);
-                    }
-                }, onError);
+                modeNext += 1;
+                switch (modeNext) {
+                case 1:
+                    options = local.crudOptionsSetDefault(options, {
+                        keyValue: '00_test_fileGetOneByKeyUnique'
+                    });
+                    // ajax - fileGetOneByKeyUnique
+                    local.swgg.apiDict['file fileGetOneByKeyUnique.id.id']._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, onNext);
+                    break;
+                case 2:
+                    // validate no error occurred
+                    local.utility2.assert(!error, error);
+                    // validate Content-Type
+                    options.data = data.getResponseHeader('content-type');
+                    local.utility2.assertJsonEqual(options.data, 'image/png');
+                    // validate response
+                    options.data = local.utility2.bufferToString(data.response, 'base64');
+                    local.utility2.assert(
+                        options.data === local.swgg.templateSwaggerUiLogoSmallBase64,
+                        options.data
+                    );
+                    // test fileGetOneByKeyUnique's 404 handling-behavior
+                    local.swgg.apiDict['file fileGetOneByKeyUnique.id.id']._ajax({
+                        paramDict: { id: '00_test_undefined' }
+                    }, onNext);
+                    break;
+                case 3:
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 404);
+                    onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
             };
             onNext();
         };
@@ -831,53 +776,47 @@
         /*
          * this function will test fileUploadManyByForm's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = {};
-                        options.blob = new local.utility2.Blob([
-                            local.utility2.assetsDict[
-                                '/assets.swgg.swagger-ui.logo_small.png'
-                            ]
-                        ], { type: 'image/png' });
-                        options.blob.name = 'a00.png';
-                        // ajax - fileUploadManyByForm
-                        local.swgg.apiDict['file fileUploadManyByForm.2']._ajax({ paramDict: {
+            options = {};
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    options.blob = new local.utility2.Blob([
+                        local.utility2.assetsDict['/assets.swgg.swagger-ui.logo_small.png']
+                    ], { type: 'image/png' });
+                    options.blob.name = 'a00.png';
+                    // ajax - fileUploadManyByForm
+                    local.swgg.apiDict['file fileUploadManyByForm.2']._ajax({
+                        paramDict: {
                             fileDescription: 'hello',
                             file1: options.blob,
                             file2: options.blob,
                             file3: options.blob
-                        } }, onNext);
-                        break;
-                    case 2:
-                        // validate data
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 2);
-                        local.utility2.assertJsonEqual(
-                            data.responseJson.data[0].fileDescription,
-                            'hello'
-                        );
-                        options = local.crudOptionsSetDefault(options, {
-                            keyValue: data.responseJson.data[0].id
-                        });
-                        // test fileGetOneByKeyUnique's default handling-behavior
-                        local.testCase_fileGetOneByKeyUnique_default(options, onNext);
-                        break;
-                    case 3:
-                        // test crudDeleteOneByKeyUnique's default handling-behavior
-                        local.testCase_crudDeleteOneByKeyUnique_default(options, onNext);
-                        break;
-                    default:
-                        onError(error);
-                    }
-                }, onError);
-            };
-            onNext();
+                        }
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // validate data
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 2);
+                    local.utility2.assertJsonEqual(
+                        data.responseJson.data[0].fileDescription,
+                        'hello'
+                    );
+                    local.crudOptionsSetDefault(options, {
+                        keyValue: data.responseJson.data[0].id
+                    });
+                    // test fileGetOneByKeyUnique's default handling-behavior
+                    local.testCase_fileGetOneByKeyUnique_default(options, options.onNext);
+                    break;
+                case 3:
+                    // test crudDeleteOneByKeyUnique's default handling-behavior
+                    local.testCase_crudDeleteOneByKeyUnique_default(options, options.onNext);
+                    break;
+                default:
+                    onError(error);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_fileUploadManyByForm_nullCase = function (options, onError) {
@@ -887,27 +826,23 @@
             var modeNext, onNext;
             modeNext = 0;
             onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = {};
-                        // ajax - fileUploadManyByForm
-                        local.swgg.apiDict[
-                            'file fileUploadManyByForm.2'
-                        ]._ajax(options, onNext);
-                        break;
-                    case 2:
-                        // validate data
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 0);
-                        onNext();
-                        break;
-                    default:
-                        onError(error);
-                    }
-                }, onError);
+                // validate no error occurred
+                local.utility2.assert(!error, error);
+                modeNext += 1;
+                switch (modeNext) {
+                case 1:
+                    options = {};
+                    // ajax - fileUploadManyByForm
+                    local.swgg.apiDict['file fileUploadManyByForm.2']._ajax(options, onNext);
+                    break;
+                case 2:
+                    // validate data
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 0);
+                    onNext();
+                    break;
+                default:
+                    onError(error);
+                }
             };
             onNext();
         };
@@ -942,19 +877,17 @@
             ].forEach(function (_) {
                 options = _;
                 onParallel.counter += 1;
-                local.swgg.apiDict['_test onErrorJsonapi']._ajax({ paramDict: {
-                    data: JSON.stringify(options)
-                } }, function (error, data) {
-                    local.utility2.tryCatchOnError(function () {
-                        // validate no error occurred
-                        local.utility2.assert(!error, error);
-                        // validate data
-                        local.utility2.assertJsonEqual(
-                            data.responseJson.data[0],
-                            'hello'
-                        );
-                        onParallel();
-                    }, onError);
+                local.swgg.apiDict['_test onErrorJsonapi']._ajax({
+                    paramDict: { data: JSON.stringify(options) }
+                }, function (error, data) {
+                    // validate no error occurred
+                    local.utility2.assert(!error, error);
+                    // validate data
+                    local.utility2.assertJsonEqual(
+                        data.responseJson.data[0],
+                        'hello'
+                    );
+                    onParallel();
                 });
             });
             onParallel();
@@ -970,28 +903,26 @@
             options = { paramDict: { data: '[]' } };
             onParallel.counter += 1;
             local.swgg.apiDict['_test onErrorJsonapi']._ajax(options, function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    // validate data
-                    local.utility2.assertJsonEqual(
-                        data.responseJson.data[0],
-                        undefined
-                    );
-                    onParallel();
-                }, onError);
+                // validate no error occurred
+                local.utility2.assert(!error, error);
+                // validate data
+                local.utility2.assertJsonEqual(
+                    data.responseJson.data[0],
+                    undefined
+                );
+                onParallel();
             });
             options = { paramDict: { error: '[]' } };
             onParallel.counter += 1;
             local.swgg.apiDict['_test onErrorJsonapi']._ajax(options, function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate error occurred
-                    local.utility2.assert(error, error);
-                    // validate error
-                    local.utility2.assert(data.responseJson.errors[0].message ===
-                        'null', error);
-                    onParallel();
-                }, onError);
+                // validate error occurred
+                local.utility2.assert(error, error);
+                // validate error
+                local.utility2.assert(
+                    data.responseJson.errors[0].message === 'null',
+                    error
+                );
+                onParallel();
             });
             onParallel();
         };
@@ -1018,14 +949,14 @@
                 local.swgg.apiDict[
                     '_test onErrorJsonapi'
                 ]._ajax(options, function (error, data) {
-                    local.utility2.tryCatchOnError(function () {
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate error
-                        local.utility2.assert(data.responseJson.errors[0].message ===
-                            'hello', error);
-                        onParallel();
-                    }, onError);
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate error
+                    local.utility2.assert(
+                        data.responseJson.errors[0].message === 'hello',
+                        error
+                    );
+                    onParallel();
                 });
             });
             onParallel();
@@ -1035,27 +966,24 @@
         /*
          * this function will test petstoreStoreGetInventory's default handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = {};
-                        local.swgg.apiDict['store getInventory']._ajax(options, onNext);
-                        break;
-                    default:
-                        // validate data
-                        local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                        local.utility2.assert(data.responseJson.data[0]);
-                        onError();
-                    }
-                }, onError);
-            };
-            onNext();
+            options = {};
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    local.swgg.apiDict['store getInventory']._ajax(options, options.onNext);
+                    break;
+                case 2:
+                    // validate data
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(data.responseJson.data[0]);
+                    options.onNext();
+                    break;
+                default:
+                    onError(error);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_userLoginXxx_default = function (options, onError) {
@@ -1065,110 +993,108 @@
             var modeNext, onNext;
             modeNext = 0;
             onNext = function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        // cleanup userJwtEncoded
-                        delete local.swgg.userJwtEncoded;
-                        // test userLogout's default handling-behavior
-                        options = {};
-                        local.swgg.userLogout(options, onNext);
-                        break;
-                    case 2:
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // test userLoginByPassword's 401 handling-behavior
-                        options = { password: 'undefined', username: 'undefined' };
-                        local.swgg.userLoginByPassword(options, onNext);
-                        break;
-                    case 3:
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 401);
-                        // validate userJwtEncoded does not exist
-                        local.utility2.assert(
-                            !local.swgg.userJwtEncoded,
-                            local.swgg.userJwtEncoded
-                        );
-                        // test userLogout's 401 handling-behavior
-                        options = {};
-                        local.swgg.userLogout(options, onNext);
-                        break;
-                    case 4:
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 401);
-                        // validate userJwtEncoded does not exist
-                        local.utility2.assert(
-                            !local.swgg.userJwtEncoded,
-                            local.swgg.userJwtEncoded
-                        );
-                        // test userLoginByPassword's 200 handling-behavior
-                        options = { password: 'secret', username: 'admin' };
-                        local.swgg.userLoginByPassword(options, onNext);
-                        break;
-                    case 5:
-                        // validate no error occurred
-                        local.utility2.assert(!error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 200);
-                        // validate userJwtEncoded exists
-                        local.utility2.assert(
-                            local.swgg.userJwtEncoded,
-                            local.swgg.userJwtEncoded
-                        );
-                        // test userLogout's 200 handling-behavior
-                        // test jwtEncoded's update handling-behavior
-                        options = { jwtDecrypted: { sub: 'admin' } };
-                        local.swgg.jwtDecodedEncryptAndEncode(options);
-                        local.swgg.userLogout(options, onNext);
-                        break;
-                    case 6:
-                        // validate no error occurred
-                        local.utility2.assert(!error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 200);
-                        // validate userJwtEncoded exists
-                        local.utility2.assert(
-                            local.swgg.userJwtEncoded,
-                            local.swgg.userJwtEncoded
-                        );
-                        // test userLogout's 401 handling-behavior
-                        options = {};
-                        local.swgg.userLogout(options, onNext);
-                        break;
-                    case 7:
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 401);
-                        // test userLoginByPassword's 400 handling-behavior
-                        local.utility2.ajax({
-                            url: '/api/v0/user/userLoginByPassword?password=1'
-                        }, onNext);
-                        break;
-                    case 8:
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 400);
-                        // test userLogout's invalid-username handling-behavior
-                        options = { jwtDecrypted: { sub: 'undefined' } };
-                        local.swgg.jwtDecodedEncryptAndEncode(options);
-                        local.swgg.userLogout(options, onNext);
-                        break;
-                    case 9:
-                        // validate error occurred
-                        local.utility2.assert(error, error);
-                        // validate statusCode
-                        local.utility2.assertJsonEqual(data.statusCode, 401);
-                        onError(null, data);
-                        break;
-                    }
-                }, onError);
+                modeNext += 1;
+                switch (modeNext) {
+                case 1:
+                    // cleanup userJwtEncoded
+                    delete local.swgg.userJwtEncoded;
+                    // test userLogout's default handling-behavior
+                    options = {};
+                    local.swgg.userLogout(options, onNext);
+                    break;
+                case 2:
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // test userLoginByPassword's 401 handling-behavior
+                    options = { password: 'undefined', username: 'undefined' };
+                    local.swgg.userLoginByPassword(options, onNext);
+                    break;
+                case 3:
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 401);
+                    // validate userJwtEncoded does not exist
+                    local.utility2.assert(
+                        !local.swgg.userJwtEncoded,
+                        local.swgg.userJwtEncoded
+                    );
+                    // test userLogout's 401 handling-behavior
+                    options = {};
+                    local.swgg.userLogout(options, onNext);
+                    break;
+                case 4:
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 401);
+                    // validate userJwtEncoded does not exist
+                    local.utility2.assert(
+                        !local.swgg.userJwtEncoded,
+                        local.swgg.userJwtEncoded
+                    );
+                    // test userLoginByPassword's 200 handling-behavior
+                    options = { password: 'secret', username: 'admin' };
+                    local.swgg.userLoginByPassword(options, onNext);
+                    break;
+                case 5:
+                    // validate no error occurred
+                    local.utility2.assert(!error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 200);
+                    // validate userJwtEncoded exists
+                    local.utility2.assert(
+                        local.swgg.userJwtEncoded,
+                        local.swgg.userJwtEncoded
+                    );
+                    // test userLogout's 200 handling-behavior
+                    // test jwtEncoded's update handling-behavior
+                    options = { jwtDecrypted: { sub: 'admin' } };
+                    local.swgg.jwtDecodedEncryptAndEncode(options);
+                    local.swgg.userLogout(options, onNext);
+                    break;
+                case 6:
+                    // validate no error occurred
+                    local.utility2.assert(!error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 200);
+                    // validate userJwtEncoded exists
+                    local.utility2.assert(
+                        local.swgg.userJwtEncoded,
+                        local.swgg.userJwtEncoded
+                    );
+                    // test userLogout's 401 handling-behavior
+                    options = {};
+                    local.swgg.userLogout(options, onNext);
+                    break;
+                case 7:
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 401);
+                    // test userLoginByPassword's 400 handling-behavior
+                    local.utility2.ajax({
+                        url: '/api/v0/user/userLoginByPassword?password=1'
+                    }, onNext);
+                    break;
+                case 8:
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 400);
+                    // test userLogout's invalid-username handling-behavior
+                    options = { jwtDecrypted: { sub: 'undefined' } };
+                    local.swgg.jwtDecodedEncryptAndEncode(options);
+                    local.swgg.userLogout(options, onNext);
+                    break;
+                case 9:
+                    // validate error occurred
+                    local.utility2.assert(error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 401);
+                    onError(null, data);
+                    break;
+                }
             };
             onNext();
         };
@@ -1182,66 +1108,66 @@
             onParallel.counter += 1;
             // test nop handling-behavior
             local.swgg.validateByParamDefList({ data: {} });
-            options = { paramDict: {
-                id: '00_test_testCase_validateByParamDefList_default',
-                // test array-param handling-behavior
-                paramArray: ['aa', 'bb'],
-                // test body-param handling-behavior
-                paramBody: { aa: { bb: 'hello body' } },
-                // test boolean-param handling-behavior
-                paramBoolean: true,
-                // test enum-multiple-param handling-behavior
-                paramEnumMultiple: [0, 1],
-                // test enum-single-param handling-behavior
-                paramEnumSingle: 0,
-                // test header-param handling-behavior
-                paramHeader: 'hello header',
-                // test integer-param handling-behavior
-                paramInteger: 0,
-                // test json-param handling-behavior
-                paramJson: '"hello json"',
-                // test path-param handling-behavior
-                paramPath: 'hello path',
-                // test required-param handling-behavior
-                paramRequired: 'hello required'
-            } };
+            options = {
+                paramDict: {
+                    id: '00_test_testCase_validateByParamDefList_default',
+                    // test array-param handling-behavior
+                    paramArray: ['aa', 'bb'],
+                    // test body-param handling-behavior
+                    paramBody: { aa: { bb: 'hello body' } },
+                    // test boolean-param handling-behavior
+                    paramBoolean: true,
+                    // test enum-multiple-param handling-behavior
+                    paramEnumMultiple: [0, 1],
+                    // test enum-single-param handling-behavior
+                    paramEnumSingle: 0,
+                    // test header-param handling-behavior
+                    paramHeader: 'hello header',
+                    // test integer-param handling-behavior
+                    paramInteger: 0,
+                    // test json-param handling-behavior
+                    paramJson: '"hello json"',
+                    // test path-param handling-behavior
+                    paramPath: 'hello path',
+                    // test required-param handling-behavior
+                    paramRequired: 'hello required'
+                }
+            };
             onParallel.counter += 1;
             local.swgg.apiDict['_test paramDefault']._ajax(options, function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    // validate object
-                    local.utility2.assertJsonEqual(data.responseJson.data[0], {
-                        paramArray: ['aa', 'bb'],
-                        paramBody: { aa: { bb: 'hello body' } },
-                        paramBoolean: true,
-                        paramEnumMultiple: [0, 1],
-                        paramEnumSingle: 0,
-                        paramHeader: 'hello header',
-                        paramInteger: 0,
-                        paramJson: '"hello json"',
-                        paramPath: 'hello path',
-                        paramRequired: 'hello required'
-                    });
-                    onParallel();
-                }, onError);
+                // validate no error occurred
+                local.utility2.assert(!error, error);
+                // validate object
+                local.utility2.assertJsonEqual(data.responseJson.data[0], {
+                    paramArray: ['aa', 'bb'],
+                    paramBody: { aa: { bb: 'hello body' } },
+                    paramBoolean: true,
+                    paramEnumMultiple: [0, 1],
+                    paramEnumSingle: 0,
+                    paramHeader: 'hello header',
+                    paramInteger: 0,
+                    paramJson: '"hello json"',
+                    paramPath: 'hello path',
+                    paramRequired: 'hello required'
+                });
+                onParallel();
             });
-            options = { paramDict: {
-                id: '00_test_testCase_validateByParamDefList_default',
-                // test body-array-param handling-behavior
-                paramBodyArray: [{ aa: { bb: 'hello body' } }, null]
-            } };
+            options = {
+                paramDict: {
+                    id: '00_test_testCase_validateByParamDefList_default',
+                    // test body-array-param handling-behavior
+                    paramBodyArray: [{ aa: { bb: 'hello body' } }, null]
+                }
+            };
             onParallel.counter += 1;
             local.swgg.apiDict['_test paramBodyArray']._ajax(options, function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    // validate object
-                    local.utility2.assertJsonEqual(data.responseJson.data[0], {
-                        paramBodyArray: [{ aa: { bb: 'hello body' } }, null]
-                    });
-                    onParallel();
-                }, onError);
+                // validate no error occurred
+                local.utility2.assert(!error, error);
+                // validate object
+                local.utility2.assertJsonEqual(data.responseJson.data[0], {
+                    paramBodyArray: [{ aa: { bb: 'hello body' } }, null]
+                });
+                onParallel();
             });
             onParallel();
         };
@@ -1268,11 +1194,9 @@
                 element.paramDict[element.key] = element.value;
                 onParallel.counter += 1;
                 local.swgg.apiDict['_test paramDefault']._ajax(element, function (error) {
-                    local.utility2.tryCatchOnError(function () {
-                        // validate error occurred
-                        local.utility2.assert(error, element);
-                        onParallel();
-                    }, onError);
+                    // validate error occurred
+                    local.utility2.assert(error, element);
+                    onParallel();
                 });
             });
             onParallel();
@@ -1282,21 +1206,21 @@
         /*
          * this function will test validateByParamDefList's formData handling-behavior
          */
-            options = { paramDict: {
-                paramFormData1: 'hello formData1',
-                paramFormData2: 'hello formData2'
-            } };
+            options = {
+                paramDict: {
+                    paramFormData1: 'hello formData1',
+                    paramFormData2: 'hello formData2'
+                }
+            };
             local.swgg.apiDict['_test paramFormData']._ajax(options, function (error, data) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    // validate object
-                    local.utility2.assertJsonEqual(data.responseJson.data[0], {
-                        paramFormData1: 'hello formData1',
-                        paramFormData2: 'hello formData2'
-                    });
-                    onError();
-                }, onError);
+                // validate no error occurred
+                local.utility2.assert(!error, error);
+                // validate object
+                local.utility2.assertJsonEqual(data.responseJson.data[0], {
+                    paramFormData1: 'hello formData1',
+                    paramFormData2: 'hello formData2'
+                });
+                onError();
             });
         };
 
@@ -1416,6 +1340,7 @@
             });
             onError();
         };
+
         local.testCase_validateBySwagger_default = function (options, onError) {
         /*
          * this function will test validateBySwagger's default handling-behavior
@@ -1658,9 +1583,24 @@
                     onParallel.counter += 1;
                     // validate no error occurred
                     onParallel(error);
+                    switch (local.path.extname(options.file)) {
+                    case '.css':
+                    case '.js':
+                    case '.json':
+                        local.utility2.jslintAndPrintConditional(
+                            xhr.responseText,
+                            options.file
+                        );
+                        // validate no error occurred
+                        local.utility2.assert(
+                            !local.utility2.jslint.errorText,
+                            local.utility2.jslint.errorText
+                        );
+                        break;
+                    }
                     local.utility2.fsWriteFileWithMkdirp(
                         local.utility2.envDict.npm_config_dir_build + '/app' + options.file,
-                        xhr.response,
+                        (options.transform || local.utility2.echo)(xhr.response),
                         onParallel
                     );
                 });
@@ -1672,57 +1612,51 @@
         /*
          * this function will test build's doc handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error) {
-                local.utility2.tryCatchOnError(function () {
-                    // validate no error occurred
-                    local.utility2.assert(!error, error);
-                    modeNext += 1;
-                    switch (modeNext) {
-                    case 1:
-                        options = {};
-                        options.moduleDict = {
-                            'swgg': {
-                                exampleList: [],
-                                exports: local.swgg
-                            }
-                        };
-                        Object.keys(options.moduleDict).forEach(function (key) {
-                            options.moduleDict[key].example =
-                                options.moduleDict[key].exampleList
-                                .concat([
-                                    'README.md',
-                                    'test.js',
-                                    'index.js',
-                                    'lib.swagger-ui.js'
-                                ])
-                                .map(function (file) {
-                                    return '\n\n\n\n\n\n\n\n' +
-                                        local.fs.readFileSync(file, 'utf8') +
-                                        '\n\n\n\n\n\n\n\n';
-                                }).join('');
-                        });
-                        // create doc.api.html
-                        local.utility2.fsWriteFileWithMkdirp(
-                            local.utility2.envDict.npm_config_dir_build + '/doc.api.html',
-                            local.utility2.docApiCreate(options),
-                            onNext
-                        );
-                        break;
-                    case 2:
-                        local.utility2.browserTest({
-                            modeBrowserTest: 'screenCapture',
-                            url: 'file://' + local.utility2.envDict.npm_config_dir_build +
-                                '/doc.api.html'
-                        }, onNext);
-                        break;
-                    default:
-                        onError(error);
-                    }
-                }, onError);
-            };
-            onNext();
+            options = {};
+            local.utility2.onNext(options, function (error) {
+                switch (options.modeNext) {
+                case 1:
+                    options.moduleDict = {
+                        'swgg': {
+                            exampleList: [],
+                            exports: local.swgg
+                        }
+                    };
+                    Object.keys(options.moduleDict).forEach(function (key) {
+                        options.moduleDict[key].example =
+                            options.moduleDict[key].exampleList
+                            .concat([
+                                'README.md',
+                                'test.js',
+                                'index.js',
+                                'lib.swagger-ui.js'
+                            ])
+                            .map(function (file) {
+                                return '\n\n\n\n\n\n\n\n' +
+                                    local.fs.readFileSync(file, 'utf8') +
+                                    '\n\n\n\n\n\n\n\n';
+                            }).join('');
+                    });
+                    // create doc.api.html
+                    local.utility2.fsWriteFileWithMkdirp(
+                        local.utility2.envDict.npm_config_dir_build + '/doc.api.html',
+                        local.utility2.docApiCreate(options),
+                        options.onNext
+                    );
+                    break;
+                case 2:
+                    local.utility2.browserTest({
+                        modeBrowserTest: 'screenCapture',
+                        url: 'file://' + local.utility2.envDict.npm_config_dir_build +
+                            '/doc.api.html'
+                    }, options.onNext);
+                    break;
+                default:
+                    onError(error);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_webpage_default = function (options, onError) {
@@ -2236,13 +2170,11 @@ instruction\n\
         local.utility2.assetsDict['/assets.app.min.js'] =
             local.utility2.uglifyIfProduction(local.utility2.assetsDict['/assets.app.js']);
         // run validation test
-        local.utility2.tryCatchOnError(function () {
-            local.testCase_validateByParamDefList_default(null, local.utility2.onErrorDefault);
-            local.testCase_validateByParamDefList_error(null, local.utility2.onErrorDefault);
-            local.testCase_validateBySchema_default(null, local.utility2.onErrorDefault);
-            local.testCase_validateBySchema_error(null, local.utility2.onErrorDefault);
-            local.testCase_validateBySwagger_default(null, local.utility2.onErrorDefault);
-        }, local.utility2.onErrorDefault);
+        local.testCase_validateByParamDefList_default(null, local.utility2.onErrorDefault);
+        local.testCase_validateByParamDefList_error(null, local.utility2.onErrorDefault);
+        local.testCase_validateBySchema_default(null, local.utility2.onErrorDefault);
+        local.testCase_validateBySchema_error(null, local.utility2.onErrorDefault);
+        local.testCase_validateBySwagger_default(null, local.utility2.onErrorDefault);
         break;
     }
 }());
