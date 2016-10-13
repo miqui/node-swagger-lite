@@ -155,7 +155,7 @@ instruction
                         options.onNext(local.utility2.errorDefault);
                         return;
                     case 'getInventory':
-                        local.nedb.dbTableFindMany(crud.dbTable, {
+                        crud.dbTable.crudFindMany({
                             query: {},
                             projection: { status: 1 }
                         }, options.onNext);

@@ -1280,10 +1280,10 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     user = request.swgg.user;
                     switch (crud.operationId.split('.')[0]) {
                     case 'crudCountManyByQuery':
-                        crud.dbTable.countMany({ query: crud.queryWhere },  options.onNext);
+                        crud.dbTable.crudCountMany({ query: crud.queryWhere },  options.onNext);
                         break;
                     case 'crudCreateOrReplaceMany':
-                        local.nedb.dbTableRemoveMany(crud.dbTable, {
+                        crud.dbTable.crudRemoveMany({
                             query: { id: {
                                 $in: crud.body.map(function (dbRow) {
                                     return dbRow.id;
@@ -1299,7 +1299,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         crud.body[crud.keyAlias] = crud.data[crud.keyUnique];
                         // replace dbRow
                         if (crud.operationId.indexOf('Replace') >= 0) {
-                            crud.dbTable.update(
+                            crud.dbTable.crudUpdate(
                                 crud.queryByKeyUnique,
                                 crud.body,
                                 { upsert: true },
@@ -1307,7 +1307,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                             );
                         // update dbRow
                         } else {
-                            crud.dbTable.update(
+                            crud.dbTable.crudUpdate(
                                 crud.queryByKeyUnique,
                                 { $set: crud.body },
                                 {},
@@ -1326,7 +1326,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         options.onNext(local.utility2.errorDefault);
                         break;
                     case 'crudExistsOneByKeyUnique':
-                        local.nedb.dbTableFindOne(crud.dbTable, {
+                        crud.dbTable.crudFindOne({
                             projection: { _id: 1 },
                             query: crud.queryWhere
                         },  options.onNext);
@@ -1334,7 +1334,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     case 'crudGetManyByQuery':
                         onParallel = local.utility2.onParallel(options.onNext);
                         onParallel.counter += 1;
-                        local.nedb.dbTableFindMany(crud.dbTable, {
+                        crud.dbTable.crudFindMany({
                             limit: crud.queryLimit,
                             projection: crud.queryFields,
                             query: crud.queryWhere,
@@ -1345,19 +1345,19 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                             onParallel(error);
                         });
                         onParallel.counter += 1;
-                        local.nedb.dbTableCountMany(crud.dbTable, {
+                        crud.dbTable.crudCountMany({
                         }, function (error, data) {
                             crud.paginationCountTotal = data;
                             onParallel(error);
                         });
                         break;
                     case 'crudGetOneByKeyUnique':
-                        local.nedb.dbTableFindOne(crud.dbTable, {
+                        crud.dbTable.crudFindOne({
                             query: crud.queryByKeyUnique
                         },  options.onNext);
                         break;
                     case 'crudGetOneByQuery':
-                        local.nedb.dbTableFindOne(crud.dbTable, {
+                        crud.dbTable.crudFindOne({
                             projection: crud.queryFields,
                             query: crud.queryWhere
                         },  options.onNext);
@@ -1372,12 +1372,12 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         options.onNext();
                         break;
                     case 'crudRemoveManyByQuery':
-                        local.nedb.dbTableRemoveMany(crud.dbTable, {
+                        crud.dbTable.crudRemoveMany({
                             query: crud.queryWhere
                         }, options.onNext);
                         break;
                     case 'crudRemoveOneByKeyUnique':
-                        local.nedb.dbTableRemoveOne(crud.dbTable, {
+                        crud.dbTable.crudRemoveOne({
                             query: crud.queryByKeyUnique
                         }, options.onNext);
                         break;
@@ -1385,7 +1385,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         local.swgg.dbTableFile = local.nedb.dbTableCreate({
                             name: 'File'
                         });
-                        local.nedb.dbTableFindOne(local.swgg.dbTableFile, {
+                        crud.dbTable.crudFindOne({
                             query: crud.queryByKeyUnique
                         },  options.onNext);
                         break;
@@ -1421,7 +1421,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                                 });
                                 return tmp;
                             });
-                        local.swgg.dbTableFile.insert(crud.body, options.onNext);
+                        local.swgg.dbTableFile.crudInsert(crud.body, options.onNext);
                         break;
                     case 'userLoginByPassword':
                     case 'userLogout':
@@ -1443,7 +1443,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                 case 2:
                     switch (crud.operationId.split('.')[0]) {
                     case 'crudCreateOrReplaceMany':
-                        crud.dbTable.insert(crud.body, options.onNext);
+                        crud.dbTable.crudInsert(crud.body, options.onNext);
                         break;
                     case 'crudCreateOrReplaceOneByKeyUnique':
                     case 'crudUpdateOneByKeyUnique':
@@ -1467,7 +1467,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         options.onNext(null, { jwtEncoded: user.jwtEncoded });
                         break;
                     case 'userLogout':
-                        crud.dbTable.update(
+                        crud.dbTable.crudUpdate(
                             { username: user.username },
                             { $unset: { jwtEncoded: true } },
                             { returnUpdatedDocs: true },
@@ -1625,7 +1625,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         user.password = request.urlParsed.query.password;
                         user.username = request.urlParsed.query.username;
                         if (user.password && user.username) {
-                            local.nedb.dbTableFindOne(local.swgg.dbTableUser, {
+                            local.swgg.dbTableUser.crudFindOne({
                                 query: { username: user.username }
                             },  options.onNext);
                             return;
@@ -1635,7 +1635,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         if (user.jwtDecrypted && user.jwtDecrypted.sub) {
                             // init username
                             user.username = user.jwtDecrypted.sub;
-                            local.nedb.dbTableFindOne(local.swgg.dbTableUser, {
+                            local.swgg.dbTableUser.crudFindOne({
                                 query: { username: user.jwtDecrypted.sub }
                             },  options.onNext);
                             return;
@@ -1666,7 +1666,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         // update jwtEncoded in client
                         local.swgg.jwtEncodedSetHeader(request, response);
                         // update jwtEncoded in dbTableUser
-                        local.swgg.dbTableUser.update({
+                        local.swgg.dbTableUser.crudUpdate({
                             username: user.jwtDecrypted.sub
                         }, { $set: { jwtEncoded: user.jwtEncoded } }, {}, options.onNext);
                         return;
