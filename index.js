@@ -41,6 +41,8 @@
         local.utility2 = local.modeJs === 'browser'
             ? local.global.utility2
             : module.utility2 || require('utility2');
+        // init lib nedb
+        local.nedb = local.utility2.nedb;
         // init lib swgg
         local.swgg = local.utility2.local.swgg = {
             idDomElementDict: {},
@@ -106,40 +108,6 @@
                 }
             },
             summary: 'create or replace one {{_schemaName}} object by {{_keyUnique}}'
-        };
-        local.swgg.templateApiDict.crudDeleteManyByQuery = {
-            _method: 'delete',
-            _path: '/{{_tags0}}/crudDeleteManyByQuery',
-            parameters: [{
-                default: '{"id":"undefined"}',
-                description: 'query param',
-                format: 'json',
-                in: 'query',
-                name: '_queryWhere',
-                required: true,
-                type: 'string'
-            }],
-            responses: {
-                200: {
-                    description:
-                        '200 ok - http://jsonapi.org/format/#document-structure-top-level',
-                    schema: { $ref: '#/definitions/BuiltinJsonapiResponse' }
-                }
-            },
-            summary: 'delete many {{_schemaName}} objects by query'
-        };
-        local.swgg.templateApiDict.crudDeleteOneByKeyUnique = {
-            _keyUnique: '{{_keyUnique}}',
-            _method: 'delete',
-            _path: '/{{_tags0}}/crudDeleteOneByKeyUnique.{{_keyUnique}}.{{_keyAlias}}',
-            parameters: [{
-                description: '{{_schemaName}} {{_keyUnique}}',
-                in: 'query',
-                name: '{{_keyUnique}}',
-                required: true,
-                type: 'string'
-            }],
-            summary: 'delete one {{_schemaName}} object by {{_keyUnique}}'
         };
         local.swgg.templateApiDict.crudErrorDelete = {
             _method: 'delete',
@@ -441,6 +409,40 @@
                 }
             },
             summary: 'return null response'
+        };
+        local.swgg.templateApiDict.crudRemoveManyByQuery = {
+            _method: 'delete',
+            _path: '/{{_tags0}}/crudRemoveManyByQuery',
+            parameters: [{
+                default: '{"id":"undefined"}',
+                description: 'query param',
+                format: 'json',
+                in: 'query',
+                name: '_queryWhere',
+                required: true,
+                type: 'string'
+            }],
+            responses: {
+                200: {
+                    description:
+                        '200 ok - http://jsonapi.org/format/#document-structure-top-level',
+                    schema: { $ref: '#/definitions/BuiltinJsonapiResponse' }
+                }
+            },
+            summary: 'remove many {{_schemaName}} objects by query'
+        };
+        local.swgg.templateApiDict.crudRemoveOneByKeyUnique = {
+            _keyUnique: '{{_keyUnique}}',
+            _method: 'delete',
+            _path: '/{{_tags0}}/crudRemoveOneByKeyUnique.{{_keyUnique}}.{{_keyAlias}}',
+            parameters: [{
+                description: '{{_schemaName}} {{_keyUnique}}',
+                in: 'query',
+                name: '{{_keyUnique}}',
+                required: true,
+                type: 'string'
+            }],
+            summary: 'remove one {{_schemaName}} object by {{_keyUnique}}'
         };
         local.swgg.templateApiDict.crudUpdateOneByKeyUnique = {
             _keyUnique: '{{_keyUnique}}',
@@ -1071,19 +1073,6 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
             return id;
         };
 
-        local.swgg.idIntTimeCreate = function () {
-        /*
-         * this function will return a unique (until 2109), time-based-53-bit integer,
-         * that can be used as an integer id
-         */
-            var id;
-            id = Date.now() * 0x80;
-            local.swgg.idIntTimeMin = id <= local.swgg.idIntTimeMin
-                ? local.swgg.idIntTimeMin + 1
-                : id;
-            return local.swgg.idIntTimeMin;
-        };
-
         local.swgg.jwtEncodedDecodeAndDecrypt = function (user) {
         /*
          * this function will decode and decrypt user.jwtEncoded
@@ -1282,26 +1271,25 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
          * this function will run the middleware that will
          * run the builtin crud-operations backed by nedb
          */
-            var crud, modeNext, onNext, onParallel, tmp, user;
-            modeNext = 0;
-            onNext = function (error, data, meta) {
-                modeNext = error
-                    ? Infinity
-                    : modeNext + 1;
-                switch (modeNext) {
+            var crud, onParallel, options, tmp, user;
+            options = {};
+            local.utility2.onNext(options, function (error, data, meta) {
+                switch (options.modeNext) {
                 case 1:
                     crud = request.swgg.crud;
                     user = request.swgg.user;
                     switch (crud.operationId.split('.')[0]) {
                     case 'crudCountManyByQuery':
-                        crud.dbTable.count(crud.queryWhere, onNext);
+                        crud.dbTable.crudCountMany({ query: crud.queryWhere },  options.onNext);
                         break;
                     case 'crudCreateOrReplaceMany':
-                        crud.dbTable.remove({ id: {
-                            $in: crud.body.map(function (dbRow) {
-                                return dbRow.id;
-                            })
-                        } }, { multi: true }, onNext);
+                        crud.dbTable.crudRemoveMany({
+                            query: { id: {
+                                $in: crud.body.map(function (dbRow) {
+                                    return dbRow.id;
+                                })
+                            } }
+                        }, options.onNext);
                         break;
                     case 'crudCreateOrReplaceOneByKeyUnique':
                     case 'crudUpdateOneByKeyUnique':
@@ -1311,27 +1299,21 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         crud.body[crud.keyAlias] = crud.data[crud.keyUnique];
                         // replace dbRow
                         if (crud.operationId.indexOf('Replace') >= 0) {
-                            crud.dbTable.update(
+                            crud.dbTable.crudUpdate(
                                 crud.queryByKeyUnique,
                                 crud.body,
-                                { returnUpdatedDocs: true, upsert: true },
-                                onNext
+                                { upsert: true },
+                                options.onNext
                             );
                         // update dbRow
                         } else {
-                            crud.dbTable.update(
+                            crud.dbTable.crudUpdate(
                                 crud.queryByKeyUnique,
                                 { $set: crud.body },
-                                { returnUpdatedDocs: true },
-                                onNext
+                                {},
+                                options.onNext
                             );
                         }
-                        break;
-                    case 'crudDeleteManyByQuery':
-                        crud.dbTable.remove(crud.queryWhere, { multi: true }, onNext);
-                        break;
-                    case 'crudDeleteOneByKeyUnique':
-                        crud.dbTable.remove(crud.queryByKeyUnique, onNext);
                         break;
                     // coverage-hack - test error handling-behavior
                     case 'crudErrorDelete':
@@ -1341,33 +1323,44 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     case 'crudErrorPatch':
                     case 'crudErrorPost':
                     case 'crudErrorPut':
-                        onNext(local.utility2.errorDefault);
+                        options.onNext(local.utility2.errorDefault);
                         break;
                     case 'crudExistsOneByKeyUnique':
-                        crud.dbTable.findOne(crud.queryByKeyUnique, { $: 1 }, onNext);
+                        crud.dbTable.crudFindOne({
+                            projection: { _id: 1 },
+                            query: crud.queryWhere
+                        },  options.onNext);
                         break;
                     case 'crudGetManyByQuery':
-                        onParallel = local.utility2.onParallel(onNext);
+                        onParallel = local.utility2.onParallel(options.onNext);
                         onParallel.counter += 1;
-                        crud.dbTable.find(crud.queryWhere, crud.queryFields)
-                            .sort(crud.querySort)
-                            .skip(crud.querySkip)
-                            .limit(crud.queryLimit)
-                            .exec(function (error, data) {
-                                crud.queryData = data;
-                                onParallel(error);
-                            });
+                        crud.dbTable.crudFindMany({
+                            limit: crud.queryLimit,
+                            projection: crud.queryFields,
+                            query: crud.queryWhere,
+                            skip: crud.querySkip,
+                            sort: crud.querySort
+                        }, function (error, data) {
+                            crud.queryData = data;
+                            onParallel(error);
+                        });
                         onParallel.counter += 1;
-                        crud.dbTable.count({}, function (error, data) {
+                        crud.dbTable.crudCountMany({
+                        }, function (error, data) {
                             crud.paginationCountTotal = data;
                             onParallel(error);
                         });
                         break;
                     case 'crudGetOneByKeyUnique':
-                        crud.dbTable.findOne(crud.queryByKeyUnique, onNext);
+                        crud.dbTable.crudFindOne({
+                            query: crud.queryByKeyUnique
+                        },  options.onNext);
                         break;
                     case 'crudGetOneByQuery':
-                        crud.dbTable.findOne(crud.queryWhere, crud.queryFields, onNext);
+                        crud.dbTable.crudFindOne({
+                            projection: crud.queryFields,
+                            query: crud.queryWhere
+                        },  options.onNext);
                         break;
                     case 'crudNullDelete':
                     case 'crudNullGet':
@@ -1376,16 +1369,28 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     case 'crudNullPatch':
                     case 'crudNullPost':
                     case 'crudNullPut':
-                        onNext();
+                        options.onNext();
+                        break;
+                    case 'crudRemoveManyByQuery':
+                        crud.dbTable.crudRemoveMany({
+                            query: crud.queryWhere
+                        }, options.onNext);
+                        break;
+                    case 'crudRemoveOneByKeyUnique':
+                        crud.dbTable.crudRemoveOne({
+                            query: crud.queryByKeyUnique
+                        }, options.onNext);
                         break;
                     case 'fileGetOneByKeyUnique':
-                        local.swgg.dbTableFile = local.utility2.dbTableCreate({
+                        local.swgg.dbTableFile = local.nedb.dbTableCreate({
                             name: 'File'
                         });
-                        local.swgg.dbTableFile.findOne(crud.queryByKeyUnique, onNext);
+                        crud.dbTable.crudFindOne({
+                            query: crud.queryByKeyUnique
+                        },  options.onNext);
                         break;
                     case 'fileUploadManyByForm':
-                        local.swgg.dbTableFile = local.utility2.dbTableCreate({
+                        local.swgg.dbTableFile = local.nedb.dbTableCreate({
                             name: 'File'
                         });
                         request.swgg.paramDict = {};
@@ -1401,7 +1406,6 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                             })
                             .map(function (key) {
                                 tmp = local.utility2.jsonCopy(request.swgg.paramDict);
-                                tmp.id = tmp.id || local.swgg.idIntTimeCreate().toString(36);
                                 local.utility2.objectSetOverride(tmp, {
                                     fileBlob: local.utility2.bufferToString(
                                         request.swgg.bodyParsed[key],
@@ -1417,7 +1421,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                                 });
                                 return tmp;
                             });
-                        local.swgg.dbTableFile.insert(crud.body, onNext);
+                        local.swgg.dbTableFile.crudInsertMany(crud.body, options.onNext);
                         break;
                     case 'userLoginByPassword':
                     case 'userLogout':
@@ -1425,53 +1429,53 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         if (!user.isAuthenticated) {
                             local.utility2.serverRespondHeadSet(request, response, 401, {});
                             request.swgg.crud.endArgList = [request, response];
-                            modeNext = Infinity;
-                            onNext();
+                            options.modeNext = Infinity;
+                            options.onNext();
                             return;
                         }
-                        onNext();
+                        options.onNext();
                         break;
                     default:
-                        modeNext = Infinity;
-                        onNext();
+                        options.modeNext = Infinity;
+                        options.onNext();
                     }
                     break;
                 case 2:
                     switch (crud.operationId.split('.')[0]) {
                     case 'crudCreateOrReplaceMany':
-                        crud.dbTable.insert(crud.body, onNext);
+                        crud.dbTable.crudInsertMany(crud.body, options.onNext);
                         break;
                     case 'crudCreateOrReplaceOneByKeyUnique':
                     case 'crudUpdateOneByKeyUnique':
-                        onNext(null, meta, data);
+                        options.onNext(null, meta, data);
                         break;
                     case 'crudExistsOneByKeyUnique':
-                        onNext(null, !!data);
+                        options.onNext(null, !!data);
                         break;
                     case 'crudGetManyByQuery':
-                        onNext(null, crud.queryData, {
+                        options.onNext(null, crud.queryData, {
                             paginationCountTotal: crud.paginationCountTotal
                         });
                         break;
                     case 'fileUploadManyByForm':
-                        onNext(null, data.map(function (element) {
+                        options.onNext(null, data.map(function (element) {
                             delete element.fileBlob;
                             return element;
                         }));
                         break;
                     case 'userLoginByPassword':
-                        onNext(null, { jwtEncoded: user.jwtEncoded });
+                        options.onNext(null, { jwtEncoded: user.jwtEncoded });
                         break;
                     case 'userLogout':
-                        crud.dbTable.update(
+                        crud.dbTable.crudUpdate(
                             { username: user.username },
                             { $unset: { jwtEncoded: true } },
                             { returnUpdatedDocs: true },
-                            onNext
+                            options.onNext
                         );
                         break;
                     default:
-                        onNext(null, data, meta);
+                        options.onNext(null, data, meta);
                     }
                     break;
                 case 3:
@@ -1487,21 +1491,22 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         response.end(local.utility2.bufferCreate(data.fileBlob, 'base64'));
                         break;
                     case 'userLogout':
-                        onNext();
+                        options.onNext();
                         break;
                     default:
-                        onNext(null, data, meta);
+                        options.onNext(null, data, meta);
                     }
                     break;
                 case 4:
                     request.swgg.crud.endArgList = [request, response, null, data, meta];
-                    onNext();
+                    options.onNext();
                     break;
                 default:
                     nextMiddleware(error);
                 }
-            };
-            onNext();
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.swgg.middlewareError = function (error, request, response) {
@@ -1597,19 +1602,16 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
         /*
          * this function will run the middleware that will handle user login
          */
-            var modeNext, onNext, crud, user;
-            modeNext = 0;
-            onNext = function (error, data) {
-                modeNext = error
-                    ? Infinity
-                    : modeNext + 1;
-                switch (modeNext) {
+            var crud, options, user;
+            options = {};
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
                 case 1:
                     crud = request.swgg.crud;
                     user = request.swgg.user = {};
                     user.jwtEncoded = request.headers.authorization &&
                         request.headers.authorization.replace('Bearer ', '');
-                    local.swgg.dbTableUser = local.utility2.dbTableCreate({
+                    local.swgg.dbTableUser = local.nedb.dbTableCreate({
                         name: 'User'
                     });
                     // decode and decrypt jwtEncoded
@@ -1617,15 +1619,15 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     switch (crud.operationId.split('.')[0]) {
                     // coverage-hack - test error handling-behavior
                     case 'crudErrorLogin':
-                        onNext(local.utility2.errorDefault);
+                        options.onNext(local.utility2.errorDefault);
                         return;
                     case 'userLoginByPassword':
                         user.password = request.urlParsed.query.password;
                         user.username = request.urlParsed.query.username;
                         if (user.password && user.username) {
-                            local.swgg.dbTableUser.findOne({
-                                username: user.username
-                            }, onNext);
+                            local.swgg.dbTableUser.crudFindOne({
+                                query: { username: user.username }
+                            },  options.onNext);
                             return;
                         }
                         break;
@@ -1633,14 +1635,14 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         if (user.jwtDecrypted && user.jwtDecrypted.sub) {
                             // init username
                             user.username = user.jwtDecrypted.sub;
-                            local.swgg.dbTableUser.findOne({
-                                username: user.jwtDecrypted.sub
-                            }, onNext);
+                            local.swgg.dbTableUser.crudFindOne({
+                                query: { username: user.jwtDecrypted.sub }
+                            },  options.onNext);
                             return;
                         }
                     }
-                    modeNext = Infinity;
-                    onNext();
+                    options.modeNext = Infinity;
+                    options.onNext();
                     break;
                 case 2:
                     switch (crud.operationId.split('.')[0]) {
@@ -1650,8 +1652,8 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                                 user.password,
                                 user.data && user.data.password
                             )) {
-                            modeNext = Infinity;
-                            onNext();
+                            options.modeNext = Infinity;
+                            options.onNext();
                             return;
                         }
                         // init isAuthenticated
@@ -1664,9 +1666,9 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         // update jwtEncoded in client
                         local.swgg.jwtEncodedSetHeader(request, response);
                         // update jwtEncoded in dbTableUser
-                        local.swgg.dbTableUser.update({
+                        local.swgg.dbTableUser.crudUpdate({
                             username: user.jwtDecrypted.sub
-                        }, { $set: { jwtEncoded: user.jwtEncoded } }, onNext);
+                        }, { $set: { jwtEncoded: user.jwtEncoded } }, {}, options.onNext);
                         return;
                     default:
                         user.data = data || {};
@@ -1683,13 +1685,14 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                             }
                         }
                     }
-                    onNext();
+                    options.onNext();
                     break;
                 default:
                     nextMiddleware(error);
                 }
-            };
-            onNext();
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.swgg.middlewareValidate = function (request, response, nextMiddleware) {
@@ -1778,7 +1781,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     // init crud.dbTable
                     crud.dbTable = request.swgg.pathObject &&
                         request.swgg.pathObject._schemaName &&
-                        local.utility2.dbTableCreate({
+                        local.nedb.dbTableCreate({
                             name: request.swgg.pathObject._schemaName
                         });
                     if (!crud.dbTable) {
@@ -1834,25 +1837,6 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                             break;
                         }
                         crud.data[crud.keyUnique] = (crud.body && crud.body[crud.keyAlias]);
-                        if (!local.utility2.isNullOrUndefined(crud.data[crud.keyUnique])) {
-                            break;
-                        }
-                        crud.data[crud.keyUnique] = local.swgg.idIntTimeCreate().toString(36);
-                        request.swgg.pathObject.parameters.forEach(function (param) {
-                            // try to init id
-                            local.utility2.tryCatchOnError(function () {
-                                switch (param.in === 'body' &&
-                                    local.swgg.schemaNormalizeAndCopy(param.schema)
-                                    .properties[crud.keyAlias].type) {
-                                // use integer id
-                                case 'integer':
-                                case 'number':
-                                    crud.data[crud.keyUnique] =
-                                        parseInt(crud.data[crud.keyUnique], 36);
-                                    break;
-                                }
-                            }, local.utility2.nop);
-                        });
                         break;
                     }
                     // post-init crud.keyUnique

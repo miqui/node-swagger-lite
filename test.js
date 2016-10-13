@@ -18,7 +18,7 @@
     // run shared js-env code - pre-init
     (function () {
         // init Error.stackTraceLimit
-        Error.stackTraceLimit = Infinity;
+        Error.stackTraceLimit = 16;
         // init local
         local = {};
         // init modeJs
@@ -44,11 +44,9 @@
         case 'node':
             local = (module.utility2 || require('utility2')).requireExampleJsFromReadme({
                 __dirname: __dirname,
-                module: module,
-                moduleExports: __dirname + '/index.js',
-                moduleName: 'swagger-lite'
+                module: module
             });
-            local.swgg = local['swagger-lite'];
+            local.swgg = local[local.utility2.envDict.npm_package_name];
             break;
         }
     }());
@@ -66,8 +64,8 @@
             case 'pet':
                 local.utility2.objectSetDefault(options, {
                     crudCreateOrReplaceOneByKeyUnique: local.swgg.apiDict['pet addPet'],
-                    crudDeleteOneByKeyUnique: local.swgg.apiDict['pet deletePet'],
                     crudGetOneByKeyUnique: local.swgg.apiDict['pet getPetById'],
+                    crudRemoveOneByKeyUnique: local.swgg.apiDict['pet deletePet'],
                     crudUpdateOneByKeyUnique: local.swgg.apiDict['pet updatePetWithForm'],
                     operationId: 'undefined.petId.id'
                 });
@@ -75,8 +73,8 @@
             case 'store':
                 local.utility2.objectSetDefault(options, {
                     crudCreateOrReplaceOneByKeyUnique: local.swgg.apiDict['store placeOrder'],
-                    crudDeleteOneByKeyUnique: local.swgg.apiDict['store deleteOrder'],
                     crudGetOneByKeyUnique: local.swgg.apiDict['store getOrderById'],
+                    crudRemoveOneByKeyUnique: local.swgg.apiDict['store deleteOrder'],
                     crudUpdateOneByKeyUnique: local.swgg.apiDict[
                         'store crudUpdateOneByKeyUnique.id.id'
                     ],
@@ -86,8 +84,8 @@
             case 'user':
                 local.utility2.objectSetDefault(options, {
                     crudCreateOrReplaceOneByKeyUnique: local.swgg.apiDict['user createUser'],
-                    crudDeleteOneByKeyUnique: local.swgg.apiDict['user deleteUser'],
                     crudGetOneByKeyUnique: local.swgg.apiDict['user getUserByName'],
+                    crudRemoveOneByKeyUnique: local.swgg.apiDict['user deleteUser'],
                     crudUpdateOneByKeyUnique: local.swgg.apiDict['user updateUser'],
                     operationId: 'undefined.username.username'
                 });
@@ -182,9 +180,9 @@
             options.onNext();
         };
 
-        local.testCase_crudCreateReplaceUpdateDeleteMany_default = function (options, onError) {
+        local.testCase_crudCreateReplaceUpdateRemoveMany_default = function (options, onError) {
         /*
-         * this function will test crudCreateReplaceUpdateDeleteMany's default handling-behavior
+         * this function will test crudCreateReplaceUpdateRemoveMany's default handling-behavior
          */
             var onParallel;
             onParallel = local.utility2.onParallel(onError);
@@ -206,22 +204,22 @@
                 dataValidateUpdate2: { status: 'approved' }
             }, {
                 _tags0: 'user',
-                data: { username: '00_test_crudCreateReplaceUpdateDeleteMany' },
+                data: { username: '00_test_crudCreateReplaceUpdateRemoveMany' },
                 dataValidateReplace: { firstName: 'firstName', userStatus: 1 },
                 dataValidateUpdate1: { firstName: 'firstName', userStatus: 1 },
                 dataValidateUpdate2: { userStatus: 2 }
             }].forEach(function (_) {
                 options = _;
                 onParallel.counter += 1;
-                // test crudCreateReplaceUpdateDeleteOne's default handling-behavior
-                local.testCase_crudCreateReplaceUpdateDeleteOne_default(options, onParallel);
+                // test crudCreateReplaceUpdateRemoveOne's default handling-behavior
+                local.testCase_crudCreateReplaceUpdateRemoveOne_default(options, onParallel);
             });
             onParallel();
         };
 
-        local.testCase_crudCreateReplaceUpdateDeleteOne_default = function (options, onError) {
+        local.testCase_crudCreateReplaceUpdateRemoveOne_default = function (options, onError) {
         /*
-         * this function will test crudCreateReplaceUpdateDeleteOne's default handling-behavior
+         * this function will test crudCreateReplaceUpdateRemoveOne's default handling-behavior
          */
             options = local.crudOptionsSetDefault(options, {
                 data: {}
@@ -247,8 +245,8 @@
                     local.testCase_crudUpdateOneByKeyUnique_default(options, options.onNext);
                     break;
                 case 4:
-                    // test crudDeleteOneByKeyUnique's default handling-behavior
-                    local.testCase_crudDeleteOneByKeyUnique_default(options, options.onNext);
+                    // test crudRemoveOneByKeyUnique's default handling-behavior
+                    local.testCase_crudRemoveOneByKeyUnique_default(options, options.onNext);
                     break;
                 default:
                     onError(error, data);
@@ -344,104 +342,6 @@
                     // test crudGetOneByKeyUnique's default handling-behavior
                     options.dataValidate = options.dataValidateReplace;
                     local.testCase_crudGetOneByKeyUnique_default(options, options.onNext);
-                    break;
-                default:
-                    onError(error, data);
-                }
-            });
-            options.modeNext = 0;
-            options.onNext();
-        };
-
-        local.testCase_crudDeleteManyByQuery_default = function (options, onError) {
-        /*
-         * this function will test crudDeleteManyByQuery's default handling-behavior
-         */
-            options = local.crudOptionsSetDefault(options, {
-                keyValue: '00_test_crudDeleteManyByQuery'
-            });
-            local.utility2.onNext(options, function (error, data) {
-                switch (options.modeNext) {
-                case 1:
-                    // ajax - crudCreateOrReplaceOneByKeyUnique
-                    options.crudCreateOrReplaceOneByKeyUnique._ajax({
-                        paramDict: { body: {
-                            id: '00_test_crudDeleteManyByQuery',
-                            propRequired: true
-                        } }
-                    }, options.onNext);
-                    break;
-                case 2:
-                    // ajax - crudDeleteManyByQuery
-                    options.crudDeleteManyByQuery._ajax({
-                        paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
-                    }, options.onNext);
-                    break;
-                case 3:
-                    // ajax - crudGetOneByKeyUnique
-                    options.crudGetOneByKeyUnique._ajax({
-                        paramDict: options.queryByKeyUnique
-                    }, options.onNext);
-                    break;
-                case 4:
-                    // validate data was removed
-                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                    local.utility2.assert(
-                        data.responseJson.data[0] === null,
-                        data.responseJson
-                    );
-                    options.onNext();
-                    break;
-                default:
-                    onError(error, data);
-                }
-            });
-            options.modeNext = 0;
-            options.onNext();
-        };
-
-        local.testCase_crudDeleteOneByKeyUnique_default = function (options, onError) {
-        /*
-         * this function will test crudDeleteOneByKeyUnique's default handling-behavior
-         */
-            options = local.crudOptionsSetDefault(options, {
-                keyValue: '00_test_crudDeleteOneByKeyUnique'
-            });
-            local.utility2.onNext(options, function (error, data) {
-                switch (options.modeNext) {
-                case 1:
-                    if (options.keyValue === '00_test_crudDeleteOneByKeyUnique') {
-                        // ajax - crudCreateOrReplaceOneByKeyUnique
-                        options.crudCreateOrReplaceOneByKeyUnique._ajax({
-                            paramDict: { body: {
-                                id: '00_test_crudDeleteOneByKeyUnique',
-                                propRequired: true
-                            } }
-                        }, options.onNext);
-                        return;
-                    }
-                    options.onNext();
-                    break;
-                case 2:
-                    // ajax - crudDeleteOneByKeyUnique
-                    options.crudDeleteOneByKeyUnique._ajax({
-                        paramDict: options.queryByKeyUnique
-                    }, options.onNext);
-                    break;
-                case 3:
-                    // ajax - crudGetOneByKeyUnique
-                    options.crudGetOneByKeyUnique._ajax({
-                        paramDict: options.queryByKeyUnique
-                    }, options.onNext);
-                    break;
-                case 4:
-                    // validate data was removed
-                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
-                    local.utility2.assert(
-                        data.responseJson.data[0] === null,
-                        data.responseJson
-                    );
-                    options.onNext();
                     break;
                 default:
                     onError(error, data);
@@ -643,6 +543,104 @@
             onParallel();
         };
 
+        local.testCase_crudRemoveManyByQuery_default = function (options, onError) {
+        /*
+         * this function will test crudRemoveManyByQuery's default handling-behavior
+         */
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudRemoveManyByQuery'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    // ajax - crudCreateOrReplaceOneByKeyUnique
+                    options.crudCreateOrReplaceOneByKeyUnique._ajax({
+                        paramDict: { body: {
+                            id: '00_test_crudRemoveManyByQuery',
+                            propRequired: true
+                        } }
+                    }, options.onNext);
+                    break;
+                case 2:
+                    // ajax - crudRemoveManyByQuery
+                    options.crudRemoveManyByQuery._ajax({
+                        paramDict: { _queryWhere: JSON.stringify(options.queryByKeyUnique) }
+                    }, options.onNext);
+                    break;
+                case 3:
+                    // ajax - crudGetOneByKeyUnique
+                    options.crudGetOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 4:
+                    // validate data was removed
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(
+                        data.responseJson.data[0] === null,
+                        data.responseJson
+                    );
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
+        };
+
+        local.testCase_crudRemoveOneByKeyUnique_default = function (options, onError) {
+        /*
+         * this function will test crudRemoveOneByKeyUnique's default handling-behavior
+         */
+            options = local.crudOptionsSetDefault(options, {
+                keyValue: '00_test_crudRemoveOneByKeyUnique'
+            });
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
+                case 1:
+                    if (options.keyValue === '00_test_crudRemoveOneByKeyUnique') {
+                        // ajax - crudCreateOrReplaceOneByKeyUnique
+                        options.crudCreateOrReplaceOneByKeyUnique._ajax({
+                            paramDict: { body: {
+                                id: '00_test_crudRemoveOneByKeyUnique',
+                                propRequired: true
+                            } }
+                        }, options.onNext);
+                        return;
+                    }
+                    options.onNext();
+                    break;
+                case 2:
+                    // ajax - crudRemoveOneByKeyUnique
+                    options.crudRemoveOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 3:
+                    // ajax - crudGetOneByKeyUnique
+                    options.crudGetOneByKeyUnique._ajax({
+                        paramDict: options.queryByKeyUnique
+                    }, options.onNext);
+                    break;
+                case 4:
+                    // validate data was removed
+                    local.utility2.assertJsonEqual(data.responseJson.data.length, 1);
+                    local.utility2.assert(
+                        data.responseJson.data[0] === null,
+                        data.responseJson
+                    );
+                    options.onNext();
+                    break;
+                default:
+                    onError(error, data);
+                }
+            });
+            options.modeNext = 0;
+            options.onNext();
+        };
+
         local.testCase_crudUpdateOneByKeyUnique_default = function (options, onError) {
         /*
          * this function will test crudUpdateOneByKeyUnique's default handling-behavior
@@ -808,8 +806,8 @@
                     local.testCase_fileGetOneByKeyUnique_default(options, options.onNext);
                     break;
                 case 3:
-                    // test crudDeleteOneByKeyUnique's default handling-behavior
-                    local.testCase_crudDeleteOneByKeyUnique_default(options, options.onNext);
+                    // test crudRemoveOneByKeyUnique's default handling-behavior
+                    local.testCase_crudRemoveOneByKeyUnique_default(options, options.onNext);
                     break;
                 default:
                     onError(error);
@@ -823,44 +821,27 @@
         /*
          * this function will test fileUploadManyByForm's null-case handling-behavior
          */
-            var modeNext, onNext;
-            modeNext = 0;
-            onNext = function (error, data) {
-                // validate no error occurred
-                local.utility2.assert(!error, error);
-                modeNext += 1;
-                switch (modeNext) {
+            options = {};
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
                 case 1:
-                    options = {};
                     // ajax - fileUploadManyByForm
-                    local.swgg.apiDict['file fileUploadManyByForm.2']._ajax(options, onNext);
+                    local.swgg.apiDict['file fileUploadManyByForm.2']._ajax(
+                        options,
+                        options.onNext
+                    );
                     break;
                 case 2:
                     // validate data
                     local.utility2.assertJsonEqual(data.responseJson.data.length, 0);
-                    onNext();
+                    options.onNext();
                     break;
                 default:
                     onError(error);
                 }
-            };
-            onNext();
-        };
-
-        local.testCase_idIntTimeCreate_default = function (options, onError) {
-        /*
-         * this function will test idIntTimeCreate's default handling-behavior
-         */
-            options = {};
-            // init data1
-            options.data1 = local.swgg.idIntTimeCreate();
-            for (options.ii = 0; options.ii < 100; options.ii += 1) {
-                options.data2 = local.swgg.idIntTimeCreate();
-                // validate data2 > data1
-                local.utility2.assert(options.data2 > options.data1, options);
-                options.data1 = options.data2;
-            }
-            onError();
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
 
         local.testCase_onErrorJsonapi_default = function (options, onError) {
@@ -1047,13 +1028,26 @@
                         local.swgg.userJwtEncoded,
                         local.swgg.userJwtEncoded
                     );
+                    // test persistent-session handling-behavior
+                    local.swgg.apiDict['_test crudNullGet']._ajax({}, onNext);
+                    break;
+                case 6:
+                    // validate no error occurred
+                    local.utility2.assert(!error, error);
+                    // validate statusCode
+                    local.utility2.assertJsonEqual(data.statusCode, 200);
+                    // validate userJwtEncoded exists
+                    local.utility2.assert(
+                        local.swgg.userJwtEncoded,
+                        local.swgg.userJwtEncoded
+                    );
                     // test userLogout's 200 handling-behavior
                     // test jwtEncoded's update handling-behavior
                     options = { jwtDecrypted: { sub: 'admin' } };
                     local.swgg.jwtDecodedEncryptAndEncode(options);
                     local.swgg.userLogout(options, onNext);
                     break;
-                case 6:
+                case 7:
                     // validate no error occurred
                     local.utility2.assert(!error, error);
                     // validate statusCode
@@ -1067,7 +1061,7 @@
                     options = {};
                     local.swgg.userLogout(options, onNext);
                     break;
-                case 7:
+                case 8:
                     // validate error occurred
                     local.utility2.assert(error, error);
                     // validate statusCode
@@ -1077,7 +1071,7 @@
                         url: '/api/v0/user/userLoginByPassword?password=1'
                     }, onNext);
                     break;
-                case 8:
+                case 9:
                     // validate error occurred
                     local.utility2.assert(error, error);
                     // validate statusCode
@@ -1087,7 +1081,7 @@
                     local.swgg.jwtDecodedEncryptAndEncode(options);
                     local.swgg.userLogout(options, onNext);
                     break;
-                case 9:
+                case 10:
                     // validate error occurred
                     local.utility2.assert(error, error);
                     // validate statusCode
@@ -1932,10 +1926,10 @@
                 '_test crudCreateOrReplaceOneByKeyUnique.propStringUnique.propStringUnique': {
                     _schemaName: 'TestCrud'
                 },
-                '_test crudDeleteManyByQuery': {
+                '_test crudRemoveManyByQuery': {
                     _schemaName: 'TestCrud'
                 },
-                '_test crudDeleteOneByKeyUnique.id.id': {
+                '_test crudRemoveOneByKeyUnique.id.id': {
                     _schemaName: 'TestCrud'
                 },
                 '_test crudErrorDelete': {
@@ -2009,8 +2003,8 @@
                 _test: {
                     crudCreateOrReplaceOneByKeyUnique:
                         '_test crudCreateOrReplaceOneByKeyUnique.id.id',
-                    crudDeleteOneByKeyUnique:
-                        '_test crudDeleteOneByKeyUnique.id.id',
+                    crudRemoveOneByKeyUnique:
+                        '_test crudRemoveOneByKeyUnique.id.id',
                     crudGetManyByQuery: '_test crudGetManyByQuery',
                     keyUnique: 'id',
                     queryLimit: 20,
@@ -2050,6 +2044,14 @@
         });
         // init dbSeedList
         local.utility2.dbSeedList = local.utility2.dbSeedList.concat([{
+            dbIndexCreateList: [{
+                fieldName: 'id',
+                unique: true
+            }, {
+                fieldName: 'propStringUnique',
+                sparse: true,
+                unique: true
+            }],
             dbRowList: local.swgg.dbRowListRandomCreate({
                 // init 100 extra random objects
                 length: 100,
@@ -2076,13 +2078,12 @@
                 },
                 properties: local.swgg.swaggerJson.definitions.TestCrud.properties
             }),
-            ensureIndexList: [{
-                fieldName: 'propStringUnique',
-                sparse: true,
-                unique: true
-            }],
             name: 'TestCrud'
         }, {
+            dbIndexCreateList: [{
+                fieldName: 'id',
+                unique: true
+            }],
             dbRowList: [{
                 id: '00_test_fileGetOneByKeyUnique',
                 fileBlob: local.swgg.templateSwaggerUiLogoSmallBase64,

@@ -33,6 +33,7 @@ this package will run a virtual swagger-ui server with persistent storage in the
 - none
 
 #### change since c6983e51
+- revamp nedb-lite dependency
 - streamline tests
 - none
 
@@ -91,7 +92,7 @@ this script will run a standalone swagger-ui server backed by nedb
 instruction
     1. save this script as example.js
     2. run the shell command:
-        $ npm install swagger-lite && export PORT=8081 && node example.js
+        $ npm install "kaizhu256/node-swagger-lite#alpha" && export PORT=8081 && node example.js
     3. open a browser to http://localhost:8081
     4. interact with the swagger-ui server
 */
@@ -143,26 +144,26 @@ instruction
         /*
          * this function will run the middleware that will run custom-crud-operations
          */
-            var crud, modeNext, onNext, result;
-            modeNext = 0;
-            onNext = function (error, data) {
-                modeNext = error
-                    ? Infinity
-                    : modeNext + 1;
-                switch (modeNext) {
+            var crud, options, result;
+            options = {};
+            local.utility2.onNext(options, function (error, data) {
+                switch (options.modeNext) {
                 case 1:
                     crud = request.swgg.crud;
                     switch (crud.operationId.split('.')[0]) {
                     // coverage-hack - test error handling-behavior
                     case 'crudErrorPre':
-                        onNext(local.utility2.errorDefault);
+                        options.onNext(local.utility2.errorDefault);
                         return;
                     case 'getInventory':
-                        crud.dbTable.find({}, { status: 1 }, onNext);
+                        crud.dbTable.crudFindMany({
+                            query: {},
+                            projection: { status: 1 }
+                        }, options.onNext);
                         break;
                     default:
-                        modeNext = Infinity;
-                        onNext();
+                        options.modeNext = Infinity;
+                        options.onNext();
                     }
                     break;
                 case 2:
@@ -173,7 +174,7 @@ instruction
                             result[element.status] = result[element.status] || 0;
                             result[element.status] += 1;
                         });
-                        onNext(null, result);
+                        options.onNext(null, result);
                         break;
                     }
                     break;
@@ -183,8 +184,9 @@ instruction
                 default:
                     nextMiddleware(error, data);
                 }
-            };
-            onNext();
+            });
+            options.modeNext = 0;
+            options.onNext();
         };
         local.middlewareInitCustom = function (request, response, nextMiddleware) {
         /*
@@ -237,7 +239,7 @@ instruction
             var reader, tmp;
             switch (event && event.currentTarget.id) {
             case 'nedbExportButton1':
-                tmp = window.URL.createObjectURL(new window.Blob([local.utility2.dbExport()]));
+                tmp = window.URL.createObjectURL(new window.Blob([local.nedb.dbExport()]));
                 document.querySelector('#nedbExportA1').href = tmp;
                 document.querySelector('#nedbExportA1').click();
                 setTimeout(function () {
@@ -255,7 +257,7 @@ instruction
                     return;
                 }
                 reader.addEventListener('load', function () {
-                    local.utility2.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
+                    local.nedb.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
                 });
                 reader.readAsText(tmp);
                 break;
@@ -263,8 +265,15 @@ instruction
                 local.utility2.dbReset();
                 break;
             case 'testRunButton1':
-                local.modeTest = true;
-                local.utility2.testRun(local);
+                if (document.querySelector('.testReportDiv').style.display === 'none') {
+                    document.querySelector('.testReportDiv').style.display = 'block';
+                    document.querySelector('#testRunButton1').innerText = 'hide internal test';
+                    local.modeTest = true;
+                    local.utility2.testRun(local);
+                } else {
+                    document.querySelector('.testReportDiv').style.display = 'none';
+                    document.querySelector('#testRunButton1').innerText = 'run internal test';
+                }
                 break;
             }
         };
@@ -278,6 +287,10 @@ instruction
         });
         // init ui
         local.swgg.uiEventListenerDict['.onEventUiReload']();
+        // run tests
+        [local.utility2.modeTest].filter(local.utility2.echo).forEach(function () {
+            document.querySelector('#testRunButton1').innerText = 'hide internal test';
+        });
         break;
 
 
@@ -440,10 +453,10 @@ body > button {\n\
                 'file crudCreateOrReplaceOneByKeyUnique.id.id': {
                     _schemaName: 'File'
                 },
-                'file crudDeleteOneByKeyUnique.id.id': {
+                'file crudGetManyByQuery': {
                     _schemaName: 'File'
                 },
-                'file crudGetManyByQuery': {
+                'file crudRemoveOneByKeyUnique.id.id': {
                     _schemaName: 'File'
                 },
                 'file crudUpdateOneByKeyUnique.id.id': {
@@ -463,7 +476,7 @@ body > button {\n\
                     _schemaName: 'Pet'
                 },
                 'pet deletePet': {
-                    _operationId: 'crudDeleteOneByKeyUnique.petId.id',
+                    _operationId: 'crudRemoveOneByKeyUnique.petId.id',
                     _schemaName: 'Pet'
                 },
                 'pet findPetsByStatus': {
@@ -499,7 +512,7 @@ body > button {\n\
                     _schemaName: 'Order'
                 },
                 'store deleteOrder': {
-                    _operationId: 'crudDeleteOneByKeyUnique.orderId.id',
+                    _operationId: 'crudRemoveOneByKeyUnique.orderId.id',
                     _schemaName: 'Order'
                 },
                 'store getInventory': {
@@ -531,7 +544,7 @@ body > button {\n\
                 'user crudCreateOrReplaceOneByKeyUnique.username.username': {
                     _schemaName: 'User'
                 },
-                'user crudDeleteOneByKeyUnique.username.username': {
+                'user crudRemoveOneByKeyUnique.username.username': {
                     _schemaName: 'User'
                 },
                 'user crudGetManyByQuery': {
@@ -541,7 +554,7 @@ body > button {\n\
                     _schemaName: 'User'
                 },
                 'user deleteUser': {
-                    _operationId: 'crudDeleteOneByKeyUnique.username.username',
+                    _operationId: 'crudRemoveOneByKeyUnique.username.username',
                     _schemaName: 'User'
                 },
                 'user getUserByName': {
@@ -571,8 +584,8 @@ body > button {\n\
                 file: {
                     crudCreateOrReplaceOneByKeyUnique:
                         'file crudCreateOrReplaceOneByKeyUnique.id.id',
-                    crudDeleteOneByKeyUnique:
-                        'file crudDeleteOneByKeyUnique.id.id',
+                    crudRemoveOneByKeyUnique:
+                        'file crudRemoveOneByKeyUnique.id.id',
                     crudGetManyByQuery: 'file crudGetManyByQuery',
                     keyUnique: 'id',
                     queryLimit: 20,
@@ -580,7 +593,7 @@ body > button {\n\
                 },
                 pet: {
                     crudCreateOrReplaceOneByKeyUnique: 'pet addPet',
-                    crudDeleteOneByKeyUnique: 'pet deletePet',
+                    crudRemoveOneByKeyUnique: 'pet deletePet',
                     crudGetManyByQuery: 'pet crudGetManyByQuery',
                     keyUnique: 'id',
                     queryLimit: 20,
@@ -588,7 +601,7 @@ body > button {\n\
                 },
                 store: {
                     crudCreateOrReplaceOneByKeyUnique: 'store placeOrder',
-                    crudDeleteOneByKeyUnique: 'store deleteOrder',
+                    crudRemoveOneByKeyUnique: 'store deleteOrder',
                     crudGetManyByQuery: 'store crudGetManyByQuery',
                     keyUnique: 'id',
                     queryLimit: 20,
@@ -596,7 +609,7 @@ body > button {\n\
                 },
                 user: {
                     crudCreateOrReplaceOneByKeyUnique: 'user createUser',
-                    crudDeleteOneByKeyUnique: 'user deleteUser',
+                    crudRemoveOneByKeyUnique: 'user deleteUser',
                     crudGetManyByQuery: 'user crudGetManyByQuery',
                     keyUnique: 'username',
                     queryLimit: 20,
@@ -606,6 +619,10 @@ body > button {\n\
         });
         // init dbSeedList
         local.utility2.dbSeedList = [{
+            dbIndexCreateList: [{
+                fieldName: 'id',
+                unique: true
+            }],
             dbRowList: [{
                 id: '00_test_swaggerUiLogoSmall',
                 fileBlob: local.swgg.templateSwaggerUiLogoSmallBase64,
@@ -615,6 +632,11 @@ body > button {\n\
             }],
             name: 'File'
         }, {
+            dbIndexCreateList: [{
+                fieldName: 'id',
+                isInteger: true,
+                unique: true
+            }],
             dbRowList: local.swgg.dbRowListRandomCreate({
                 dbRowList: [{
                     id: 0,
@@ -653,6 +675,11 @@ body > button {\n\
             }),
             name: 'Pet'
         }, {
+            dbIndexCreateList: [{
+                fieldName: 'id',
+                isInteger: true,
+                unique: true
+            }],
             dbRowList: local.swgg.dbRowListRandomCreate({
                 dbRowList: [{
                     id: 0,
@@ -679,6 +706,17 @@ body > button {\n\
             }),
             name: 'Order'
         }, {
+            dbIndexCreateList: [{
+                fieldName: 'email',
+                unique: true
+            }, {
+                fieldName: 'id',
+                isInteger: true,
+                unique: true
+            }, {
+                fieldName: 'username',
+                unique: true
+            }],
             dbRowList: local.swgg.dbRowListRandomCreate({
                 dbRowList: [{
                     email: 'admin@admin.com',
@@ -724,13 +762,6 @@ body > button {\n\
                 },
                 properties: local.swgg.swaggerJson.definitions.User.properties
             }),
-            ensureIndexList: [{
-                fieldName: 'email',
-                unique: true
-            }, {
-                fieldName: 'username',
-                unique: true
-            }],
             name: 'User'
         }];
         local.utility2.onReadyBefore.counter += 1;
