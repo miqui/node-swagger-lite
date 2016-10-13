@@ -1,0 +1,266 @@
+<svg height="4206" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="4206" fill="#555" width="720"></rect>
+<text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
+<tspan x="10" y="26">2016-10-02 12:04:31 +0800</tspan>
+<tspan x="10" y="42">- npm publish 2016.9.1</tspan>
+<tspan x="10" y="58">- update utility2 dependency</tspan>
+<tspan x="10" y="74"></tspan>
+<tspan x="10" y="90">2016-08-27 11:05:16 +0800</tspan>
+<tspan x="10" y="106">- npm publish 2016.8.1</tspan>
+<tspan x="10" y="122">- allow file export / import of nedb-database</tspan>
+<tspan x="10" y="138">- migrate nedb-api from swagger-lite to utility2</tspan>
+<tspan x="10" y="154">- rename collectDoc to dbRow and collection to dbTable</tspan>
+<tspan x="10" y="170"></tspan>
+<tspan x="10" y="186">2016-08-07 22:39:06 +0200</tspan>
+<tspan x="10" y="202">- npm publish 2016.7.2</tspan>
+<tspan x="10" y="218">- deploy standalone-app to heroku</tspan>
+<tspan x="10" y="234">- rename local.utility2.middlewareJsonpStateGet to local.utility2.middlewareJsonpStateInit</tspan>
+<tspan x="10" y="250"></tspan>
+<tspan x="10" y="266">2016-07-31 15:02:39 +0200</tspan>
+<tspan x="10" y="282">- npm publish 2016.7.1</tspan>
+<tspan x="10" y="298">- replace lib bcrypt and lib cryptojs with lib sjcl</tspan>
+<tspan x="10" y="314"></tspan>
+<tspan x="10" y="330">2016-07-01 03:17:59 +0200</tspan>
+<tspan x="10" y="346">- npm publish 2016.5.4</tspan>
+<tspan x="10" y="362">- fix internal tests for heroku backend</tspan>
+<tspan x="10" y="378"></tspan>
+<tspan x="10" y="394">2016-06-15 17:19:02 +0300</tspan>
+<tspan x="10" y="410">- npm publish 2016.5.2</tspan>
+<tspan x="10" y="426">- deploy standalone app to heroku test-server</tspan>
+<tspan x="10" y="442">- remove nedb-lite dependency</tspan>
+<tspan x="10" y="458">- add minified asset assets.app.min.js</tspan>
+<tspan x="10" y="474">- add 'run internal test' button in webpage</tspan>
+<tspan x="10" y="490">- add env var npm_config_mode_backend to disable utility2.serverLocalUrlTest</tspan>
+<tspan x="10" y="506"></tspan>
+<tspan x="10" y="522">2016-06-12 03:58:24 +0300</tspan>
+<tspan x="10" y="538">- npm publish 2016.5.2</tspan>
+<tspan x="10" y="554">- add standalone-app download-link in test-page</tspan>
+<tspan x="10" y="570">- ui - add button to reset nedb database</tspan>
+<tspan x="10" y="586"></tspan>
+<tspan x="10" y="602">2016-06-08 19:00:37 +0300</tspan>
+<tspan x="10" y="618">- npm publish 2016.5.1</tspan>
+<tspan x="10" y="634">- merge admin-ui into swagger-ui</tspan>
+<tspan x="10" y="650">- ui - re-implement reload feature</tspan>
+<tspan x="10" y="666">- move all swagger-backend-config into top-level swagger-property 'x-swgg-apiDict'</tspan>
+<tspan x="10" y="682">- remove unused postinstall script</tspan>
+<tspan x="10" y="698"></tspan>
+<tspan x="10" y="714">2016-05-30 15:00:02 +0300</tspan>
+<tspan x="10" y="730">- npm publish 2016.4.3</tspan>
+<tspan x="10" y="746">- datatable - add datatable resource-view</tspan>
+<tspan x="10" y="762">- datatable - add pagination</tspan>
+<tspan x="10" y="778">- datatable - add row deletion</tspan>
+<tspan x="10" y="794"></tspan>
+<tspan x="10" y="810">2016-05-20 17:44:04 +0300</tspan>
+<tspan x="10" y="826">- npm publish 2016.4.2</tspan>
+<tspan x="10" y="842">- replace swagger-tools dependency with function swgg.validateBySwagger</tspan>
+<tspan x="10" y="858">- validation - validate schema.default</tspan>
+<tspan x="10" y="874">- validation - validate schema.anyOf</tspan>
+<tspan x="10" y="890">- validation - replace x-swgg-inherit with schema.allOf</tspan>
+<tspan x="10" y="906">- rename operation crudFile* to file*</tspan>
+<tspan x="10" y="922">- rename operation crudUser* to user*</tspan>
+<tspan x="10" y="938">- add file lib.swagger.schema.json from http://swagger.io/v2/schema.json</tspan>
+<tspan x="10" y="954">- add extra constraints to function swgg.collectDocListRandomCreate</tspan>
+<tspan x="10" y="970">- ui - input element's valueEncoded can only be '', null, or undefined</tspan>
+<tspan x="10" y="986">- replace function swgg.schemaDereference with swgg.schemaNormalize</tspan>
+<tspan x="10" y="1002"></tspan>
+<tspan x="10" y="1018">2016-05-12 21:06:05 +0300</tspan>
+<tspan x="10" y="1034">- npm publish 2016.4.1</tspan>
+<tspan x="10" y="1050">- fix bug when a document's id is zero</tspan>
+<tspan x="10" y="1066">- streamline ui</tspan>
+<tspan x="10" y="1082">- remove Backbone, Handlebars, and jQuery dependencies from lib.swagger-ui.js</tspan>
+<tspan x="10" y="1098">- enable multiple api endpoints with same operationId, but unique keyUnique</tspan>
+<tspan x="10" y="1114">- add hooks middlewareCrudPre and middlewareCrudPost</tspan>
+<tspan x="10" y="1130">- merge api crudCreateOrReplaceOne into crudCreateOrReplaceOneByKeyUnique</tspan>
+<tspan x="10" y="1146">- merge api crudCreateOrUpdateOne and crudCreateOrUpdateOneByKeyUnique into crudUpdateOneByKeyUn\</tspan>
+<tspan x="10" y="1162">ique</tspan>
+<tspan x="10" y="1178"></tspan>
+<tspan x="10" y="1194">2016-04-28 13:18:23 +0300</tspan>
+<tspan x="10" y="1210">- npm publish 2016.3.1</tspan>
+<tspan x="10" y="1226">- implement api GET /user/login</tspan>
+<tspan x="10" y="1242">- implement api GET /user/logout</tspan>
+<tspan x="10" y="1258">- add api crudUserLogout</tspan>
+<tspan x="10" y="1274">- encode arrays as json-string in query-param</tspan>
+<tspan x="10" y="1290">- fix crudFileGetOneByKeyUnique for serverLocal</tspan>
+<tspan x="10" y="1306">- fix 0 statusCode in userLoginByPassword and userLogout api</tspan>
+<tspan x="10" y="1322">- remove external dependency animate.css</tspan>
+<tspan x="10" y="1338"></tspan>
+<tspan x="10" y="1354">2016-04-20 01:32:39 +0300</tspan>
+<tspan x="10" y="1370">- npm publish 2016.2.3</tspan>
+<tspan x="10" y="1386">- split swgg.middlewareValidate into swgg.middlewareRouter and swgg.middlewareValidate</tspan>
+<tspan x="10" y="1402">- merge collection BuiltinFile into collection TestModelCrud in example.js</tspan>
+<tspan x="10" y="1418">- merge collection BuiltinUser into collection User in example.js</tspan>
+<tspan x="10" y="1434">- add 'multipleOf' number-constraint to function swgg.collectDocRandomCreate</tspan>
+<tspan x="10" y="1450">- add function swgg.collectDocListRandomCreate</tspan>
+<tspan x="10" y="1466"></tspan>
+<tspan x="10" y="1482">2016-04-03 18:55:13 +0800</tspan>
+<tspan x="10" y="1498">- npm publish 2016.2.2</tspan>
+<tspan x="10" y="1514">- implement api POST /pet/{petId}/uploadImage</tspan>
+<tspan x="10" y="1530">- fix Uncaught TypeError: this.trigger is not a function</tspan>
+<tspan x="10" y="1546">- fix curl example missing body</tspan>
+<tspan x="10" y="1562">- add multipart/form-data ability to swgg.apiAjax</tspan>
+<tspan x="10" y="1578">- add function swgg.collectDocRandomCreate to create random collectDoc</tspan>
+<tspan x="10" y="1594">- merge crudFileUploadOneByForm into crudFileUploadManyByForm</tspan>
+<tspan x="10" y="1610">- add function swgg.urlBaseGet</tspan>
+<tspan x="10" y="1626">- cover example.js</tspan>
+<tspan x="10" y="1642"></tspan>
+<tspan x="10" y="1658">2016-03-19 17:17:40 +0800</tspan>
+<tspan x="10" y="1674">- npm publish 2016.2.1</tspan>
+<tspan x="10" y="1690">- cleanup Backbone and Handlebars in lib.swagger-ui.js</tspan>
+<tspan x="10" y="1706">- fix file-upload for serverLocal</tspan>
+<tspan x="10" y="1722">- add function swgg.jwtEncodedDecodeAndDecrypt, swgg.nedbReset</tspan>
+<tspan x="10" y="1738">- use rolled-up asset /assets.utility2.rollup.js</tspan>
+<tspan x="10" y="1754">- move request.swgg* objects to namespace request.swgg</tspan>
+<tspan x="10" y="1770"></tspan>
+<tspan x="10" y="1786">2016-03-15 15:32:30 +0800</tspan>
+<tspan x="10" y="1802">- npm publish 2016.1.6</tspan>
+<tspan x="10" y="1818">- admin-ui - fix datatables crashing when rows are empty</tspan>
+<tspan x="10" y="1834">- add api crudFileGetOneByKeyUnique, crudFileUploadManyByForm, crudFileUploadOneByForm</tspan>
+<tspan x="10" y="1850">- add multipart/form-data handling in swgg.middlewareBodyParse</tspan>
+<tspan x="10" y="1866">- allow jsonapi's response.data to be an empty array</tspan>
+<tspan x="10" y="1882">- add '_Builtin' prefix to swagger-lite's builtin swagger-definition names</tspan>
+<tspan x="10" y="1898">- do not send readonly properties in swgg.apiDict clients</tspan>
+<tspan x="10" y="1914">- in swgg.validateByPropertyDef, add regex pattern validation according to http://json-schema.or\</tspan>
+<tspan x="10" y="1930">g/latest/json-schema-validation.html#anchor33</tspan>
+<tspan x="10" y="1946">- admin-ui add x-queryRange ui</tspan>
+<tspan x="10" y="1962"></tspan>
+<tspan x="10" y="1978">2016-03-09 00:16:59 +0800</tspan>
+<tspan x="10" y="1994">- npm publish 2016.1.5</tspan>
+<tspan x="10" y="2010">- admin-ui - fix input validation bugs</tspan>
+<tspan x="10" y="2026">- replace swgg.api with swgg.apiDict</tspan>
+<tspan x="10" y="2042"></tspan>
+<tspan x="10" y="2058">2016-03-08 15:11:20 +0800</tspan>
+<tspan x="10" y="2074">- consolidate browser state-init into jsonp call stateInit</tspan>
+<tspan x="10" y="2090">- admin-ui - add swagger-form validation to form-inputs</tspan>
+<tspan x="10" y="2106">- admin-ui - implement date-time/dropdown/boolean form-inputs</tspan>
+<tspan x="10" y="2122">- admin-ui - integrate oauth-jwt user-login</tspan>
+<tspan x="10" y="2138">- admin-ui - merge all dt state-info into swgg.dt object</tspan>
+<tspan x="10" y="2154">- admin-ui - keyUnique crud operations can use arbitray keys, instead of only 'id' key</tspan>
+<tspan x="10" y="2170">- admin-ui - add x-title option for rendering labels for swagger params and property inputs</tspan>
+<tspan x="10" y="2186">- admin-ui - crud-keyUnique operations can depend on arbitrary unique-key (previously tied to 'i\</tspan>
+<tspan x="10" y="2202">d' key)</tspan>
+<tspan x="10" y="2218">- rename swgg.apiUpdate to swgg.apiDictUpdate</tspan>
+<tspan x="10" y="2234">- flatten swgg.cacheDict into swgg</tspan>
+<tspan x="10" y="2250"></tspan>
+<tspan x="10" y="2266">2016-03-03 14:57:31 +0800</tspan>
+<tspan x="10" y="2282">- npm publish 2016.1.4</tspan>
+<tspan x="10" y="2298">- add function swgg.isNullOrUndefined</tspan>
+<tspan x="10" y="2314">- add boolean/integer/number/string schema-properties as params in crudGetManyByQuery</tspan>
+<tspan x="10" y="2330">- admin-ui - implement boolean/date-time/enum input types</tspan>
+<tspan x="10" y="2346">- admin-ui - implement crud CREATE</tspan>
+<tspan x="10" y="2362">- allow arbitrary name for body-param in local.swgg.middlewareCrud</tspan>
+<tspan x="10" y="2378">- add 'x-notRequired' options to pathObject params to override 'required' option</tspan>
+<tspan x="10" y="2394">- add 'x-validateUnusedDefinition' option in swgg.validateBySwagger to ignore unused definitions</tspan>
+<tspan x="10" y="2410"></tspan>
+<tspan x="10" y="2426">2016-02-29 19:54:22 +0800</tspan>
+<tspan x="10" y="2442">- npm publish 2016.1.3</tspan>
+<tspan x="10" y="2458">- add dependency nedb-lite</tspan>
+<tspan x="10" y="2474">- admin-ui - integrate serverLocal into admin-ui</tspan>
+<tspan x="10" y="2490">- use jsonp to init default browser-state instead of with hard-coded template</tspan>
+<tspan x="10" y="2506">- split index.js into index.js and lib.admin-ui.js</tspan>
+<tspan x="10" y="2522">- admin-ui - hook utility2.assert and utility2.onErrorDefault with bootstrap alert;</tspan>
+<tspan x="10" y="2538">- admin-ui - add crud UPDATE</tspan>
+<tspan x="10" y="2554">- admin-ui - show swagger-property-type in thead / tfoot / form input</tspan>
+<tspan x="10" y="2570">- add keyAlias param in operationId</tspan>
+<tspan x="10" y="2586">- swgg.apiUpdate will now error-log schema-validation-errors instead of throwing them</tspan>
+<tspan x="10" y="2602">- add file-server</tspan>
+<tspan x="10" y="2618">- add admin-ui crud DELETE</tspan>
+<tspan x="10" y="2634"></tspan>
+<tspan x="10" y="2650">2016-02-22 11:51:07 +0800</tspan>
+<tspan x="10" y="2666">- npm publish 2016.1.2</tspan>
+<tspan x="10" y="2682">- work-in-progress on experimental, swagger-based, admin-ui</tspan>
+<tspan x="10" y="2698">- add query macro for crudGetManyByQuery</tspan>
+<tspan x="10" y="2714">- add crud-tests for petstore api</tspan>
+<tspan x="10" y="2730">- move static assets to /external dir, which will be fetched during postinstall</tspan>
+<tspan x="10" y="2746"></tspan>
+<tspan x="10" y="2762">2016-02-14 21:43:25 +0800</tspan>
+<tspan x="10" y="2778">- npm publish 2016.1.1</tspan>
+<tspan x="10" y="2794">- implement petstore backend with nedb</tspan>
+<tspan x="10" y="2810">- remove swagger-ui-lite dependency</tspan>
+<tspan x="10" y="2826">- fix missing createdAt field in nedb update-replace</tspan>
+<tspan x="10" y="2842">- add default-crud-api crudCreateOrReplaceMany, crudCreateOrUpdateOne, and crudCreateOrUpdateOne\</tspan>
+<tspan x="10" y="2858">ByKeyUnique</tspan>
+<tspan x="10" y="2874">- keep internal nedb _id separate from mongodb id</tspan>
+<tspan x="10" y="2890">- enable integer id's in default crud api</tspan>
+<tspan x="10" y="2906"></tspan>
+<tspan x="10" y="2922">2016-01-16 01:40:32 +0800</tspan>
+<tspan x="10" y="2938">- npm publish 2015.12.6</tspan>
+<tspan x="10" y="2954">- rename assets/* to assets.*</tspan>
+<tspan x="10" y="2970"></tspan>
+<tspan x="10" y="2986">2016-01-11 17:16:43 +0800</tspan>
+<tspan x="10" y="3002">- npm publish 2015.12.5</tspan>
+<tspan x="10" y="3018">- add nedb backend</tspan>
+<tspan x="10" y="3034">- rename swagger-ui.rollup.js to lib.swagger-ui.js</tspan>
+<tspan x="10" y="3050">- add file index.css and rename asset swagger-ui.rollup.css to swagger-lite.css</tspan>
+<tspan x="10" y="3066"></tspan>
+<tspan x="10" y="3082">2016-01-10 21:52:32 +0800</tspan>
+<tspan x="10" y="3098">- npm publish 2015.12.4</tspan>
+<tspan x="10" y="3114">- shrink file swagger-ui.rollup.js</tspan>
+<tspan x="10" y="3130">- add file swagger-ui.rollup.js</tspan>
+<tspan x="10" y="3146">- add asset /swagger-lite.html</tspan>
+<tspan x="10" y="3162"></tspan>
+<tspan x="10" y="3178">2016-01-06 15:44:05 +0800</tspan>
+<tspan x="10" y="3194">- npm publish 2015.12.3</tspan>
+<tspan x="10" y="3210">- fix ui-wiggle for client-side validation error</tspan>
+<tspan x="10" y="3226"></tspan>
+<tspan x="10" y="3242">2016-01-05 22:51:11 +0800</tspan>
+<tspan x="10" y="3258">- npm publish 2015.12.2</tspan>
+<tspan x="10" y="3274">- add initial loading icon</tspan>
+<tspan x="10" y="3290"></tspan>
+<tspan x="10" y="3306">2016-01-04 02:21:43 +0800</tspan>
+<tspan x="10" y="3322">- npm publish 2015.12.1</tspan>
+<tspan x="10" y="3338">- migrate live-test-server from heroku to github, with browser emulation of server</tspan>
+<tspan x="10" y="3354">- revamp local._OperationPrototypeExecute to mock ajax request to browser-emulated server</tspan>
+<tspan x="10" y="3370">- remove ./Procfile</tspan>
+<tspan x="10" y="3386"></tspan>
+<tspan x="10" y="3402">2015-12-30 04:13:51 +0800</tspan>
+<tspan x="10" y="3418">- npm publish 2015.11.10</tspan>
+<tspan x="10" y="3434">- swagger-hack - resolve %2F in hashtag</tspan>
+<tspan x="10" y="3450"></tspan>
+<tspan x="10" y="3466">2015-12-24 15:42:05 +0800</tspan>
+<tspan x="10" y="3482">- npm publish 2015.11.9</tspan>
+<tspan x="10" y="3498">- add enum validation</tspan>
+<tspan x="10" y="3514"></tspan>
+<tspan x="10" y="3530">2015-12-15 03:50:39 +0800</tspan>
+<tspan x="10" y="3546">- npm publish 2015.11.8</tspan>
+<tspan x="10" y="3562">- move most of node js-env code to shared js-env</tspan>
+<tspan x="10" y="3578">- working nedb interface</tspan>
+<tspan x="10" y="3594">- deployed heroku test-server</tspan>
+<tspan x="10" y="3610">- wiggle frontend input during validation error</tspan>
+<tspan x="10" y="3626">- update to uglified swagger-ui-lite</tspan>
+<tspan x="10" y="3642">- remove #/definitions/JsonapiResource and #/definitions/JsonapiError</tspan>
+<tspan x="10" y="3658"></tspan>
+<tspan x="10" y="3674">2015-12-04 21:21:07 +0800</tspan>
+<tspan x="10" y="3690">- npm publish 2015.11.7</tspan>
+<tspan x="10" y="3706">- add function swgg.serverRespondJsonapi</tspan>
+<tspan x="10" y="3722">- remove #/definitions/Object and #/definitions/Undefined</tspan>
+<tspan x="10" y="3738">- add _schemaName to pathObject</tspan>
+<tspan x="10" y="3754"></tspan>
+<tspan x="10" y="3770">2015-11-26 03:50:55 +0800</tspan>
+<tspan x="10" y="3786">- npm publish 2015.11.6</tspan>
+<tspan x="10" y="3802">- rename crudApi to pathObjectDefault</tspan>
+<tspan x="10" y="3818">- rename uniqueKey to keyUnique</tspan>
+<tspan x="10" y="3834">- rename methodPath to pathObject</tspan>
+<tspan x="10" y="3850">- rename swlt to swgg</tspan>
+<tspan x="10" y="3866">- rename tagName to pathPrefix</tspan>
+<tspan x="10" y="3882"></tspan>
+<tspan x="10" y="3898">2015-11-25 15:42:20 +0800</tspan>
+<tspan x="10" y="3914">- npm publish 2015.11.4</tspan>
+<tspan x="10" y="3930">- update to swagger-ui-lite @ 2015.11.4</tspan>
+<tspan x="10" y="3946"></tspan>
+<tspan x="10" y="3962">2015-11-25 09:14:42 +0800</tspan>
+<tspan x="10" y="3978">- npm publish 2015.11.3</tspan>
+<tspan x="10" y="3994">- add auto-generation of crud feature</tspan>
+<tspan x="10" y="4010"></tspan>
+<tspan x="10" y="4026">2015-11-24 15:13:41 +0800</tspan>
+<tspan x="10" y="4042">- npm publish 2015.11.2</tspan>
+<tspan x="10" y="4058">- working swagger validation tests</tspan>
+<tspan x="10" y="4074">- remove mongodb dependency</tspan>
+<tspan x="10" y="4090"></tspan>
+<tspan x="10" y="4106">2015-11-22 23:47:45 +0800</tspan>
+<tspan x="10" y="4122">- npm publish 2015.11.1</tspan>
+<tspan x="10" y="4138">- initial creation derived from swagger-mongodb</tspan>
+<tspan x="10" y="4154"></tspan>
+<tspan x="10" y="4170">2014-03-26 02:31:50 +0700</tspan>
+<tspan x="10" y="4186">add blank README.md</tspan>
+</text>
+</svg>

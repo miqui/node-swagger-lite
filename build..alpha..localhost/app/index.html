@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>
+swagger-lite @ 2016.5.2
+</title>
+<link href="assets.swgg.css" rel="stylesheet">
+<link href="assets.utility2.css" rel="stylesheet">
+<style>
+/*csslint
+    box-sizing: false,
+    universal-selector: false
+*/
+* {
+    box-sizing: border-box;
+}
+body {
+    background-color: #fff;
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+body > button {
+    width: 10rem;
+}
+body > * {
+    margin-bottom: 1rem;
+}
+.testReportDiv {
+    display: none;
+}
+</style>
+</head>
+<body>
+    <div class="ajaxProgressDiv" style="display: block;">
+        <div class="ajaxProgressBarDiv ajaxProgressBarDivLoading">loading</div>
+    </div>
+    <h1>
+        <a
+            
+            href="https://github.com/kaizhu256/node-swagger-lite"
+            
+            target="_blank"
+        >swagger-lite @ 2016.5.2</a>
+    </h1>
+    <h3>this package will run a virtual swagger-ui server with persistent storage in the browser, that your webapp can use (in-place of a real backend)</h3>
+    <h4><a download href="assets.app.js">download standalone app</a></h4>
+    <button id="testRunButton1">run internal test</button><br>
+    <button id="swggButtonNedbReset1">reset nedb database</button><br>
+    <div class="testReportDiv" style="display: none;"></div>
+
+    <div class="swggUiContainer">
+    <form class="header tr">
+        <a class="td1" href="http://swagger.io" target="_blank">swagger</a>
+        <input
+            class="flex1 td2"
+            placeholder="http://petstore.swagger.io/v2/swagger.json"
+            type="text"
+            value="api/v0/swagger.json"
+        >
+    </form>
+    <div class="reset"></div>
+    </div>
+    
+    <script src="assets.utility2.rollup.js"></script>
+    <script src="assets.swgg.js"></script>
+    <script src="assets.swgg.lib.swagger-ui.js"></script>
+    <script src="jsonp.swgg.stateGet?callback=window.swgg.stateInit"></script>
+<script>
+/*jslint browser: true*/
+window.utility2.onReadyBefore.counter += 1;
+</script>
+    <script src="assets.example.js"></script>
+    <script src="assets.test.js"></script>
+<script>
+/*jslint browser: true*/
+window.utility2.onReadyBefore();
+</script>
+    
+</body>
+</html>
