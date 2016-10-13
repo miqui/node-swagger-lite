@@ -1849,7 +1849,7 @@
 /*
 example.js
 &nbsp;
-this script will run a standalone swagger-ui server backed by nedb
+this script will run a standalone swagger-ui server backed by db-lite
 &nbsp;
 instruction
     1. save this script as example.js
@@ -2000,30 +2000,30 @@ instruction
         local.testRun = <span class="fstat-skip" title="function not covered" >function (event) {</span>
 <span class="cstat-skip" title="statement not covered" >            var reader, tmp;</span>
 <span class="cstat-skip" title="statement not covered" >            switch (event &amp;&amp; event.currentTarget.id) {</span>
-            case 'nedbExportButton1':
-<span class="cstat-skip" title="statement not covered" >                tmp = window.URL.createObjectURL(new window.Blob([local.nedb.dbExport()]));</span>
-<span class="cstat-skip" title="statement not covered" >                document.querySelector('#nedbExportA1').href = tmp;</span>
-<span class="cstat-skip" title="statement not covered" >                document.querySelector('#nedbExportA1').click();</span>
+            case 'dbExportButton1':
+<span class="cstat-skip" title="statement not covered" >                tmp = window.URL.createObjectURL(new window.Blob([local.db.dbExport()]));</span>
+<span class="cstat-skip" title="statement not covered" >                document.querySelector('#dbExportA1').href = tmp;</span>
+<span class="cstat-skip" title="statement not covered" >                document.querySelector('#dbExportA1').click();</span>
 <span class="cstat-skip" title="statement not covered" >                setTimeout(<span class="fstat-skip" title="function not covered" >function () {</span></span>
 <span class="cstat-skip" title="statement not covered" >                    window.URL.revokeObjectURL(tmp);</span>
                 }, 30000);
 <span class="cstat-skip" title="statement not covered" >                break;</span>
-            case 'nedbImportButton1':
-<span class="cstat-skip" title="statement not covered" >                document.querySelector('#nedbImportInput1').click();</span>
+            case 'dbImportButton1':
+<span class="cstat-skip" title="statement not covered" >                document.querySelector('#dbImportInput1').click();</span>
 <span class="cstat-skip" title="statement not covered" >                break;</span>
-            case 'nedbImportInput1':
+            case 'dbImportInput1':
 <span class="cstat-skip" title="statement not covered" >                local.utility2.ajaxProgressShow();</span>
 <span class="cstat-skip" title="statement not covered" >                reader = new window.FileReader();</span>
-<span class="cstat-skip" title="statement not covered" >                tmp = document.querySelector('#nedbImportInput1').files[0];</span>
+<span class="cstat-skip" title="statement not covered" >                tmp = document.querySelector('#dbImportInput1').files[0];</span>
 <span class="cstat-skip" title="statement not covered" >                if (!tmp) {</span>
 <span class="cstat-skip" title="statement not covered" >                    return;</span>
                 }
 <span class="cstat-skip" title="statement not covered" >                reader.addEventListener('load', <span class="fstat-skip" title="function not covered" >function () {</span></span>
-<span class="cstat-skip" title="statement not covered" >                    local.nedb.dbImport(reader.result, local.utility2.ajaxProgressUpdate);</span>
+<span class="cstat-skip" title="statement not covered" >                    local.db.dbImport(reader.result, local.utility2.ajaxProgressUpdate);</span>
                 });
 <span class="cstat-skip" title="statement not covered" >                reader.readAsText(tmp);</span>
 <span class="cstat-skip" title="statement not covered" >                break;</span>
-            case 'nedbResetButton1':
+            case 'dbResetButton1':
 <span class="cstat-skip" title="statement not covered" >                local.utility2.dbReset();</span>
 <span class="cstat-skip" title="statement not covered" >                break;</span>
             case 'testRunButton1':
@@ -2122,11 +2122,11 @@ body &gt; button {\n\
     &lt;h4&gt;&lt;a download href="assets.app.js"&gt;download standalone app&lt;/a&gt;&lt;/h4&gt;\n\
     &lt;button class="onclick" id="testRunButton1"&gt;run internal test&lt;/button&gt;&lt;br&gt;\n\
     &lt;div class="testReportDiv" style="display: none;"&gt;&lt;/div&gt;\n\
-    &lt;button class="onclick" id="nedbResetButton1"&gt;reset nedb-database&lt;/button&gt;&lt;br&gt;\n\
-    &lt;button class="onclick" id="nedbExportButton1"&gt;save nedb-database to file&lt;/button&gt;&lt;br&gt;\n\
-    &lt;a download="nedb.persistence.json" href="" id="nedbExportA1"&gt;&lt;/a&gt;\n\
-    &lt;button class="onclick" id="nedbImportButton1"&gt;load nedb-database from file&lt;/button&gt;&lt;br&gt;\n\
-    &lt;input class="onchange zeroPixel" type="file" id="nedbImportInput1"&gt;\n\
+    &lt;button class="onclick" id="dbResetButton1"&gt;reset db-database&lt;/button&gt;&lt;br&gt;\n\
+    &lt;button class="onclick" id="dbExportButton1"&gt;save db-database to file&lt;/button&gt;&lt;br&gt;\n\
+    &lt;a download="db.persistence.json" href="" id="dbExportA1"&gt;&lt;/a&gt;\n\
+    &lt;button class="onclick" id="dbImportButton1"&gt;load db-database from file&lt;/button&gt;&lt;br&gt;\n\
+    &lt;input class="onchange zeroPixel" type="file" id="dbImportInput1"&gt;\n\
 \n\
     &lt;div class="swggUiContainer"&gt;\n\
     &lt;form class="header tr"&gt;\n\
@@ -2537,7 +2537,7 @@ body &gt; button {\n\
 </table></pre>
 </div>
 <div class="footer">
-    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Oct 13 2016 15:19:56 GMT+0000 (UTC)</div>
+    <div class="meta">Generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Oct 13 2016 15:58:32 GMT+0000 (UTC)</div>
 </div>
 </body>
 </html>

@@ -41,8 +41,8 @@
         local.utility2 = local.modeJs === 'browser'
             ? local.global.utility2
             : module.utility2 || require('utility2');
-        // init lib nedb
-        local.nedb = local.utility2.nedb;
+        // init lib db
+        local.db = local.utility2.db;
         // init lib swgg
         local.swgg = local.utility2.local.swgg = {
             idDomElementDict: {},
@@ -1269,7 +1269,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
         local.swgg.middlewareCrudBuiltin = function (request, response, nextMiddleware) {
         /*
          * this function will run the middleware that will
-         * run the builtin crud-operations backed by nedb
+         * run the builtin crud-operations backed by db-lite
          */
             var crud, onParallel, options, tmp, user;
             options = {};
@@ -1382,7 +1382,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         }, options.onNext);
                         break;
                     case 'fileGetOneByKeyUnique':
-                        local.swgg.dbTableFile = local.nedb.dbTableCreate({
+                        local.swgg.dbTableFile = local.db.dbTableCreate({
                             name: 'File'
                         });
                         crud.dbTable.crudFindOne({
@@ -1390,7 +1390,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         },  options.onNext);
                         break;
                     case 'fileUploadManyByForm':
-                        local.swgg.dbTableFile = local.nedb.dbTableCreate({
+                        local.swgg.dbTableFile = local.db.dbTableCreate({
                             name: 'File'
                         });
                         request.swgg.paramDict = {};
@@ -1611,7 +1611,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     user = request.swgg.user = {};
                     user.jwtEncoded = request.headers.authorization &&
                         request.headers.authorization.replace('Bearer ', '');
-                    local.swgg.dbTableUser = local.nedb.dbTableCreate({
+                    local.swgg.dbTableUser = local.db.dbTableCreate({
                         name: 'User'
                     });
                     // decode and decrypt jwtEncoded
@@ -1781,7 +1781,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     // init crud.dbTable
                     crud.dbTable = request.swgg.pathObject &&
                         request.swgg.pathObject._schemaName &&
-                        local.nedb.dbTableCreate({
+                        local.db.dbTableCreate({
                             name: request.swgg.pathObject._schemaName
                         });
                     if (!crud.dbTable) {

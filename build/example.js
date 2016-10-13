@@ -87,7 +87,7 @@
 /*
 example.js
 
-this script will run a standalone swagger-ui server backed by nedb
+this script will run a standalone swagger-ui server backed by db-lite
 
 instruction
     1. save this script as example.js
@@ -238,30 +238,30 @@ instruction
         local.testRun = function (event) {
             var reader, tmp;
             switch (event && event.currentTarget.id) {
-            case 'nedbExportButton1':
-                tmp = window.URL.createObjectURL(new window.Blob([local.nedb.dbExport()]));
-                document.querySelector('#nedbExportA1').href = tmp;
-                document.querySelector('#nedbExportA1').click();
+            case 'dbExportButton1':
+                tmp = window.URL.createObjectURL(new window.Blob([local.db.dbExport()]));
+                document.querySelector('#dbExportA1').href = tmp;
+                document.querySelector('#dbExportA1').click();
                 setTimeout(function () {
                     window.URL.revokeObjectURL(tmp);
                 }, 30000);
                 break;
-            case 'nedbImportButton1':
-                document.querySelector('#nedbImportInput1').click();
+            case 'dbImportButton1':
+                document.querySelector('#dbImportInput1').click();
                 break;
-            case 'nedbImportInput1':
+            case 'dbImportInput1':
                 local.utility2.ajaxProgressShow();
                 reader = new window.FileReader();
-                tmp = document.querySelector('#nedbImportInput1').files[0];
+                tmp = document.querySelector('#dbImportInput1').files[0];
                 if (!tmp) {
                     return;
                 }
                 reader.addEventListener('load', function () {
-                    local.nedb.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
+                    local.db.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
                 });
                 reader.readAsText(tmp);
                 break;
-            case 'nedbResetButton1':
+            case 'dbResetButton1':
                 local.utility2.dbReset();
                 break;
             case 'testRunButton1':
@@ -306,7 +306,7 @@ instruction
         }, local.utility2.nop);
         /* jslint-ignore-begin */
         // https://github.com/swagger-api/swagger-ui/blob/v2.1.3/dist/index.html
-        local.templateIndexHtml = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>\n{{envDict.npm_package_name}} v{{envDict.npm_package_version}}\n</title>\n<link href="assets.swgg.css" rel="stylesheet">\n<link href="assets.utility2.css" rel="stylesheet">\n<style>\n/*csslint\n    box-sizing: false,\n    universal-selector: false\n*/\n* {\n    box-sizing: border-box;\n}\nbody {\n    background-color: #fff;\n    font-family: Arial, Helvetica, sans-serif;\n}\nbody > * {\n    margin-bottom: 1rem;\n}\nbody > button {\n    width: 15rem;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n    <div class="ajaxProgressDiv" style="display: block;">\n        <div class="ajaxProgressBarDiv ajaxProgressBarDivLoading">loading</div>\n    </div>\n    <h1>\n        <a\n            {{#if envDict.npm_package_homepage}}\n            href="{{envDict.npm_package_homepage}}"\n            {{/if envDict.npm_package_homepage}}\n            target="_blank"\n        >{{envDict.npm_package_name}} v{{envDict.npm_package_version}}</a>\n    </h1>\n    <h3>{{envDict.npm_package_description}}</h3>\n    <h4><a download href="assets.app.js">download standalone app</a></h4>\n    <button class="onclick" id="testRunButton1">run internal test</button><br>\n    <div class="testReportDiv" style="display: none;"></div>\n    <button class="onclick" id="nedbResetButton1">reset nedb-database</button><br>\n    <button class="onclick" id="nedbExportButton1">save nedb-database to file</button><br>\n    <a download="nedb.persistence.json" href="" id="nedbExportA1"></a>\n    <button class="onclick" id="nedbImportButton1">load nedb-database from file</button><br>\n    <input class="onchange zeroPixel" type="file" id="nedbImportInput1">\n\n    <div class="swggUiContainer">\n    <form class="header tr">\n        <a class="td1" href="http://swagger.io" target="_blank">swagger</a>\n        <input\n            class="flex1 td2"\n            placeholder="http://petstore.swagger.io/v2/swagger.json"\n            type="text"\n            value="api/v0/swagger.json"\n        >\n    </form>\n    <div class="reset"></div>\n    </div>\n    {{#if isRollup}}\n    <script src="assets.app.min.js"></script>\n    {{#unless isRollup}}\n    <script src="assets.utility2.rollup.js"></script>\n    <script src="assets.swgg.js"></script>\n    <script src="assets.swgg.lib.swagger-ui.js"></script>\n    <script src="jsonp.swgg.stateInit?callback=window.swgg.stateInit"></script>\n    <script>window.utility2.onResetBefore.counter += 1;</script>\n    <script src="assets.example.js"></script>\n    <script src="assets.test.js"></script>\n    <script>window.utility2.onResetBefore();</script>\n    {{/if isRollup}}\n</body>\n</html>\n';
+        local.templateIndexHtml = '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>\n{{envDict.npm_package_name}} v{{envDict.npm_package_version}}\n</title>\n<link href="assets.swgg.css" rel="stylesheet">\n<link href="assets.utility2.css" rel="stylesheet">\n<style>\n/*csslint\n    box-sizing: false,\n    universal-selector: false\n*/\n* {\n    box-sizing: border-box;\n}\nbody {\n    background-color: #fff;\n    font-family: Arial, Helvetica, sans-serif;\n}\nbody > * {\n    margin-bottom: 1rem;\n}\nbody > button {\n    width: 15rem;\n}\n.zeroPixel {\n    border: 0;\n    height: 0;\n    margin: 0;\n    padding: 0;\n    width: 0;\n}\n</style>\n</head>\n<body>\n    <div class="ajaxProgressDiv" style="display: block;">\n        <div class="ajaxProgressBarDiv ajaxProgressBarDivLoading">loading</div>\n    </div>\n    <h1>\n        <a\n            {{#if envDict.npm_package_homepage}}\n            href="{{envDict.npm_package_homepage}}"\n            {{/if envDict.npm_package_homepage}}\n            target="_blank"\n        >{{envDict.npm_package_name}} v{{envDict.npm_package_version}}</a>\n    </h1>\n    <h3>{{envDict.npm_package_description}}</h3>\n    <h4><a download href="assets.app.js">download standalone app</a></h4>\n    <button class="onclick" id="testRunButton1">run internal test</button><br>\n    <div class="testReportDiv" style="display: none;"></div>\n    <button class="onclick" id="dbResetButton1">reset db-database</button><br>\n    <button class="onclick" id="dbExportButton1">save db-database to file</button><br>\n    <a download="db.persistence.json" href="" id="dbExportA1"></a>\n    <button class="onclick" id="dbImportButton1">load db-database from file</button><br>\n    <input class="onchange zeroPixel" type="file" id="dbImportInput1">\n\n    <div class="swggUiContainer">\n    <form class="header tr">\n        <a class="td1" href="http://swagger.io" target="_blank">swagger</a>\n        <input\n            class="flex1 td2"\n            placeholder="http://petstore.swagger.io/v2/swagger.json"\n            type="text"\n            value="api/v0/swagger.json"\n        >\n    </form>\n    <div class="reset"></div>\n    </div>\n    {{#if isRollup}}\n    <script src="assets.app.min.js"></script>\n    {{#unless isRollup}}\n    <script src="assets.utility2.rollup.js"></script>\n    <script src="assets.swgg.js"></script>\n    <script src="assets.swgg.lib.swagger-ui.js"></script>\n    <script src="jsonp.swgg.stateInit?callback=window.swgg.stateInit"></script>\n    <script>window.utility2.onResetBefore.counter += 1;</script>\n    <script src="assets.example.js"></script>\n    <script src="assets.test.js"></script>\n    <script>window.utility2.onResetBefore();</script>\n    {{/if isRollup}}\n</body>\n</html>\n';
 
 
 
