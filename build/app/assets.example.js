@@ -87,7 +87,7 @@
 /*
 example.js
 
-this script will run a standalone swagger-ui server backed by nedb
+this script will run a standalone swagger-ui server backed by db-lite
 
 instruction
     1. save this script as example.js
@@ -238,30 +238,30 @@ instruction
         local.testRun = function (event) {
             var reader, tmp;
             switch (event && event.currentTarget.id) {
-            case 'nedbExportButton1':
-                tmp = window.URL.createObjectURL(new window.Blob([local.nedb.dbExport()]));
-                document.querySelector('#nedbExportA1').href = tmp;
-                document.querySelector('#nedbExportA1').click();
+            case 'dbExportButton1':
+                tmp = window.URL.createObjectURL(new window.Blob([local.db.dbExport()]));
+                document.querySelector('#dbExportA1').href = tmp;
+                document.querySelector('#dbExportA1').click();
                 setTimeout(function () {
                     window.URL.revokeObjectURL(tmp);
                 }, 30000);
                 break;
-            case 'nedbImportButton1':
-                document.querySelector('#nedbImportInput1').click();
+            case 'dbImportButton1':
+                document.querySelector('#dbImportInput1').click();
                 break;
-            case 'nedbImportInput1':
+            case 'dbImportInput1':
                 local.utility2.ajaxProgressShow();
                 reader = new window.FileReader();
-                tmp = document.querySelector('#nedbImportInput1').files[0];
+                tmp = document.querySelector('#dbImportInput1').files[0];
                 if (!tmp) {
                     return;
                 }
                 reader.addEventListener('load', function () {
-                    local.nedb.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
+                    local.db.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
                 });
                 reader.readAsText(tmp);
                 break;
-            case 'nedbResetButton1':
+            case 'dbResetButton1':
                 local.utility2.dbReset();
                 break;
             case 'testRunButton1':
@@ -360,11 +360,11 @@ body > button {\n\
     <h4><a download href="assets.app.js">download standalone app</a></h4>\n\
     <button class="onclick" id="testRunButton1">run internal test</button><br>\n\
     <div class="testReportDiv" style="display: none;"></div>\n\
-    <button class="onclick" id="nedbResetButton1">reset nedb-database</button><br>\n\
-    <button class="onclick" id="nedbExportButton1">save nedb-database to file</button><br>\n\
-    <a download="nedb.persistence.json" href="" id="nedbExportA1"></a>\n\
-    <button class="onclick" id="nedbImportButton1">load nedb-database from file</button><br>\n\
-    <input class="onchange zeroPixel" type="file" id="nedbImportInput1">\n\
+    <button class="onclick" id="dbResetButton1">reset db-database</button><br>\n\
+    <button class="onclick" id="dbExportButton1">save db-database to file</button><br>\n\
+    <a download="db.persistence.json" href="" id="dbExportA1"></a>\n\
+    <button class="onclick" id="dbImportButton1">load db-database from file</button><br>\n\
+    <input class="onchange zeroPixel" type="file" id="dbImportInput1">\n\
 \n\
     <div class="swggUiContainer">\n\
     <form class="header tr">\n\

@@ -2217,29 +2217,29 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
 
 
-// /assets.utility2.lib.nedb.js
+// /assets.utility2.lib.db.js
 /*
- * assets.nedb-lite.js
+ * assets.db-lite.js
  *
- * this package will run a standalone, browser-compatible version of the nedb v1.8.0 database
+ * this package will run a standalone, browser-compatible version of the db v1.8.0 database
  * with zero npm-dependencies
  *
  * browser example:
- *     <script src="assets.nedb-lite.js"></script>
+ *     <script src="assets.db-lite.js"></script>
  *     <script>
- *     var table1 = window.nedb_lite.dbTableCreate({ name: "table1" });
+ *     var table1 = window.db_lite.dbTableCreate({ name: "table1" });
  *     table1.crudInsertMany([{ field1: 'hello', field2: 'world'}], console.log.bind(console));
  *     </script>
  *
  * node example:
- *     var nedb = require('./assets.nedb-lite.js');
- *     var table1 = window.nedb_lite.dbTableCreate({ name: "table1" });
+ *     var db = require('./assets.db-lite.js');
+ *     var table1 = window.db_lite.dbTableCreate({ name: "table1" });
  *     table1.crudInsertMany([{ field1: 'hello', field2: 'world'}], console.log.bind(console));
  */
 
 
 
-/* !istanbul instrument in package nedb-lite */
+/* !istanbul instrument in package db-lite */
 /*jslint
     bitwise: true,
     browser: true,
@@ -2278,15 +2278,15 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         local.global = local.modeJs === 'browser'
             ? window
             : global;
-        local.nedb = {};
-        local.nedb.local = local;
+        local.db = {};
+        local.db.local = local;
     }());
 
 
 
     // run shared js-env code - function
     (function () {
-        local.nedb.assert = function (passed, message) {
+        local.db.assert = function (passed, message) {
         /*
          * this function will throw the error message if passed is falsey
          */
@@ -2305,31 +2305,31 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             throw error;
         };
 
-        local.nedb.dbExport = function () {
+        local.db.dbExport = function () {
         /*
          * this function will export the database as a serialized dbTableList
          */
             var data;
             data = '';
-            Object.keys(local.nedb.dbTableDict).map(function (key) {
-                data += local.nedb.dbTableDict[key].dbTableExport() + '\n\n';
+            Object.keys(local.db.dbTableDict).map(function (key) {
+                data += local.db.dbTableDict[key].dbTableExport() + '\n\n';
             });
             return data.slice(0, -2);
         };
 
-        local.nedb.dbImport = function (dbTableList, onError) {
+        local.db.dbImport = function (dbTableList, onError) {
         /*
          * this function will import the serialized dbTableList
          */
             dbTableList.trim().split('\n\n').forEach(function (dbTable) {
-                local.nedb.dbTableCreate({
+                local.db.dbTableCreate({
                     persistenceData: dbTable,
                     name: JSON.parse((/.*/).exec(dbTable)[0])
                 }, onError);
             });
         };
 
-        local.nedb.dbIndexCreate = function (dbTable, options, onError) {
+        local.db.dbIndexCreate = function (dbTable, options, onError) {
         /*
          * this function will create an index for the given dbTable
          */
@@ -2346,9 +2346,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
             var self;
             // require options.fieldName
-            local.nedb.assert(options.fieldName, options.fieldName);
-            self = local.nedb.dbTableDict[dbTable.name];
-            self.indexes[options.fieldName] = new local.nedb._DbIndex(options);
+            local.db.assert(options.fieldName, options.fieldName);
+            self = local.db.dbTableDict[dbTable.name];
+            self.indexes[options.fieldName] = new local.db._DbIndex(options);
             // With this implementation index creation is not necessary to ensure TTL
             // but we stick with MongoDB's API here
             if (options.expireAfterSeconds !== undefined) {
@@ -2361,36 +2361,36 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             onError();
         };
 
-        local.nedb.dbIndexRemove = function (dbTable, options, onError) {
+        local.db.dbIndexRemove = function (dbTable, options, onError) {
         /*
          * this function will remove the dbIndex from dbTable with the given options
          */
             var self;
-            self = local.nedb.dbTableDict[dbTable.name];
+            self = local.db.dbTableDict[dbTable.name];
             delete self.indexes[options.fieldName];
             self.dbTableSave();
             onError();
         };
 
-        local.nedb.dbReset = function (onError) {
+        local.db.dbReset = function (onError) {
         /*
-         * this function will reset nedb's persistence
+         * this function will reset db's persistence
          */
             var onParallel, options;
             options = {};
-            local.nedb.onNext(options, function (error) {
+            local.db.onNext(options, function (error) {
                 switch (options.modeNext) {
                 case 1:
-                    onParallel = local.nedb.onParallel(onError);
+                    onParallel = local.db.onParallel(onError);
                     onParallel.counter = 0;
                     onParallel.counter += 1;
-                    Object.keys(local.nedb.dbTableDict).forEach(function (key) {
+                    Object.keys(local.db.dbTableDict).forEach(function (key) {
                         // drop dbTable
                         onParallel.counter += 1;
-                        local.nedb.dbTableDict[key].dbTableDrop(onParallel);
+                        local.db.dbTableDict[key].dbTableDrop(onParallel);
                     });
                     onParallel.counter += 1;
-                    local.nedb.dbStorageClear(onParallel);
+                    local.db.dbStorageClear(onParallel);
                     onParallel();
                     break;
                 default:
@@ -2401,21 +2401,21 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             options.onNext();
         };
 
-        local.nedb.dbStorageClear = function (onError) {
+        local.db.dbStorageClear = function (onError) {
         /*
          * this function will clear dbStorage
          */
-            local.nedb.dbStorageDefer({ action: 'clear' }, onError);
+            local.db.dbStorageDefer({ action: 'clear' }, onError);
         };
 
-        local.nedb.dbStorageDefer = function (options, onError) {
+        local.db.dbStorageDefer = function (options, onError) {
         /*
          * this function will defer options.action until dbStorage is ready
          */
             var data, done, objectStore, onError2, request, tmp;
-            if (!local.nedb.dbStorage) {
-                local.nedb.dbStorageDeferList.push(function () {
-                    local.nedb.dbStorageDefer(options, onError);
+            if (!local.db.dbStorage) {
+                local.db.dbStorageDeferList.push(function () {
+                    local.db.dbStorageDefer(options, onError);
                 });
                 return;
             }
@@ -2435,14 +2435,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 case 'clear':
                 case 'removeItem':
                 case 'setItem':
-                    objectStore = local.nedb.dbStorage
-                        .transaction('nedb', 'readwrite')
-                        .objectStore('nedb');
+                    objectStore = local.db.dbStorage
+                        .transaction('db', 'readwrite')
+                        .objectStore('db');
                     break;
                 default:
-                    objectStore = local.nedb.dbStorage
-                        .transaction('nedb', 'readonly')
-                        .objectStore('nedb');
+                    objectStore = local.db.dbStorage
+                        .transaction('db', 'readonly')
+                        .objectStore('db');
                 }
                 switch (options.action) {
                 case 'clear':
@@ -2477,43 +2477,43 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     request[handler] = request[handler] || onError2;
                 });
                 // debug request
-                local.nedb._debugDbStorageRequest = request;
+                local.db._debugDbStorageRequest = request;
                 break;
             case 'node':
                 switch (options.action) {
                 case 'clear':
-                    local.child_process.spawn('sh', ['-c', 'rm ' + local.nedb.dbStorage + '/*'], {
+                    local.child_process.spawn('sh', ['-c', 'rm ' + local.db.dbStorage + '/*'], {
                         stdio: ['ignore', 1, 2]
                     }).once('exit', function () {
                         onError();
                     });
                     break;
                 case 'getItem':
-                    local.nedb.assert(typeof options.key === 'string', options.key);
+                    local.db.assert(typeof options.key === 'string', options.key);
                     local.fs.readFile(
-                        local.nedb.dbStorage + '/' + encodeURIComponent(options.key),
+                        local.db.dbStorage + '/' + encodeURIComponent(options.key),
                         'utf8',
                         function (error, data) {
                             // jslint-hack
-                            local.nedb.nop(error);
+                            local.db.nop(error);
                             onError(null, data || '');
                         }
                     );
                     break;
                 case 'keys':
-                    local.fs.readdir(local.nedb.dbStorage, function (error, data) {
+                    local.fs.readdir(local.db.dbStorage, function (error, data) {
                         onError(error, data && data.map(decodeURIComponent));
                     });
                     break;
                 case 'length':
-                    local.fs.readdir(local.nedb.dbStorage, function (error, data) {
+                    local.fs.readdir(local.db.dbStorage, function (error, data) {
                         onError(error, data && data.length);
                     });
                     break;
                 case 'removeItem':
-                    local.nedb.assert(typeof options.key === 'string', options.key);
+                    local.db.assert(typeof options.key === 'string', options.key);
                     local.fs.unlink(
-                        local.nedb.dbStorage + '/' + encodeURIComponent(options.key),
+                        local.db.dbStorage + '/' + encodeURIComponent(options.key),
                         // ignore error
                         function () {
                             onError();
@@ -2521,17 +2521,17 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     );
                     break;
                 case 'setItem':
-                    local.nedb.assert(typeof options.key === 'string', options.key);
-                    local.nedb.assert(typeof options.value === 'string', options.value);
+                    local.db.assert(typeof options.key === 'string', options.key);
+                    local.db.assert(typeof options.value === 'string', options.value);
                     tmp = local.os.tmpdir() + '/' + Date.now() + Math.random();
                     // save to tmp
                     local.fs.writeFile(tmp, options.value, function (error) {
                         // jslint-hack
-                        local.nedb.nop(error);
+                        local.db.nop(error);
                         // rename tmp to key
                         local.fs.rename(
                             tmp,
-                            local.nedb.dbStorage + '/' + encodeURIComponent(options.key),
+                            local.db.dbStorage + '/' + encodeURIComponent(options.key),
                             onError
                         );
                     });
@@ -2541,31 +2541,31 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
 
-        local.nedb.dbStorageDeferList = [];
+        local.db.dbStorageDeferList = [];
 
-        local.nedb.dbStorageGetItem = function (key, onError) {
+        local.db.dbStorageGetItem = function (key, onError) {
         /*
          * this function will get the item with the given key from dbStorage
          */
-            local.nedb.assert(typeof key === 'string');
-            local.nedb.dbStorageDefer({ action: 'getItem', key: key }, onError);
+            local.db.assert(typeof key === 'string');
+            local.db.dbStorageDefer({ action: 'getItem', key: key }, onError);
         };
 
-        local.nedb.dbStorageInit = function () {
+        local.db.dbStorageInit = function () {
         /*
          * this function will init dbStorage
          */
             var options, request;
             options = {};
-            local.nedb.onNext(options, function (error) {
+            local.db.onNext(options, function (error) {
                 // validate no error occurred
-                local.nedb.assert(!error, error);
+                local.db.assert(!error, error);
                 if (local.modeJs === 'browser') {
-                    local.nedb.dbStorage = local.global.nedb_storage;
+                    local.db.dbStorage = local.global.db_storage;
                 }
                 switch (options.modeNext) {
                 case 1:
-                    if (local.nedb.dbStorage) {
+                    if (local.db.dbStorage) {
                         options.onNext();
                         return;
                     }
@@ -2573,15 +2573,15 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     case 'browser':
                         // init indexedDB
                         try {
-                            request = local.global.indexedDB.open('nedb');
+                            request = local.global.indexedDB.open('db');
                             request.onerror = options.onNext;
                             request.onsuccess = function () {
-                                local.global.nedb_storage = request.result;
+                                local.global.db_storage = request.result;
                                 options.onNext();
                             };
                             request.onupgradeneeded = function () {
-                                if (!request.result.objectStoreNames.contains('nedb')) {
-                                    request.result.createObjectStore('nedb');
+                                if (!request.result.objectStoreNames.contains('db')) {
+                                    request.result.createObjectStore('db');
                                 }
                             };
                         } catch (ignore) {
@@ -2589,8 +2589,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         break;
                     case 'node':
                         // mkdirp dbStorage
-                        local.nedb.dbStorage = 'tmp/nedb.persistence.' + local.nedb.NODE_ENV;
-                        local.child_process.spawnSync('mkdir', ['-p', local.nedb.dbStorage], {
+                        local.db.dbStorage = 'tmp/db.persistence.' + local.db.NODE_ENV;
+                        local.child_process.spawnSync('mkdir', ['-p', local.db.dbStorage], {
                             stdio: ['ignore', 1, 2]
                         });
                         options.onNext();
@@ -2599,8 +2599,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     break;
                 // run deferred actions
                 case 2:
-                    while (local.nedb.dbStorageDeferList.length) {
-                        local.nedb.dbStorageDeferList.shift()();
+                    while (local.db.dbStorageDeferList.length) {
+                        local.db.dbStorageDeferList.shift()();
                     }
                     break;
                 }
@@ -2609,55 +2609,55 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             options.onNext();
         };
 
-        local.nedb.dbStorageKeys = function (onError) {
+        local.db.dbStorageKeys = function (onError) {
         /*
          * this function will get all the keys in dbStorage
          */
-            local.nedb.dbStorageDefer({ action: 'keys' }, onError);
+            local.db.dbStorageDefer({ action: 'keys' }, onError);
         };
 
-        local.nedb.dbStorageLength = function (onError) {
+        local.db.dbStorageLength = function (onError) {
         /*
          * this function will get the number of items in dbStorage
          */
-            local.nedb.dbStorageDefer({ action: 'length' }, onError);
+            local.db.dbStorageDefer({ action: 'length' }, onError);
         };
 
-        local.nedb.dbStorageRemoveItem = function (key, onError) {
+        local.db.dbStorageRemoveItem = function (key, onError) {
         /*
          * this function will remove the item with the given key from dbStorage
          */
-            local.nedb.assert(typeof key === 'string');
-            local.nedb.dbStorageDefer({ action: 'removeItem', key: key }, onError);
+            local.db.assert(typeof key === 'string');
+            local.db.dbStorageDefer({ action: 'removeItem', key: key }, onError);
         };
 
-        local.nedb.dbStorageSetItem = function (key, value, onError) {
+        local.db.dbStorageSetItem = function (key, value, onError) {
         /*
          * this function will set the item with the given key and value to dbStorage
          */
-            local.nedb.assert(typeof key === 'string');
-            local.nedb.assert(typeof value === 'string');
-            local.nedb.dbStorageDefer({ action: 'setItem', key: key, value: value }, onError);
+            local.db.assert(typeof key === 'string');
+            local.db.assert(typeof value === 'string');
+            local.db.dbStorageDefer({ action: 'setItem', key: key, value: value }, onError);
         };
 
-        local.nedb.dbTableCreate = function (options, onError) {
+        local.db.dbTableCreate = function (options, onError) {
         /*
          * this function will create a dbTable with the given options.name
          */
             var self;
-            options = local.nedb.objectSetDefault({}, options);
-            local.nedb.onNext(options, function (error, data) {
+            options = local.db.objectSetDefault({}, options);
+            local.db.onNext(options, function (error, data) {
                 switch (options.modeNext) {
                 case 1:
-                    self = local.nedb.dbTableDict[options.name] =
-                        local.nedb.dbTableDict[options.name] || new local.nedb._DbTable();
+                    self = local.db.dbTableDict[options.name] =
+                        local.db.dbTableDict[options.name] || new local.db._DbTable();
                     if (self.initialized) {
                         options.onNext();
                         return;
                     }
                     self.initialized = 1;
                     // validate name
-                    local.nedb.assert(
+                    local.db.assert(
                         options && options.name && typeof options.name === 'string',
                         options && options.name
                     );
@@ -2666,9 +2666,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     // _id is always indexed and since _ids are generated randomly
                     // the underlying binary is always well-balanced
                     self.indexes = {
-                        _id: new local.nedb._DbIndex({ fieldName: '_id', unique: true }),
-                        createdAt: new local.nedb._DbIndex({ fieldName: 'createdAt' }),
-                        updatedAt: new local.nedb._DbIndex({ fieldName: 'updatedAt' })
+                        _id: new local.db._DbIndex({ fieldName: '_id', unique: true }),
+                        createdAt: new local.db._DbIndex({ fieldName: 'createdAt' }),
+                        updatedAt: new local.db._DbIndex({ fieldName: 'updatedAt' })
                     };
                     self.ttlIndexes = {};
                     options.onNext();
@@ -2691,11 +2691,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     }
                     data += '\n';
                     data = data.slice(data.indexOf('\n') + 1);
-                    local.nedb.dbStorageSetItem(self.name, data, options.onNext);
+                    local.db.dbStorageSetItem(self.name, data, options.onNext);
                     break;
                 // load persistence
                 case 3:
-                    local.nedb.dbStorageGetItem(self.name, options.onNext);
+                    local.db.dbStorageGetItem(self.name, options.onNext);
                     break;
                 case 4:
                     // Load the database
@@ -2737,7 +2737,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     });
                     // Fill cached database (i.e. all indexes) with data
                     Object.keys(self.indexes).forEach(function (key) {
-                        self.indexes[key] = new local.nedb._DbIndex(self.indexes[key]);
+                        self.indexes[key] = new local.db._DbIndex(self.indexes[key]);
                         self.indexes[key].reset(options.tdata);
                     });
                     self.dbTableSave();
@@ -2745,7 +2745,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     break;
                 default:
                     // validate no error occurred
-                    local.nedb.assert(!error, error);
+                    local.db.assert(!error, error);
                     if (onError) {
                         onError(error, self);
                     }
@@ -2756,9 +2756,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return self;
         };
 
-        local.nedb.dbTableDict = {};
+        local.db.dbTableDict = {};
 
-        local.nedb.jsonCopy = function (arg) {
+        local.db.jsonCopy = function (arg) {
         /*
          * this function will return a deep-copy of the JSON-arg
          */
@@ -2767,7 +2767,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 : JSON.parse(JSON.stringify(arg));
         };
 
-        local.nedb.jsonStringifyOrdered = function (element, replacer, space) {
+        local.db.jsonStringifyOrdered = function (element, replacer, space) {
         /*
          * this function will JSON.stringify the element,
          * with object-keys sorted and circular-references removed
@@ -2819,14 +2819,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 : element, replacer, space);
         };
 
-        local.nedb.nop = function () {
+        local.db.nop = function () {
         /*
          * this function will do nothing
          */
             return;
         };
 
-        local.nedb.objectSetDefault = function (arg, defaults, depth) {
+        local.db.objectSetDefault = function (arg, defaults, depth) {
         /*
          * this function will recursively set defaults for undefined-items in the arg
          */
@@ -2855,13 +2855,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         defaults2 &&
                         typeof defaults2 === 'object' &&
                         !Array.isArray(defaults2)) {
-                    local.nedb.objectSetDefault(arg2, defaults2, depth - 1);
+                    local.db.objectSetDefault(arg2, defaults2, depth - 1);
                 }
             });
             return arg;
         };
 
-        local.nedb.onErrorDefault = function (error) {
+        local.db.onErrorDefault = function (error) {
         /*
          * this function will print error.stack or error.message to stderr
          */
@@ -2872,7 +2872,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
 
-        local.nedb.onNext = function (options, onError) {
+        local.db.onNext = function (options, onError) {
         /*
          * this function will wrap onError inside the recursive function options.onNext,
          * and append the current stack to any error
@@ -2895,14 +2895,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return options;
         };
 
-        local.nedb.onParallel = function (onError, onDebug) {
+        local.db.onParallel = function (onError, onDebug) {
         /*
          * this function will return a function that will
          * 1. run async tasks in parallel
          * 2. if counter === 0 or error occurred, then call onError with error
          */
             var self;
-            onDebug = onDebug || local.nedb.nop;
+            onDebug = onDebug || local.db.nop;
             self = function (error) {
                 onDebug(error, self);
                 // if previously counter === 0 or error occurred, then return
@@ -2928,7 +2928,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return self;
         };
 
-        local.nedb.queryCompare = function (operator, aa, bb) {
+        local.db.queryCompare = function (operator, aa, bb) {
         /*
          * this function will query-compare aa vs bb
          */
@@ -2939,29 +2939,29 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     return (Array.isArray(aa)
                         ? aa
                         : []).some(function (element) {
-                        return local.nedb.queryMatch(element, bb);
+                        return local.db.queryMatch(element, bb);
                     });
                 case '$eq':
-                    return local.nedb.sortCompare(aa, bb) === 0;
+                    return local.db.sortCompare(aa, bb) === 0;
                 case '$exists':
                     return !((!aa) ^ (!bb));
                 case '$gt':
-                    return local.nedb.sortCompare(aa, bb) > 0;
+                    return local.db.sortCompare(aa, bb) > 0;
                 case '$gte':
-                    return local.nedb.sortCompare(aa, bb) >= 0;
+                    return local.db.sortCompare(aa, bb) >= 0;
                 case '$in':
                     return Array.isArray(bb) && bb.some(function (cc) {
-                        return local.nedb.sortCompare(aa, cc) === 0;
+                        return local.db.sortCompare(aa, cc) === 0;
                     });
                 case '$lt':
-                    return local.nedb.sortCompare(aa, bb) < 0;
+                    return local.db.sortCompare(aa, bb) < 0;
                 case '$lte':
-                    return local.nedb.sortCompare(aa, bb) <= 0;
+                    return local.db.sortCompare(aa, bb) <= 0;
                 case '$ne':
-                    return local.nedb.sortCompare(aa, bb) !== 0;
+                    return local.db.sortCompare(aa, bb) !== 0;
                 case '$nin':
                     return Array.isArray(bb) && bb.every(function (cc) {
-                        return local.nedb.sortCompare(aa, cc) !== 0;
+                        return local.db.sortCompare(aa, cc) !== 0;
                     });
                 case '$regex':
                     return bb.test(aa);
@@ -2971,12 +2971,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     return false;
                 }
             } catch (errorCaught) {
-                local.nedb.onErrorDefault(errorCaught);
+                local.db.onErrorDefault(errorCaught);
                 return false;
             }
         };
 
-        local.nedb.sortCompare = function (aa, bb) {
+        local.db.sortCompare = function (aa, bb) {
         /*
          * this function will sort-compare aa vs bb
          */
@@ -3030,10 +3030,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         // legacy
-        local.nedb.isRegExp = function (obj) {
+        local.db.isRegExp = function (obj) {
             return Object.prototype.toString.call(obj) === '[object RegExp]';
         };
-        local.nedb.listUnique = function (list) {
+        local.db.listUnique = function (list) {
         /*
          * this function will remove duplicate elements from the array
          */
@@ -3051,8 +3051,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
 
 
-// init lib nedb
-// https://github.com/louischatriot/nedb/blob/cadf4ef434e517e47c4e9ca1db5b89e892ff5981/browser-version/out/nedb.js
+// init lib db
+// https://github.com/louischatriot/db/blob/cadf4ef434e517e47c4e9ca1db5b89e892ff5981/browser-version/out/db.js
     (function () {
         var modifierFunctions = {},
             lastStepModifierFunctions = {},
@@ -3079,25 +3079,25 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 throw new Error('Field names cannot contain a .');
             }
         }
-        local.nedb.dbRowCheckObject = function (obj) {
+        local.db.dbRowCheckObject = function (obj) {
         /**
          * Check a DB object and throw an error if it's not valid
          * Works by applying the above checkKey function to all fields recursively
          */
             if (Array.isArray(obj)) {
                 obj.forEach(function (o) {
-                    local.nedb.dbRowCheckObject(o);
+                    local.db.dbRowCheckObject(o);
                 });
             }
 
             if (typeof obj === 'object' && obj !== null) {
                 Object.keys(obj).forEach(function (k) {
                     checkKey(k, obj[k]);
-                    local.nedb.dbRowCheckObject(obj[k]);
+                    local.db.dbRowCheckObject(obj[k]);
                 });
             }
         };
-        local.nedb.dbRowDeepCopy = function (obj, strictKeys) {
+        local.db.dbRowDeepCopy = function (obj, strictKeys) {
         /**
          * Deep copy a DB object
          * The optional strictKeys flag (defaulting to false) indicates whether to copy everything or only fields
@@ -3115,7 +3115,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             if (Array.isArray(obj)) {
                 res = [];
                 obj.forEach(function (o) {
-                    res.push(local.nedb.dbRowDeepCopy(o, strictKeys));
+                    res.push(local.db.dbRowDeepCopy(o, strictKeys));
                 });
                 return res;
             }
@@ -3124,7 +3124,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 res = {};
                 Object.keys(obj).forEach(function (k) {
                     if (!strictKeys || (k[0] !== '$' && k.indexOf('.') === -1)) {
-                        res[k] = local.nedb.dbRowDeepCopy(obj[k], strictKeys);
+                        res[k] = local.db.dbRowDeepCopy(obj[k], strictKeys);
                     }
                 });
                 return res;
@@ -3132,7 +3132,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return undefined; // For now everything else is undefined. We should probably throw an error instead
         };
-        local.nedb.dbRowIsPrimitiveType = function (obj) {
+        local.db.dbRowIsPrimitiveType = function (obj) {
         /**
          * Tells if an object is a primitive type or a 'real' object
          * Arrays are considered primitive
@@ -3251,7 +3251,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 });
             } else {
                 obj[field].forEach(function (v) {
-                    if (local.nedb.sortCompare(v, value) === 0) {
+                    if (local.db.sortCompare(v, value) === 0) {
                         addToSet = false;
                     }
                 });
@@ -3292,7 +3292,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             arr = obj[field];
             for (ii = arr.length - 1; ii >= 0; ii -= 1) {
-                if (local.nedb.queryMatch(arr[ii], value)) {
+                if (local.db.queryMatch(arr[ii], value)) {
                     arr.splice(ii, 1);
                 }
             }
@@ -3361,7 +3361,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         Object.keys(lastStepModifierFunctions).forEach(function (modifier) {
             modifierFunctions[modifier] = createModifierFunction(modifier);
         });
-        local.nedb.dbRowModify = function (obj, updateQuery) {
+        local.db.dbRowModify = function (obj, updateQuery) {
         /**
          * Modify a DB object according to an update query
          */
@@ -3384,12 +3384,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             if (dollarFirstChars.length === 0) {
                 // Simply replace the object with the update query contents
-                newDoc = local.nedb.jsonCopy(updateQuery);
+                newDoc = local.db.jsonCopy(updateQuery);
                 newDoc._id = obj._id;
             } else {
                 // Apply modifiers
-                modifiers = local.nedb.listUnique(keys);
-                newDoc = local.nedb.jsonCopy(obj);
+                modifiers = local.db.listUnique(keys);
+                newDoc = local.db.jsonCopy(obj);
                 modifiers.forEach(function (m) {
 
                     if (!modifierFunctions[m]) {
@@ -3409,7 +3409,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             // Check result is valid and return it
-            local.nedb.dbRowCheckObject(newDoc);
+            local.db.dbRowCheckObject(newDoc);
 
             if (obj._id !== newDoc._id) {
                 throw new Error("You can't change a dbRow's _id");
@@ -3420,7 +3420,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         // Finding dbRow's
         // ==============================================================
 
-        local.nedb.queryGetDotValue = function (obj, field) {
+        local.db.queryGetDotValue = function (obj, field) {
         /**
          * Get a value from object with dot notation
          * @param {Object} obj
@@ -3447,17 +3447,17 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 // If the next field is an integer, return only this item of the array
                 ii = parseInt(fieldParts[1], 10);
                 if (typeof ii === 'number' && !isNaN(ii)) {
-                    return local.nedb.queryGetDotValue(obj[fieldParts[0]][ii], fieldParts.slice(2));
+                    return local.db.queryGetDotValue(obj[fieldParts[0]][ii], fieldParts.slice(2));
                 }
 
                 // Return the array of values
                 objs = [];
                 for (ii = 0; ii < obj[fieldParts[0]].length; ii += 1) {
-                    objs.push(local.nedb.queryGetDotValue(obj[fieldParts[0]][ii], fieldParts.slice(1)));
+                    objs.push(local.db.queryGetDotValue(obj[fieldParts[0]][ii], fieldParts.slice(1)));
                 }
                 return objs;
             }
-            return local.nedb.queryGetDotValue(obj[fieldParts[0]], fieldParts.slice(1));
+            return local.db.queryGetDotValue(obj[fieldParts[0]], fieldParts.slice(1));
         };
         function areThingsEqual(aa, bb) {
         /**
@@ -3515,7 +3515,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             for (ii = 0; ii < query.length; ii += 1) {
-                if (local.nedb.queryMatch(obj, query[ii])) {
+                if (local.db.queryMatch(obj, query[ii])) {
                     return true;
                 }
             }
@@ -3535,7 +3535,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             for (ii = 0; ii < query.length; ii += 1) {
-                if (!local.nedb.queryMatch(obj, query[ii])) {
+                if (!local.db.queryMatch(obj, query[ii])) {
                     return false;
                 }
             }
@@ -3548,7 +3548,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * @param {Model} obj
          * @param {Query} query
          */
-            return !local.nedb.queryMatch(obj, query);
+            return !local.db.queryMatch(obj, query);
         };
         logicalOperators.$where = function (obj, fn) {
         /**
@@ -3569,7 +3569,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return result;
         };
-        local.nedb.queryMatch = function (obj, query) {
+        local.db.queryMatch = function (obj, query) {
         /**
          * Tell if a given dbRow matches a query
          * @param {Object} obj dbRow to check
@@ -3582,7 +3582,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
              */
                 var objValue, ii, keys, firstChars, dollarFirstChars, tmp;
 
-                objValue = local.nedb.queryGetDotValue(obj, queryKey);
+                objValue = local.db.queryGetDotValue(obj, queryKey);
 
                 // Check if the value is an array if we don't force a treatment as value
                 if (Array.isArray(objValue) && !treatObjAsValue) {
@@ -3592,7 +3592,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     }
 
                     // Check if we are using an array-specific comparison function
-                    if (queryValue !== null && typeof queryValue === 'object' && !local.nedb.isRegExp(queryValue)) {
+                    if (queryValue !== null && typeof queryValue === 'object' && !local.db.isRegExp(queryValue)) {
                         tmp = Object.keys(queryValue).some(function (key) {
                             switch (key) {
                             case '$elemMatch':
@@ -3618,7 +3618,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                 // queryValue is an actual object. Determine whether it contains comparison operators
                 // or only normal fields. Mixed objects are not allowed
-                if (queryValue !== null && typeof queryValue === 'object' && !local.nedb.isRegExp(queryValue) && !Array.isArray(queryValue)) {
+                if (queryValue !== null && typeof queryValue === 'object' && !local.db.isRegExp(queryValue) && !Array.isArray(queryValue)) {
                     keys = Object.keys(queryValue);
                     firstChars = keys.map(function (item) {
                         return item[0];
@@ -3634,14 +3634,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     // queryValue is an object of this form: { $comparisonOperator1: value1, ... }
                     if (dollarFirstChars.length > 0) {
                         return keys.every(function (key) {
-                            return local.nedb.queryCompare(key, objValue, queryValue[key]);
+                            return local.db.queryCompare(key, objValue, queryValue[key]);
                         });
                     }
                 }
 
                 // Using regular expressions with basic querying
-                if (local.nedb.isRegExp(queryValue)) {
-                    return local.nedb.queryCompare('$regex', objValue, queryValue);
+                if (local.db.isRegExp(queryValue)) {
+                    return local.db.queryCompare('$regex', objValue, queryValue);
                 }
 
                 // queryValue is either a native value or a normal object
@@ -3655,7 +3655,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             // Primitive query against a primitive type
             // This is a bit of a hack since we construct an object with an arbitrary key only to dereference it later
             // But I don't have time for a cleaner implementation now
-            if (local.nedb.dbRowIsPrimitiveType(obj) || local.nedb.dbRowIsPrimitiveType(query)) {
+            if (local.db.dbRowIsPrimitiveType(obj) || local.db.dbRowIsPrimitiveType(query)) {
                 return matchQueryPart({
                     needAKey: obj
                 }, 'needAKey', query);
@@ -3683,7 +3683,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * Copying
          * Querying, update
          */
-        local.nedb.AvlTree = function (options) {
+        local.db.AvlTree = function (options) {
         /**
          * Constructor of the internal AvlTree
          *
@@ -3705,7 +3705,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         // ================================
         // Methods used to test the tree
         // ================================
-        local.nedb.AvlTree.prototype.getMaxKeyDescendant = function () {
+        local.db.AvlTree.prototype.getMaxKeyDescendant = function () {
         /**
          * Get the descendant with max key
          */
@@ -3717,7 +3717,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         // Methods used to actually work on the tree
         // ============================================
 
-        local.nedb.AvlTree.prototype.createSimilar = function (options) {
+        local.db.AvlTree.prototype.createSimilar = function (options) {
         /**
          * Create a BST similar (i.e. same options except for key and value) to the current one
          * Use the same constructor (i.e. AvlTree)
@@ -3728,7 +3728,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return new this.constructor(options);
         };
-        local.nedb.AvlTree.prototype.createLeftChild = function (options) {
+        local.db.AvlTree.prototype.createLeftChild = function (options) {
         /**
          * Create the left child of this BST and return it
          */
@@ -3738,7 +3738,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return leftChild;
         };
-        local.nedb.AvlTree.prototype.createRightChild = function (options) {
+        local.db.AvlTree.prototype.createRightChild = function (options) {
         /**
          * Create the right child of this BST and return it
          */
@@ -3748,7 +3748,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return rightChild;
         };
-        local.nedb.AvlTree.prototype.insert = function (key, value) {
+        local.db.AvlTree.prototype.insert = function (key, value) {
         /**
          * Insert a new element
          */
@@ -3760,7 +3760,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             // Same key as root
-            if (local.nedb.sortCompare(this.key, key) === 0) {
+            if (local.db.sortCompare(this.key, key) === 0) {
                 if (this.unique) {
                     var error = new Error("Can't insert key " + key + ", it violates the unique constraint");
                     error.key = key;
@@ -3770,7 +3770,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 this.data.push(value);
             }
 
-            if (local.nedb.sortCompare(key, this.key) < 0) {
+            if (local.db.sortCompare(key, this.key) < 0) {
                 // Insert in left subtree
                 if (this.left) {
                     this.left.insert(key, value);
@@ -3792,7 +3792,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 }
             }
         };
-        local.nedb.AvlTree.prototype.search = function (key) {
+        local.db.AvlTree.prototype.search = function (key) {
         /**
          * Search for all data corresponding to a key
          */
@@ -3800,11 +3800,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return [];
             }
 
-            if (local.nedb.sortCompare(this.key, key) === 0) {
+            if (local.db.sortCompare(this.key, key) === 0) {
                 return this.data;
             }
 
-            if (local.nedb.sortCompare(key, this.key) < 0) {
+            if (local.db.sortCompare(key, this.key) < 0) {
                 if (this.left) {
                     return this.left.search(key);
                 }
@@ -3815,7 +3815,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
             return [];
         };
-        local.nedb.AvlTree.prototype.getLowerBoundMatcher = function (query) {
+        local.db.AvlTree.prototype.getLowerBoundMatcher = function (query) {
         /**
          * Return a function that tells whether a given key matches a lower bound
          */
@@ -3827,32 +3827,32 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             if (query.hasOwnProperty('$gt') && query.hasOwnProperty('$gte')) {
-                if (local.nedb.sortCompare(query.$gte, query.$gt) === 0) {
+                if (local.db.sortCompare(query.$gte, query.$gt) === 0) {
                     return function (key) {
-                        return local.nedb.sortCompare(key, query.$gt) > 0;
+                        return local.db.sortCompare(key, query.$gt) > 0;
                     };
                 }
 
-                if (local.nedb.sortCompare(query.$gte, query.$gt) > 0) {
+                if (local.db.sortCompare(query.$gte, query.$gt) > 0) {
                     return function (key) {
-                        return local.nedb.sortCompare(key, query.$gte) >= 0;
+                        return local.db.sortCompare(key, query.$gte) >= 0;
                     };
                 }
                 return function (key) {
-                    return local.nedb.sortCompare(key, query.$gt) > 0;
+                    return local.db.sortCompare(key, query.$gt) > 0;
                 };
             }
 
             if (query.hasOwnProperty('$gt')) {
                 return function (key) {
-                    return local.nedb.sortCompare(key, query.$gt) > 0;
+                    return local.db.sortCompare(key, query.$gt) > 0;
                 };
             }
             return function (key) {
-                return local.nedb.sortCompare(key, query.$gte) >= 0;
+                return local.db.sortCompare(key, query.$gte) >= 0;
             };
         };
-        local.nedb.AvlTree.prototype.getUpperBoundMatcher = function (query) {
+        local.db.AvlTree.prototype.getUpperBoundMatcher = function (query) {
         /**
          * Return a function that tells whether a given key matches an upper bound
          */
@@ -3864,29 +3864,29 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             if (query.hasOwnProperty('$lt') && query.hasOwnProperty('$lte')) {
-                if (local.nedb.sortCompare(query.$lte, query.$lt) === 0) {
+                if (local.db.sortCompare(query.$lte, query.$lt) === 0) {
                     return function (key) {
-                        return local.nedb.sortCompare(key, query.$lt) < 0;
+                        return local.db.sortCompare(key, query.$lt) < 0;
                     };
                 }
 
-                if (local.nedb.sortCompare(query.$lte, query.$lt) < 0) {
+                if (local.db.sortCompare(query.$lte, query.$lt) < 0) {
                     return function (key) {
-                        return local.nedb.sortCompare(key, query.$lte) <= 0;
+                        return local.db.sortCompare(key, query.$lte) <= 0;
                     };
                 }
                 return function (key) {
-                    return local.nedb.sortCompare(key, query.$lt) < 0;
+                    return local.db.sortCompare(key, query.$lt) < 0;
                 };
             }
 
             if (query.hasOwnProperty('$lt')) {
                 return function (key) {
-                    return local.nedb.sortCompare(key, query.$lt) < 0;
+                    return local.db.sortCompare(key, query.$lt) < 0;
                 };
             }
             return function (key) {
-                return local.nedb.sortCompare(key, query.$lte) <= 0;
+                return local.db.sortCompare(key, query.$lte) <= 0;
             };
         };
         // Append all elements in toAppend to array
@@ -3897,7 +3897,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 array.push(toAppend[ii]);
             }
         }
-        local.nedb.AvlTree.prototype.betweenBounds = function (query, lbm, ubm) {
+        local.db.AvlTree.prototype.betweenBounds = function (query, lbm, ubm) {
         /**
          * Get all data for a key between bounds
          * Return it in key order
@@ -3925,7 +3925,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return res;
         };
-        local.nedb.AvlTree.prototype.deleteIfLeaf = function () {
+        local.db.AvlTree.prototype.deleteIfLeaf = function () {
         /**
          * Delete the current node if it is a leaf
          * Return true if it was deleted
@@ -3949,7 +3949,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return true;
         };
-        local.nedb.AvlTree.prototype.deleteIfOnlyOneChild = function () {
+        local.db.AvlTree.prototype.deleteIfOnlyOneChild = function () {
         /**
          * Delete the current node if it has only one child
          * Return true if it was deleted
@@ -3996,7 +3996,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return true;
         };
-        local.nedb.AvlTree.prototype.delete = function (key, value) {
+        local.db.AvlTree.prototype.delete = function (key, value) {
         /**
          * Delete a key or just a value
          * @param {Key} key
@@ -4010,21 +4010,21 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return;
             }
 
-            if (local.nedb.sortCompare(key, this.key) < 0) {
+            if (local.db.sortCompare(key, this.key) < 0) {
                 if (this.left) {
                     this.left.delete(key, value);
                 }
                 return;
             }
 
-            if (local.nedb.sortCompare(key, this.key) > 0) {
+            if (local.db.sortCompare(key, this.key) > 0) {
                 if (this.right) {
                     this.right.delete(key, value);
                 }
                 return;
             }
 
-            if (local.nedb.sortCompare(key, this.key) !== 0) {
+            if (local.db.sortCompare(key, this.key) !== 0) {
                 return;
             }
 
@@ -4086,7 +4086,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 }
             }
         };
-        local.nedb.AvlTree.prototype.executeOnEveryNode = function (fn) {
+        local.db.AvlTree.prototype.executeOnEveryNode = function (fn) {
         /**
          * Execute a function on every node of the tree, in key order
          * @param {Function} fn Signature: node. Most useful will probably be node.key and node.data
@@ -4099,7 +4099,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 this.right.executeOnEveryNode(fn);
             }
         };
-        local.nedb.AvlTree.prototype.balanceFactor = function () {
+        local.db.AvlTree.prototype.balanceFactor = function () {
         /**
          * Return the balance factor
          */
@@ -4108,7 +4108,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return leftH - rightH;
         };
 
-        local.nedb.AvlTree.prototype.rightRotation = function () {
+        local.db.AvlTree.prototype.rightRotation = function () {
         /**
          * Perform a right rotation of the tree if possible
          * and return the root of the resulting tree
@@ -4149,7 +4149,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return p;
         };
-        local.nedb.AvlTree.prototype.leftRotation = function () {
+        local.db.AvlTree.prototype.leftRotation = function () {
         /**
          * Perform a left rotation of the tree if possible
          * and return the root of the resulting tree
@@ -4190,7 +4190,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return q;
         };
-        local.nedb.AvlTree.prototype.rightTooSmall = function () {
+        local.db.AvlTree.prototype.rightTooSmall = function () {
         /**
          * Modify the tree if its right subtree is too small compared to the left
          * Return the new root if any
@@ -4205,7 +4205,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return this.rightRotation();
         };
-        local.nedb.AvlTree.prototype.leftTooSmall = function () {
+        local.db.AvlTree.prototype.leftTooSmall = function () {
         /**
          * Modify the tree if its left subtree is too small compared to the right
          * Return the new root if any
@@ -4220,7 +4220,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return this.leftRotation();
         };
-        local.nedb.AvlTree.prototype.rebalanceAlongPath = function (path) {
+        local.db.AvlTree.prototype.rebalanceAlongPath = function (path) {
         /**
          * Rebalance the tree along the given path. The path is given reversed (as he was calculated
          * in the insert and delete functions).
@@ -4255,7 +4255,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return newRoot;
         };
-        local.nedb.AvlTree.prototype.insert = function (key, value) {
+        local.db.AvlTree.prototype.insert = function (key, value) {
         /**
          * Insert a key, value pair in the tree while maintaining the AvlTree height constraint
          * Return a pointer to the root node, which may have changed
@@ -4275,7 +4275,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             // Insert new leaf at the right place
             while (true) {
                 // Same key: no change in the tree structure
-                if (local.nedb.sortCompare(currentNode.key, key) === 0) {
+                if (local.db.sortCompare(currentNode.key, key) === 0) {
                     if (currentNode.unique) {
                         error = new Error("Can't insert key " + key + ", it violates the unique constraint");
                         error.key = key;
@@ -4288,7 +4288,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                 insertPath.push(currentNode);
 
-                if (local.nedb.sortCompare(key, currentNode.key) < 0) {
+                if (local.db.sortCompare(key, currentNode.key) < 0) {
                     if (!currentNode.left) {
                         insertPath.push(currentNode.createLeftChild({
                             key: key,
@@ -4312,7 +4312,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return this.rebalanceAlongPath(insertPath);
         };
 
-        local.nedb.AvlTree.prototype.delete = function (key, value) {
+        local.db.AvlTree.prototype.delete = function (key, value) {
         /**
          * Delete a key or just a value and return the new root of the tree
          * @param {Key} key
@@ -4327,20 +4327,20 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             // Either no match is found and the function will return from within the loop
             // Or a match is found and deletePath will contain the path from the root to the node to delete after the loop
             while (true) {
-                if (local.nedb.sortCompare(key, currentNode.key) === 0) {
+                if (local.db.sortCompare(key, currentNode.key) === 0) {
                     break;
                 }
 
                 deletePath.push(currentNode);
 
-                if (local.nedb.sortCompare(key, currentNode.key) < 0) {
+                if (local.db.sortCompare(key, currentNode.key) < 0) {
                     if (currentNode.left) {
                         currentNode = currentNode.left;
                     } else {
                         return this; // Key not found, no modification
                     }
                 } else {
-                    // local.nedb.sortCompare(key, currentNode.key) is > 0
+                    // local.db.sortCompare(key, currentNode.key) is > 0
                     if (currentNode.right) {
                         currentNode = currentNode.right;
                     } else {
@@ -4454,7 +4454,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return elt; // Arrays and objects, will check for pointer equality
         }
-        local.nedb._DbIndex = function (options) {
+        local.db._DbIndex = function (options) {
         /**
          * Create a new index
          * All methods on an index guarantee that either the whole operation was successful and the index changed
@@ -4471,18 +4471,18 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             this.reset(); // No data in the beginning
         };
-        local.nedb._DbIndex.prototype.reset = function (dbRowList) {
+        local.db._DbIndex.prototype.reset = function (dbRowList) {
         /**
          * Reset an index
          * @param {dbRow or Array of dbRow's} dbRowList Optional, data to initialize the index with
          *                                                 If an error is thrown during insertion, the index is not modified
          */
-            this.tree = new local.nedb.AvlTree({ unique: this.unique });
+            this.tree = new local.db.AvlTree({ unique: this.unique });
             if (dbRowList) {
                 this.insert(dbRowList);
             }
         };
-        local.nedb._DbIndex.prototype.insert = function (dbRow) {
+        local.db._DbIndex.prototype.insert = function (dbRow) {
         /**
          * Insert a new dbRow in the index
          * If an array is passed, we insert all its elements (if one insertion fails the index is not modified)
@@ -4495,7 +4495,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return;
             }
 
-            key = local.nedb.queryGetDotValue(dbRow, self.fieldName);
+            key = local.db.queryGetDotValue(dbRow, self.fieldName);
 
             // We don't index dbRow's that don't contain the field if the index is sparse
             if (key === undefined && self.sparse) {
@@ -4521,7 +4521,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 self.tree = self.tree.insert(key, dbRow);
             } else {
                 // If an insert fails due to a unique constraint, roll back all inserts before it
-                keys = local.nedb.listUnique(key).map(projectForUnique);
+                keys = local.db.listUnique(key).map(projectForUnique);
 
                 for (ii = 0; ii < keys.length; ii += 1) {
                     try {
@@ -4542,7 +4542,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 }
             }
         };
-        local.nedb._DbIndex.prototype.insertMultipleDocs = function (dbRowList) {
+        local.db._DbIndex.prototype.insertMultipleDocs = function (dbRowList) {
         /**
          * Insert an array of dbRow's in the index
          * If a constraint is violated, the changes should be rolled back and an error thrown
@@ -4569,7 +4569,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 throw error;
             }
         };
-        local.nedb._DbIndex.prototype.remove = function (dbRow) {
+        local.db._DbIndex.prototype.remove = function (dbRow) {
         /**
          * Remove a dbRow from the index
          * If an array is passed, we remove all its elements
@@ -4585,7 +4585,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return;
             }
 
-            key = local.nedb.queryGetDotValue(dbRow, self.fieldName);
+            key = local.db.queryGetDotValue(dbRow, self.fieldName);
 
             if (key === undefined && self.sparse) {
                 return;
@@ -4594,12 +4594,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             if (!Array.isArray(key)) {
                 self.tree = self.tree.delete(key, dbRow);
             } else {
-                local.nedb.listUnique(key).map(projectForUnique).forEach(function (_key) {
+                local.db.listUnique(key).map(projectForUnique).forEach(function (_key) {
                     self.tree = self.tree.delete(_key, dbRow);
                 });
             }
         };
-        local.nedb._DbIndex.prototype.updateMultipleDocs = function (pairs) {
+        local.db._DbIndex.prototype.updateMultipleDocs = function (pairs) {
         /**
          * Update multiple dbRow's in the index
          * If a constraint is violated, the changes need to be rolled back
@@ -4637,7 +4637,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 throw error;
             }
         };
-        local.nedb._DbIndex.prototype.getMatching = function (value) {
+        local.db._DbIndex.prototype.getMatching = function (value) {
         /**
          * Get all dbRow's in index whose key match value (if it is a Thing) or one of the elements of value (if it is an array of Things)
          * @param {Thing} value Value to match the key against
@@ -4659,7 +4659,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return res;
         };
-        local.nedb.Cursor = function (db, query, onError) {
+        local.db.Cursor = function (db, query, onError) {
         /**
          * Create a new cursor for this dbTable
          * @param {Datastore} db - The datastore this cursor is bound to
@@ -4672,14 +4672,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 this.onError = onError;
             }
         };
-        local.nedb.Cursor.prototype.limit = function (limit) {
+        local.db.Cursor.prototype.limit = function (limit) {
         /**
          * Set a limit to the number of results
          */
             this._limit = limit;
             return this;
         };
-        local.nedb.Cursor.prototype.project = function (candidates) {
+        local.db.Cursor.prototype.project = function (candidates) {
         /**
          * Apply the projection
          */
@@ -4710,12 +4710,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         $set: {}
                     };
                     keys.forEach(function (k) {
-                        toPush.$set[k] = local.nedb.queryGetDotValue(candidate, k);
+                        toPush.$set[k] = local.db.queryGetDotValue(candidate, k);
                         if (toPush.$set[k] === undefined) {
                             delete toPush.$set[k];
                         }
                     });
-                    toPush = local.nedb.dbRowModify({}, toPush);
+                    toPush = local.db.dbRowModify({}, toPush);
                 } else { // omit-type projection
                     toPush = {
                         $unset: {}
@@ -4723,7 +4723,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     keys.forEach(function (k) {
                         toPush.$unset[k] = true;
                     });
-                    toPush = local.nedb.dbRowModify(candidate, toPush);
+                    toPush = local.db.dbRowModify(candidate, toPush);
                 }
                 if (keepId) {
                     toPush._id = candidate._id;
@@ -4735,7 +4735,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return res;
         };
-        local.nedb.Cursor.prototype._exec = function (_onError) {
+        local.db.Cursor.prototype._exec = function (_onError) {
         /**
          * Get all matching elements
          * Will return pointers to matched elements (shallow copies), returning full copies is the role of find or findOne
@@ -4760,7 +4760,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                 try {
                     candidates.some(function (element) {
-                        if (local.nedb.queryMatch(element, self.query)) {
+                        if (local.db.queryMatch(element, self.query)) {
                             // If a sort is defined, wait for the results to be sorted before applying limit and skip
                             if (!self._sort) {
                                 if (self._skip && self._skip > skipped) {
@@ -4796,9 +4796,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         var criterion, compare, ii;
                         for (ii = 0; ii < criteria.length; ii += 1) {
                             criterion = criteria[ii];
-                            compare = criterion.direction * local.nedb.sortCompare(
-                                local.nedb.queryGetDotValue(aa, criterion.key),
-                                local.nedb.queryGetDotValue(bb, criterion.key)
+                            compare = criterion.direction * local.db.sortCompare(
+                                local.db.queryGetDotValue(aa, criterion.key),
+                                local.db.queryGetDotValue(bb, criterion.key)
                             );
                             if (compare !== 0) {
                                 return compare;
@@ -4825,34 +4825,34 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             });
         };
 
-        local.nedb._DbTable = function () {
+        local.db._DbTable = function () {
         /**
          * this function will create a dbTable
          */
             return;
         };
 
-        local.nedb._DbTable.prototype.crudCountMany = function (options, onError) {
+        local.db._DbTable.prototype.crudCountMany = function (options, onError) {
         /*
          * this function will count the number of dbRow's in dbTable with the given options
          */
             var result, self;
             self = this;
-            options = local.nedb.objectSetDefault({}, options);
-            options = local.nedb.objectSetDefault(options, { query: {} });
-            local.nedb.onNext(options, function (error, data) {
+            options = local.db.objectSetDefault({}, options);
+            options = local.db.objectSetDefault(options, { query: {} });
+            local.db.onNext(options, function (error, data) {
                 data = data || [];
                 switch (options.modeNext) {
                 case 1:
                     result = 0;
-                    local.nedb.dbTableCreate(self, options.onNext);
+                    local.db.dbTableCreate(self, options.onNext);
                     break;
                 case 2:
                     self.dbIndexFindMany(options.query, options.onNext);
                     break;
                 case 3:
                     data.forEach(function (dbRow) {
-                        if (local.nedb.queryMatch(dbRow, options.query)) {
+                        if (local.db.queryMatch(dbRow, options.query)) {
                             result += 1;
                         }
                     });
@@ -4866,7 +4866,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             options.onNext();
         };
 
-        local.nedb._DbTable.prototype.crudGetAllSync = function () {
+        local.db._DbTable.prototype.crudGetAllSync = function () {
         /*
          * this function will get all dbRow's in dbTable
          */
@@ -4880,21 +4880,21 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return result;
         };
 
-        local.nedb._DbTable.prototype.crudFindMany = function (options, onError) {
+        local.db._DbTable.prototype.crudFindMany = function (options, onError) {
         /**
          * this function will find all dbRow's in dbTable with the given options
          */
             var limit, projection, result, self, skip, sort, tmp;
             self = this;
-            options = local.nedb.objectSetDefault({}, options);
-            options = local.nedb.objectSetDefault(options, {
+            options = local.db.objectSetDefault({}, options);
+            options = local.db.objectSetDefault(options, {
                 limit: Infinity,
                 projection: {},
                 query: {},
                 skip: 0,
                 sort: {}
             });
-            local.nedb.onNext(options, function (error, data) {
+            local.db.onNext(options, function (error, data) {
                 data = data || [];
                 switch (options.modeNext) {
                 case 1:
@@ -4913,7 +4913,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         limit = options.limit;
                         skip = options.skip;
                         data.some(function (dbRow) {
-                            if (!local.nedb.queryMatch(dbRow, options.query)) {
+                            if (!local.db.queryMatch(dbRow, options.query)) {
                                 return;
                             }
                             skip -= 1;
@@ -4932,13 +4932,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     // sort
                     result = data;
                     result = result.filter(function (dbRow) {
-                        return local.nedb.queryMatch(dbRow, options.query);
+                        return local.db.queryMatch(dbRow, options.query);
                     });
                     result = result.sort(function (aa, bb) {
                         sort.some(function (element) {
-                            tmp = element.direction * local.nedb.sortCompare(
-                                local.nedb.queryGetDotValue(aa, element.key),
-                                local.nedb.queryGetDotValue(bb, element.key)
+                            tmp = element.direction * local.db.sortCompare(
+                                local.db.queryGetDotValue(aa, element.key),
+                                local.db.queryGetDotValue(bb, element.key)
                             );
                             return tmp;
                         });
@@ -4986,7 +4986,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             options.onNext();
         };
 
-        local.nedb._DbTable.prototype.crudFindOne = function (options, onError) {
+        local.db._DbTable.prototype.crudFindOne = function (options, onError) {
         /**
          * this function will find one dbRow in dbTable with the given options
          */
@@ -4998,15 +4998,15 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             });
         };
 
-        local.nedb._DbTable.prototype.crudRemoveMany = function (options, onError) {
+        local.db._DbTable.prototype.crudRemoveMany = function (options, onError) {
         /*
          * this function will remove many dbRow's in dbTable with the given options
          */
             var removedList, result, self;
             self = this;
-            options = local.nedb.objectSetDefault({}, options);
-            options = local.nedb.objectSetDefault(options, { query: {} });
-            local.nedb.onNext(options, function (error, data) {
+            options = local.db.objectSetDefault({}, options);
+            options = local.db.objectSetDefault(options, { query: {} });
+            local.db.onNext(options, function (error, data) {
                 data = data || [];
                 switch (options.modeNext) {
                 case 1:
@@ -5016,7 +5016,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     break;
                 case 2:
                     data.some(function (dbRow) {
-                        if (local.nedb.queryMatch(dbRow, options.query)) {
+                        if (local.db.queryMatch(dbRow, options.query)) {
                             result += 1;
                             removedList.push({
                                 $$deleted: true,
@@ -5041,16 +5041,16 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             options.onNext();
         };
 
-        local.nedb._DbTable.prototype.crudRemoveOne = function (options, onError) {
+        local.db._DbTable.prototype.crudRemoveOne = function (options, onError) {
         /*
          * this function will remove one dbRow in dbTable with the given options
          */
-            options = local.nedb.objectSetDefault({}, options);
-            options = local.nedb.objectSetDefault(options, { one: true });
+            options = local.db.objectSetDefault({}, options);
+            options = local.db.objectSetDefault(options, { one: true });
             this.crudRemoveMany(options, onError);
         };
 
-        local.nedb._DbTable.prototype.dbTableDrop = function (onError) {
+        local.db._DbTable.prototype.dbTableDrop = function (onError) {
         /*
          * this function will drop dbTable
          */
@@ -5060,10 +5060,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             Object.keys(self.indexes).forEach(function (key) {
                 self.indexes[key].reset();
             });
-            local.nedb.dbStorageRemoveItem(self.name, onError);
+            local.db.dbStorageRemoveItem(self.name, onError);
         };
 
-        local.nedb._DbTable.prototype.dbTableExport = function () {
+        local.db._DbTable.prototype.dbTableExport = function () {
         /*
          * this function will export dbTable
          */
@@ -5088,7 +5088,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return data.slice(0, -1);
         };
 
-        local.nedb._DbTable.prototype.dbTableSave = function () {
+        local.db._DbTable.prototype.dbTableSave = function () {
         /*
          * this function will save dbTable to dbStorage
          */
@@ -5099,16 +5099,16 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
             self.timerDbTableSave = setTimeout(function () {
                 delete self.timerDbTableSave;
-                local.nedb.dbStorageSetItem(
+                local.db.dbStorageSetItem(
                     self.name,
                     self.dbTableExport(),
-                    local.nedb.onErrorDefault
+                    local.db.onErrorDefault
                 );
             }, 2000);
-            local.nedb.dbStorageSetItem(self.name, self.dbTableExport(), local.nedb.onErrorDefault);
+            local.db.dbStorageSetItem(self.name, self.dbTableExport(), local.db.onErrorDefault);
         };
 
-        local.nedb._DbTable.prototype.dbIndexFindMany = function (query, onError) {
+        local.db._DbTable.prototype.dbIndexFindMany = function (query, onError) {
         /**
          * Return the dbRowList for a given query
          * Crude implementation for now, we return the dbRowList given by the first usable index if any
@@ -5126,9 +5126,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 options,
                 usableQueryKeys;
             options = {};
-            local.nedb.onNext(options, function (error, data) {
+            local.db.onNext(options, function (error, data) {
                 // jslint-hack
-                local.nedb.nop(error);
+                local.db.nop(error);
                 switch (options.modeNext) {
                 // STEP 1: get dbRowList list by checking indexes from most to least frequent usecase
                 case 1:
@@ -5185,7 +5185,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 default:
                     var validDocs = [],
                         ttlIndexesFieldNames = Object.keys(self.ttlIndexes);
-                    onParallel = local.nedb.onParallel(function (error) {
+                    onParallel = local.db.onParallel(function (error) {
                         onError(error, validDocs);
                     });
                     onParallel.counter += 1;
@@ -5210,7 +5210,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             options.onNext();
         };
 
-        local.nedb._DbTable.prototype.crudInsertMany = function (dbRowList, onError) {
+        local.db._DbTable.prototype.crudInsertMany = function (dbRowList, onError) {
         /**
          * Insert a new dbRow
          * @param {Function} onError - callback, signature: error, insertedDoc
@@ -5221,10 +5221,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             self = this;
             timeNow = new Date().toISOString();
             dbRowList = dbRowList.map(function (dbRow) {
-                dbRow = local.nedb.jsonCopy(dbRow);
+                dbRow = local.db.jsonCopy(dbRow);
                 dbRow.createdAt = dbRow.createdAt || timeNow;
                 dbRow.updatedAt = dbRow.updatedAt || timeNow;
-                local.nedb.dbRowCheckObject(dbRow);
+                local.db.dbRowCheckObject(dbRow);
                 // add to indexes
                 Object.keys(self.indexes).forEach(function (key) {
                     self.indexes[key].insert(dbRow);
@@ -5233,11 +5233,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             });
             setTimeout(function () {
                 self.dbTableSave();
-                onError(null, local.nedb.jsonCopy(dbRowList));
+                onError(null, local.db.jsonCopy(dbRowList));
             }, 10);
         };
 
-        local.nedb._DbTable.prototype.crudUpdate = function (query, updateQuery, options, onError) {
+        local.db._DbTable.prototype.crudUpdate = function (query, updateQuery, options, onError) {
         /**
          * Update all docs matching query
          * @param {Object} query
@@ -5266,7 +5266,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             upsert = options.upsert !== undefined ? options.upsert : false;
 
             options = {};
-            local.nedb.onNext(options, function () {
+            local.db.onNext(options, function () {
                 var cursor, modifiedDoc, modifications, createdAt;
                 switch (options.modeNext) {
                 case 1:
@@ -5276,7 +5276,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     }
 
                     // Need to use an internal function not tied to the executor to avoid deadlock
-                    cursor = new local.nedb.Cursor(self, query);
+                    cursor = new local.db.Cursor(self, query);
                     cursor.limit(1)._exec(function (error, docs) {
                         if (error) {
                             return onError(error);
@@ -5287,21 +5287,21 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         var toBeInserted;
 
                         try {
-                            local.nedb.dbRowCheckObject(updateQuery);
+                            local.db.dbRowCheckObject(updateQuery);
                             // updateQuery is a simple object with no modifier, use it as the dbRow to insert
                             toBeInserted = updateQuery;
                         } catch (errorCaught) {
                             // updateQuery contains modifiers, use the find query as the base,
                             // strip it from all operators and update it according to updateQuery
                             try {
-                                toBeInserted = local.nedb.dbRowModify(local.nedb.dbRowDeepCopy(query, true), updateQuery);
+                                toBeInserted = local.db.dbRowModify(local.db.dbRowDeepCopy(query, true), updateQuery);
                             } catch (errorCaught2) {
                                 return onError(errorCaught2);
                             }
                         }
 
                         toBeInserted = [toBeInserted];
-                        local.nedb.assert(!toBeInserted[0] || !Array.isArray(toBeInserted[0]));
+                        local.db.assert(!toBeInserted[0] || !Array.isArray(toBeInserted[0]));
                         return self.crudInsertMany(toBeInserted, function (error, newDoc) {
                             if (error) {
                                 return onError(error);
@@ -5323,10 +5323,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         // the in-memory indexes are affected)
                         try {
                             for (ii = 0; ii < dbRowList.length; ii += 1) {
-                                if (local.nedb.queryMatch(dbRowList[ii], query) && (multi || numReplaced === 0)) {
+                                if (local.db.queryMatch(dbRowList[ii], query) && (multi || numReplaced === 0)) {
                                     numReplaced += 1;
                                     createdAt = dbRowList[ii].createdAt;
-                                    modifiedDoc = local.nedb.dbRowModify(dbRowList[ii], updateQuery);
+                                    modifiedDoc = local.db.dbRowModify(dbRowList[ii], updateQuery);
                                     modifiedDoc.createdAt = createdAt;
                                     modifiedDoc.updatedAt = new Date().toISOString();
                                     modifications.push({
@@ -5352,7 +5352,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         });
                         updatedDocsDC = [];
                         updatedDocs.forEach(function (dbRow) {
-                            updatedDocsDC.push(local.nedb.jsonCopy(dbRow));
+                            updatedDocsDC.push(local.db.jsonCopy(dbRow));
                         });
                         setTimeout(function () {
                             self.dbTableSave();
@@ -5372,8 +5372,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
     // run browser js-env code - post-init
     case 'browser':
         // init exports
-        local.global.nedb_lite = local.global.utility2_nedb = local.nedb;
-        local.nedb.NODE_ENV = 'undefined';
+        local.global.db_lite = local.global.utility2_db = local.db;
+        local.db.NODE_ENV = 'undefined';
         break;
 
 
@@ -5385,9 +5385,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         local.fs = require('fs');
         local.os = require('os');
         // init exports
-        module.exports = module['./lib.nedb.js'] = local.nedb;
-        local.nedb.__dirname = __dirname;
-        local.nedb.NODE_ENV = process.env.NODE_ENV;
+        module.exports = module['./lib.db.js'] = local.db;
+        local.db.__dirname = __dirname;
+        local.db.NODE_ENV = process.env.NODE_ENV;
         break;
     }
 
@@ -5396,7 +5396,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
     // run shared js-env code - post-init
     (function () {
         // init dbStorage
-        local.nedb.dbStorageInit();
+        local.db.dbStorageInit();
     }());
 }());
 
@@ -6082,9 +6082,9 @@ f){}}else n[1]=n[1].substr(0,2);return i?i.call(n,n):null}throw u}}}(),DOT_CALL_
         };
         // init lib
         [
+            'db',
             'istanbul',
             'jslint',
-            'nedb',
             'sjcl',
             'uglifyjs'
         ].forEach(function (key) {
@@ -7625,7 +7625,7 @@ local.utility2.templateTestReportHtml = '\
 
         local.utility2.dbReset = function () {
         /*
-         * this function will reset nedb's file-state and memory-state
+         * this function will reset db's file-state and memory-state
          */
             local.utility2.onResetBefore.counter += 1;
             // visual notification
@@ -7639,7 +7639,7 @@ local.utility2.templateTestReportHtml = '\
                     local.utility2.onReadyBefore
                 );
             });
-            // reset nedb backend
+            // reset db backend
             if (local.modeJs === 'browser' &&
                     local.utility2.envDict.npm_config_mode_backend) {
                 local.utility2.onResetBefore.counter += 1;
@@ -7651,10 +7651,10 @@ local.utility2.templateTestReportHtml = '\
                     local.utility2.onResetBefore();
                 });
             }
-            // reset nedb local-persistence
-            if (local.nedb.dbReset) {
+            // reset db local-persistence
+            if (local.db.dbReset) {
                 local.utility2.onResetBefore.counter += 1;
-                local.nedb.dbReset(local.utility2.onResetBefore);
+                local.db.dbReset(local.utility2.onResetBefore);
             }
             local.utility2.onResetBefore();
         };
@@ -7674,7 +7674,7 @@ local.utility2.templateTestReportHtml = '\
                         dbRowList: []
                     });
                     // create dbTable
-                    local.nedb.dbTableCreate(
+                    local.db.dbTableCreate(
                         optionsList[optionsList.modeNext],
                         options.onNext
                     );
@@ -7688,7 +7688,7 @@ local.utility2.templateTestReportHtml = '\
                         .concat(optionsList[optionsList.modeNext].dbIndexRemoveList)
                         .forEach(function (index) {
                             onParallel.counter += 1;
-                            local.nedb.dbIndexRemove(self, index, onParallel);
+                            local.db.dbIndexRemove(self, index, onParallel);
                         });
                     onParallel();
                     break;
@@ -7698,7 +7698,7 @@ local.utility2.templateTestReportHtml = '\
                     optionsList[optionsList.modeNext].dbIndexCreateList
                         .forEach(function (index) {
                             onParallel.counter += 1;
-                            local.nedb.dbIndexCreate(self, index, onParallel);
+                            local.db.dbIndexCreate(self, index, onParallel);
                         });
                     onParallel();
                     break;
@@ -9754,7 +9754,7 @@ tmp\\)\\(\\b\\|[_s]\\)\
                 return;
             }
             if (!options.onReadyAfter) {
-                // reset nedb
+                // reset db
                 local.utility2.dbReset();
                 options.onReadyAfter = local.utility2.onReadyAfter(function () {
                     local.utility2.testRun(options);
@@ -10311,7 +10311,7 @@ tmp\\)\\(\\b\\|[_s]\\)\
             'index.sh',
             'lib.istanbul.js',
             'lib.jslint.js',
-            'lib.nedb.js',
+            'lib.db.js',
             'lib.sjcl.js',
             'lib.uglifyjs.js',
             'templateDocApiHtml',
@@ -10339,7 +10339,7 @@ tmp\\)\\(\\b\\|[_s]\\)\
                 break;
             case 'lib.istanbul.js':
             case 'lib.jslint.js':
-            case 'lib.nedb.js':
+            case 'lib.db.js':
             case 'lib.sjcl.js':
             case 'lib.uglifyjs.js':
                 local.utility2.assetsDict['/assets.utility2.' + key] =
@@ -10363,7 +10363,7 @@ tmp\\)\\(\\b\\|[_s]\\)\
             '/assets.utility2.rollup.begin.js',
             '/assets.utility2.lib.istanbul.js',
             '/assets.utility2.lib.jslint.js',
-            '/assets.utility2.lib.nedb.js',
+            '/assets.utility2.lib.db.js',
             '/assets.utility2.lib.sjcl.js',
             '/assets.utility2.lib.uglifyjs.js',
             '/assets.utility2.js',
@@ -10569,8 +10569,8 @@ local.utility2.assetsDict["/assets.swgg.css"] = "/*csslint\n    adjoining-classe
         local.utility2 = local.modeJs === 'browser'
             ? local.global.utility2
             : module.utility2 || require('utility2');
-        // init lib nedb
-        local.nedb = local.utility2.nedb;
+        // init lib db
+        local.db = local.utility2.db;
         // init lib swgg
         local.swgg = local.utility2.local.swgg = {
             idDomElementDict: {},
@@ -11797,7 +11797,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
         local.swgg.middlewareCrudBuiltin = function (request, response, nextMiddleware) {
         /*
          * this function will run the middleware that will
-         * run the builtin crud-operations backed by nedb
+         * run the builtin crud-operations backed by db-lite
          */
             var crud, onParallel, options, tmp, user;
             options = {};
@@ -11910,7 +11910,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         }, options.onNext);
                         break;
                     case 'fileGetOneByKeyUnique':
-                        local.swgg.dbTableFile = local.nedb.dbTableCreate({
+                        local.swgg.dbTableFile = local.db.dbTableCreate({
                             name: 'File'
                         });
                         crud.dbTable.crudFindOne({
@@ -11918,7 +11918,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                         },  options.onNext);
                         break;
                     case 'fileUploadManyByForm':
-                        local.swgg.dbTableFile = local.nedb.dbTableCreate({
+                        local.swgg.dbTableFile = local.db.dbTableCreate({
                             name: 'File'
                         });
                         request.swgg.paramDict = {};
@@ -12139,7 +12139,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     user = request.swgg.user = {};
                     user.jwtEncoded = request.headers.authorization &&
                         request.headers.authorization.replace('Bearer ', '');
-                    local.swgg.dbTableUser = local.nedb.dbTableCreate({
+                    local.swgg.dbTableUser = local.db.dbTableCreate({
                         name: 'User'
                     });
                     // decode and decrypt jwtEncoded
@@ -12309,7 +12309,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                     // init crud.dbTable
                     crud.dbTable = request.swgg.pathObject &&
                         request.swgg.pathObject._schemaName &&
-                        local.nedb.dbTableCreate({
+                        local.db.dbTableCreate({
                             name: request.swgg.pathObject._schemaName
                         });
                     if (!crud.dbTable) {
@@ -14466,7 +14466,7 @@ local.swgg.stateInit({"utility2":{"assetsDict":{"/assets.swgg.lib.json-schema.sc
 /*
 example.js
 
-this script will run a standalone swagger-ui server backed by nedb
+this script will run a standalone swagger-ui server backed by db-lite
 
 instruction
     1. save this script as example.js
@@ -14617,30 +14617,30 @@ instruction
         local.testRun = function (event) {
             var reader, tmp;
             switch (event && event.currentTarget.id) {
-            case 'nedbExportButton1':
-                tmp = window.URL.createObjectURL(new window.Blob([local.nedb.dbExport()]));
-                document.querySelector('#nedbExportA1').href = tmp;
-                document.querySelector('#nedbExportA1').click();
+            case 'dbExportButton1':
+                tmp = window.URL.createObjectURL(new window.Blob([local.db.dbExport()]));
+                document.querySelector('#dbExportA1').href = tmp;
+                document.querySelector('#dbExportA1').click();
                 setTimeout(function () {
                     window.URL.revokeObjectURL(tmp);
                 }, 30000);
                 break;
-            case 'nedbImportButton1':
-                document.querySelector('#nedbImportInput1').click();
+            case 'dbImportButton1':
+                document.querySelector('#dbImportInput1').click();
                 break;
-            case 'nedbImportInput1':
+            case 'dbImportInput1':
                 local.utility2.ajaxProgressShow();
                 reader = new window.FileReader();
-                tmp = document.querySelector('#nedbImportInput1').files[0];
+                tmp = document.querySelector('#dbImportInput1').files[0];
                 if (!tmp) {
                     return;
                 }
                 reader.addEventListener('load', function () {
-                    local.nedb.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
+                    local.db.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
                 });
                 reader.readAsText(tmp);
                 break;
-            case 'nedbResetButton1':
+            case 'dbResetButton1':
                 local.utility2.dbReset();
                 break;
             case 'testRunButton1':
@@ -14739,11 +14739,11 @@ body > button {\n\
     <h4><a download href="assets.app.js">download standalone app</a></h4>\n\
     <button class="onclick" id="testRunButton1">run internal test</button><br>\n\
     <div class="testReportDiv" style="display: none;"></div>\n\
-    <button class="onclick" id="nedbResetButton1">reset nedb-database</button><br>\n\
-    <button class="onclick" id="nedbExportButton1">save nedb-database to file</button><br>\n\
-    <a download="nedb.persistence.json" href="" id="nedbExportA1"></a>\n\
-    <button class="onclick" id="nedbImportButton1">load nedb-database from file</button><br>\n\
-    <input class="onchange zeroPixel" type="file" id="nedbImportInput1">\n\
+    <button class="onclick" id="dbResetButton1">reset db-database</button><br>\n\
+    <button class="onclick" id="dbExportButton1">save db-database to file</button><br>\n\
+    <a download="db.persistence.json" href="" id="dbExportA1"></a>\n\
+    <button class="onclick" id="dbImportButton1">load db-database from file</button><br>\n\
+    <input class="onchange zeroPixel" type="file" id="dbImportInput1">\n\
 \n\
     <div class="swggUiContainer">\n\
     <form class="header tr">\n\
