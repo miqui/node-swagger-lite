@@ -1421,7 +1421,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                                 });
                                 return tmp;
                             });
-                        local.swgg.dbTableFile.crudInsert(crud.body, options.onNext);
+                        local.swgg.dbTableFile.crudInsertMany(crud.body, options.onNext);
                         break;
                     case 'userLoginByPassword':
                     case 'userLogout':
@@ -1443,7 +1443,7 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                 case 2:
                     switch (crud.operationId.split('.')[0]) {
                     case 'crudCreateOrReplaceMany':
-                        crud.dbTable.crudInsert(crud.body, options.onNext);
+                        crud.dbTable.crudInsertMany(crud.body, options.onNext);
                         break;
                     case 'crudCreateOrReplaceOneByKeyUnique':
                     case 'crudUpdateOneByKeyUnique':
