@@ -2244,7 +2244,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
     bitwise: true,
     browser: true,
     maxerr: 8,
-    maxlen: 196,
+    maxlen: 96,
     node: true,
     nomen: true,
     regexp: true,
@@ -2344,20 +2344,20 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          *     becomes a TTL index (only works on Date fields, not arrays of Date)
          * @param {Function} onError - callback, signature: error
          */
-            var self;
+            var dbIndex, self;
             // require options.fieldName
             local.db.assert(options.fieldName, options.fieldName);
             self = local.db.dbTableDict[dbTable.name];
-            self.indexes[options.fieldName] = new local.db._DbIndex(options);
+            dbIndex = self.indexes[options.fieldName] = new local.db._DbIndex(options);
             // With this implementation index creation is not necessary to ensure TTL
             // but we stick with MongoDB's API here
             if (options.expireAfterSeconds !== undefined) {
                 self.ttlIndexes[options.fieldName] = options.expireAfterSeconds;
             }
-            self.indexes[options.fieldName].insert(self.crudGetAllSync());
+            dbIndex.insert(self.dbRowList());
             // We may want to force all options to be persisted including defaults,
             // not just the ones passed the index creation function
-            self.dbTableSave();
+            self.dbTablePersist();
             onError();
         };
 
@@ -2368,7 +2368,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             var self;
             self = local.db.dbTableDict[dbTable.name];
             delete self.indexes[options.fieldName];
-            self.dbTableSave();
+            self.dbTablePersist();
             onError();
         };
 
@@ -2387,7 +2387,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     Object.keys(local.db.dbTableDict).forEach(function (key) {
                         // drop dbTable
                         onParallel.counter += 1;
-                        local.db.dbTableDict[key].dbTableDrop(onParallel);
+                        local.db.dbTableDict[key].dbTableClear(onParallel);
                     });
                     onParallel.counter += 1;
                     local.db.dbStorageClear(onParallel);
@@ -2493,10 +2493,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     local.fs.readFile(
                         local.db.dbStorage + '/' + encodeURIComponent(options.key),
                         'utf8',
-                        function (error, data) {
-                            // jslint-hack
-                            local.db.nop(error);
-                            onError(null, data || '');
+                        // ignore error
+                        function () {
+                            onError();
                         }
                     );
                     break;
@@ -2526,8 +2525,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     tmp = local.os.tmpdir() + '/' + Date.now() + Math.random();
                     // save to tmp
                     local.fs.writeFile(tmp, options.value, function (error) {
-                        // jslint-hack
-                        local.db.nop(error);
+                        // validate no error occurred
+                        local.db.assert(!error, error);
                         // rename tmp to key
                         local.fs.rename(
                             tmp,
@@ -2642,7 +2641,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         local.db.dbTableCreate = function (options, onError) {
         /*
-         * this function will create a dbTable with the given options.name
+         * this function will create a dbTable with the given options
          */
             var self;
             options = local.db.objectSetDefault({}, options);
@@ -2682,9 +2681,6 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     }
                     self.initialized += 1;
                     data = (options.persistenceData || '').trim();
-                    if (options.reset) {
-                        data = 'undefined';
-                    }
                     if (!data) {
                         options.onNext();
                         return;
@@ -2726,7 +2722,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                             } else {
                                 options.dataById[dbRow._id] = dbRow;
                             }
-                        } else if (dbRow.$$indexCreated && dbRow.$$indexCreated.fieldName !== undefined) {
+                        } else if (dbRow.$$indexCreated &&
+                                dbRow.$$indexCreated.fieldName !== undefined) {
                             self.indexes[dbRow.$$indexCreated.fieldName] = dbRow.$$indexCreated;
                         } else if (typeof dbRow.$$indexRemoved === 'string') {
                             delete self.indexes[dbRow.$$indexRemoved];
@@ -2736,11 +2733,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         options.tdata.push(options.dataById[k]);
                     });
                     // Fill cached database (i.e. all indexes) with data
-                    Object.keys(self.indexes).forEach(function (key) {
-                        self.indexes[key] = new local.db._DbIndex(self.indexes[key]);
-                        self.indexes[key].reset(options.tdata);
+                    self.dbIndexList().forEach(function (dbIndex) {
+                        dbIndex = self.indexes[dbIndex.fieldName] =
+                            new local.db._DbIndex(dbIndex);
+                        dbIndex.tree = new local.db.AvlTree({ unique: dbIndex.unique });
+                        dbIndex.insert(options.tdata);
                     });
-                    self.dbTableSave();
+                    self.dbTablePersist();
                     options.onNext();
                     break;
                 default:
@@ -3052,7 +3051,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
 
 // init lib db
-// https://github.com/louischatriot/db/blob/cadf4ef434e517e47c4e9ca1db5b89e892ff5981/browser-version/out/db.js
+// https://github.com
+// /louischatriot/db/blob/cadf4ef434e517e47c4e9ca1db5b89e892ff5981/browser-version/out/db.js
     (function () {
         var modifierFunctions = {},
             lastStepModifierFunctions = {},
@@ -3063,15 +3063,22 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * Check a key, throw an error if the key is non valid
          * @param {String} k key
          * @param {Model} v value, needed to treat the Date edge case
-         * Non-treatable edge cases here: if part of the object if of the form { $$date: number } or { $$deleted: true }
+         * Non-treatable edge cases here:
+         * if part of the object if of the form { $$date: number } or { $$deleted: true }
          * Its serialized-then-deserialized version it will transformed into a Date object
-         * But you really need to want it to trigger such behaviour, even when warned not to use '$' at the beginning of the field names...
+         * But you really need to want it to trigger such behaviour,
+         *    even when warned not to use '$' at the beginning of the field names...
          */
             if (typeof k === 'number') {
                 k = k.toString();
             }
 
-            if (k[0] === '$' && !(k === '$$date' && typeof v === 'number') && !(k === '$$deleted' && v === true) && !(k === '$$indexCreated') && !(k === '$$indexRemoved')) {
+            if (k[0] === '$' &&
+                    !(k === '$$date' &&
+                    typeof v === 'number') &&
+                    !(k === '$$deleted' && v === true) &&
+                    !(k === '$$indexCreated') &&
+                    !(k === '$$indexRemoved')) {
                 throw new Error('Field names cannot begin with the $ character');
             }
 
@@ -3100,7 +3107,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         local.db.dbRowDeepCopy = function (obj, strictKeys) {
         /**
          * Deep copy a DB object
-         * The optional strictKeys flag (defaulting to false) indicates whether to copy everything or only fields
+         * The optional strictKeys flag (defaulting to false)
+         * indicates whether to copy everything or only fields
          * where the keys are valid, i.e. don't begin with $ and don't contain a .
          */
             var res;
@@ -3130,7 +3138,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return res;
             }
 
-            return undefined; // For now everything else is undefined. We should probably throw an error instead
+            // For now everything else is undefined. We should probably throw an error instead
+            return undefined;
         };
         local.db.dbRowIsPrimitiveType = function (obj) {
         /**
@@ -3149,10 +3158,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         /**
          * The signature of modifier functions is as follows
-         * Their structure is always the same: recursively follow the dot notation while creating
+         * Their structure is always the same:
+         * recursively follow the dot notation while creating
          * the nested dbRow's if needed, then apply the 'last step modifier'
          * @param {Object} obj The model to modify
-         * @param {String} field Can contain dots, in that case that means we will set a subfield recursively
+         * @param {String} field Can contain dots,
+         * in that case that means we will set a subfield recursively
          * @param {Model} value
          */
 
@@ -3172,8 +3183,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         /**
          * Push an element to the end of an array field
          * Optional modifier $each instead of value to push several values
-         * Optional modifier $slice to slice the resulting array, see https://docs.mongodb.org/manual/reference/operator/update/slice/
-         * Différeence with MongoDB: if $slice is specified and not $each, we act as if value is an empty array
+         * Optional modifier $slice to slice the resulting array,
+         * see https://docs.mongodb.org/manual/reference/operator/update/slice/
+         * Différeence with MongoDB:
+         * if $slice is specified and not $each, we act as if value is an empty array
          */
             // Create the array if it doesn't exist
             if (!obj.hasOwnProperty(field)) {
@@ -3184,13 +3197,20 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 throw new Error("Can't $push an element on non-array values");
             }
 
-            if (value !== null && typeof value === 'object' && value.$slice && value.$each === undefined) {
+            if (value !== null &&
+                    typeof value === 'object' &&
+                    value.$slice &&
+                    value.$each === undefined) {
                 value.$each = [];
             }
 
             if (value !== null && typeof value === 'object' && value.$each) {
-                if (Object.keys(value).length >= 3 || (Object.keys(value).length === 2 && value.$slice === undefined)) {
-                    throw new Error('Can only use $slice in cunjunction with $each when $push to array');
+                if (Object.keys(value).length >= 3 ||
+                        (Object.keys(value).length === 2 &&
+                        value.$slice === undefined)) {
+                    throw new Error(
+                        'Can only use $slice in cunjunction with $each when $push to array'
+                    );
                 }
                 if (!Array.isArray(value.$each)) {
                     throw new Error('$each requires an array value');
@@ -3318,7 +3338,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         lastStepModifierFunctions.$max = function (obj, field, value) {
         /**
-         * Updates the value of the field, only if specified field is greater than the current value of the field
+         * Updates the value of the field,
+         * only if specified field is greater than the current value of the field
          */
             if (obj[field] === undefined) {
                 obj[field] = value;
@@ -3329,7 +3350,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         lastStepModifierFunctions.$min = function (obj, field, value) {
         /**
-         * Updates the value of the field, only if specified field is smaller than the current value of the field
+         * Updates the value of the field,
+         * only if specified field is smaller than the current value of the field
          */
             if (obj[field] === undefined) {
                 obj[field] = value;
@@ -3347,12 +3369,19 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     lastStepModifierFunctions[modifier](obj, field, value);
                 } else {
                     if (obj[fieldParts[0]] === undefined) {
+                        // Bad looking specific fix,
+                        // needs to be generalized modifiers
+                        // that behave like $unset are implemented
                         if (modifier === '$unset') {
                             return;
-                        } // Bad looking specific fix, needs to be generalized modifiers that behave like $unset are implemented
+                        }
                         obj[fieldParts[0]] = {};
                     }
-                    modifierFunctions[modifier](obj[fieldParts[0]], fieldParts.slice(1), value);
+                    modifierFunctions[modifier](
+                        obj[fieldParts[0]],
+                        fieldParts.slice(1),
+                        value
+                    );
                 }
             };
         }
@@ -3378,7 +3407,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 throw new Error("You cannot change a dbRow's _id");
             }
 
-            if (dollarFirstChars.length !== 0 && dollarFirstChars.length !== firstChars.length) {
+            if (dollarFirstChars.length !== 0 &&
+                    dollarFirstChars.length !== firstChars.length) {
                 throw new Error('You cannot mix modifiers and normal fields');
             }
 
@@ -3397,7 +3427,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     }
 
                     // Can't rely on Object.keys throwing on non objects since ES6
-                    // Not 100% satisfying as non objects can be interpreted as objects but no false negatives so we can live with it
+                    // Not 100% satisfying as non objects can be interpreted as objects
+                    // but no false negatives so we can live with it
                     if (typeof updateQuery[m] !== 'object') {
                         throw new Error('Modifier ' + m + "'s argument must be an object");
                     }
@@ -3431,9 +3462,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 ? field.split('.')
                 : field;
 
+            // field cannot be empty so that means we should return undefined
+            // so that nothing can match
             if (!obj) {
                 return undefined;
-            } // field cannot be empty so that means we should return undefined so that nothing can match
+            }
 
             if (fieldParts.length === 0) {
                 return obj;
@@ -3447,13 +3480,19 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 // If the next field is an integer, return only this item of the array
                 ii = parseInt(fieldParts[1], 10);
                 if (typeof ii === 'number' && !isNaN(ii)) {
-                    return local.db.queryGetDotValue(obj[fieldParts[0]][ii], fieldParts.slice(2));
+                    return local.db.queryGetDotValue(
+                        obj[fieldParts[0]][ii],
+                        fieldParts.slice(2)
+                    );
                 }
 
                 // Return the array of values
                 objs = [];
                 for (ii = 0; ii < obj[fieldParts[0]].length; ii += 1) {
-                    objs.push(local.db.queryGetDotValue(obj[fieldParts[0]][ii], fieldParts.slice(1)));
+                    objs.push(local.db.queryGetDotValue(
+                        obj[fieldParts[0]][ii],
+                        fieldParts.slice(1)
+                    ));
                 }
                 return objs;
             }
@@ -3462,21 +3501,32 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         function areThingsEqual(aa, bb) {
         /**
          * Check whether 'things' are equal
-         * Things are defined as any native types (string, number, boolean, null, date) and objects
+         * Things are defined as any native types (string, number, boolean, null, date)
+         * and objects
          * In the case of object, we check deep equality
          * Returns true if they are, false otherwise
          */
             var aKeys, bKeys, ii;
 
             // Strings, booleans, numbers, null
-            if (aa === null || typeof aa === 'string' || typeof aa === 'boolean' || typeof aa === 'number' ||
-                    bb === null || typeof bb === 'string' || typeof bb === 'boolean' || typeof bb === 'number') {
+            if (aa === null ||
+                    typeof aa === 'string' ||
+                    typeof aa === 'boolean' ||
+                    typeof aa === 'number' ||
+                    bb === null ||
+                    typeof bb === 'string' ||
+                    typeof bb === 'boolean' ||
+                    typeof bb === 'number') {
                 return aa === bb;
             }
 
             // Arrays (no match since arrays are used as aa $in)
             // undefined (no match since they mean field doesn't exist and can't be serialized)
-            if ((!(Array.isArray(aa) && Array.isArray(bb)) && (Array.isArray(aa) || Array.isArray(bb))) || aa === undefined || bb === undefined) {
+            if ((!(Array.isArray(aa) &&
+                    Array.isArray(bb)) &&
+                    (Array.isArray(aa) || Array.isArray(bb))) ||
+                    aa === undefined ||
+                    bb === undefined) {
                 return false;
             }
 
@@ -3578,7 +3628,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             function matchQueryPart(obj, queryKey, queryValue, treatObjAsValue) {
             /**
              * Match an object against a specific { key: value } part of a query
-             * if the treatObjAsValue flag is set, don't try to match every part separately, but the array as a whole
+             * if the treatObjAsValue flag is set, don't try to match every part separately,
+             * but the array as a whole
              */
                 var objValue, ii, keys, firstChars, dollarFirstChars, tmp;
 
@@ -3592,7 +3643,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     }
 
                     // Check if we are using an array-specific comparison function
-                    if (queryValue !== null && typeof queryValue === 'object' && !local.db.isRegExp(queryValue)) {
+                    if (queryValue !== null &&
+                            typeof queryValue === 'object' &&
+                            !local.db.isRegExp(queryValue)) {
                         tmp = Object.keys(queryValue).some(function (key) {
                             switch (key) {
                             case '$elemMatch':
@@ -3605,7 +3658,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         }
                     }
 
-                    // If not, treat it as an array of { obj, query } where there needs to be at least one match
+                    // If not, treat it as an array of { obj, query }
+                    // where there needs to be at least one match
                     for (ii = 0; ii < objValue.length; ii += 1) {
                         if (matchQueryPart({
                                 k: objValue[ii]
@@ -3616,9 +3670,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     return false;
                 }
 
-                // queryValue is an actual object. Determine whether it contains comparison operators
+                // queryValue is an actual object.
+                // Determine whether it contains comparison operators
                 // or only normal fields. Mixed objects are not allowed
-                if (queryValue !== null && typeof queryValue === 'object' && !local.db.isRegExp(queryValue) && !Array.isArray(queryValue)) {
+                if (queryValue !== null &&
+                        typeof queryValue === 'object' &&
+                        !local.db.isRegExp(queryValue) &&
+                        !Array.isArray(queryValue)) {
                     keys = Object.keys(queryValue);
                     firstChars = keys.map(function (item) {
                         return item[0];
@@ -3627,11 +3685,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         return cc === '$';
                     });
 
-                    if (dollarFirstChars.length !== 0 && dollarFirstChars.length !== firstChars.length) {
+                    if (dollarFirstChars.length !== 0 &&
+                            dollarFirstChars.length !== firstChars.length) {
                         throw new Error('You cannot mix operators and normal fields');
                     }
 
-                    // queryValue is an object of this form: { $comparisonOperator1: value1, ... }
+                    // queryValue is an object of this form:
+                    // { $comparisonOperator1: value1, ... }
                     if (dollarFirstChars.length > 0) {
                         return keys.every(function (key) {
                             return local.db.queryCompare(key, objValue, queryValue[key]);
@@ -3653,7 +3713,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return true;
             }
             // Primitive query against a primitive type
-            // This is a bit of a hack since we construct an object with an arbitrary key only to dereference it later
+            // This is a bit of a hack since we construct an object with an arbitrary key
+            // only to dereference it later
             // But I don't have time for a cleaner implementation now
             if (local.db.dbRowIsPrimitiveType(obj) || local.db.dbRowIsPrimitiveType(query)) {
                 return matchQueryPart({
@@ -3688,7 +3749,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * Constructor of the internal AvlTree
          *
          * @param {Object} options Optional
-         * @param {Boolean}  options.unique Whether to enforce a 'unique' constraint on the key or not
+         * @param {Boolean}  options.unique Whether to enforce a 'unique' constraint
+         * on the key or not
          * @param {Key}      options.key Initialize this AvlTree's key with key
          * @param {Value}    options.value Initialize this AvlTree's data with [value]
          */
@@ -3762,7 +3824,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             // Same key as root
             if (local.db.sortCompare(this.key, key) === 0) {
                 if (this.unique) {
-                    var error = new Error("Can't insert key " + key + ", it violates the unique constraint");
+                    var error = new Error("Can't insert key " + key +
+                        ', it violates the unique constraint');
                     error.key = key;
                     error.errorType = 'uniqueViolated';
                     throw error;
@@ -3901,7 +3964,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         /**
          * Get all data for a key between bounds
          * Return it in key order
-         * @param {Object} query Mongo-style query where keys are $lt, $lte, $gt or $gte (other keys are not considered)
+         * @param {Object} query Mongo-style query
+         * where keys are $lt, $lte, $gt or $gte (other keys are not considered)
          * @param {Functions} lbm/ubm matching functions calculated at the first recursive step
          */
             var res = [];
@@ -4000,7 +4064,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         /**
          * Delete a key or just a value
          * @param {Key} key
-         * @param {Value} value Optional. If not set, the whole key is deleted. If set, only this value is deleted
+         * @param {Value} value Optional. If not set, the whole key is deleted.
+         * If set, only this value is deleted
          */
             var newData, replaceWith, self;
             newData = [];
@@ -4048,7 +4113,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             // We are in the case where the node to delete has two children
-            if (Math.random() >= 0.5) { // Randomize replacement to avoid unbalancing the tree too much
+            // Randomize replacement to avoid unbalancing the tree too much
+            if (Math.random() >= 0.5) {
                 // Use the in-order predecessor
                 replaceWith = this.left.getMaxKeyDescendant();
 
@@ -4089,7 +4155,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         local.db.AvlTree.prototype.executeOnEveryNode = function (fn) {
         /**
          * Execute a function on every node of the tree, in key order
-         * @param {Function} fn Signature: node. Most useful will probably be node.key and node.data
+         * @param {Function} fn Signature: node.
+         * Most useful will probably be node.key and node.data
          */
             if (this.left) {
                 this.left.executeOnEveryNode(fn);
@@ -4222,7 +4289,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
         local.db.AvlTree.prototype.rebalanceAlongPath = function (path) {
         /**
-         * Rebalance the tree along the given path. The path is given reversed (as he was calculated
+         * Rebalance the tree along the given path.
+         * The path is given reversed (as he was calculated
          * in the insert and delete functions).
          * Returns the new root of the tree
          * Of course, the first element of the path must be the root of the tree
@@ -4236,7 +4304,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             // Rebalance the tree and update all heights
             for (ii = path.length - 1; ii >= 0; ii -= 1) {
-                path[ii].height = 1 + Math.max(path[ii].left ? path[ii].left.height : 0, path[ii].right ? path[ii].right.height : 0);
+                path[ii].height = 1 + Math.max(path[ii].left
+                    ? path[ii].left.height
+                    : 0, path[ii].right
+                    ? path[ii].right.height
+                    : 0);
 
                 if (path[ii].balanceFactor() > 1) {
                     rotated = path[ii].rightTooSmall();
@@ -4277,7 +4349,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 // Same key: no change in the tree structure
                 if (local.db.sortCompare(currentNode.key, key) === 0) {
                     if (currentNode.unique) {
-                        error = new Error("Can't insert key " + key + ", it violates the unique constraint");
+                        error = new Error("Can't insert key " + key +
+                            ', it violates the unique constraint');
                         error.key = key;
                         error.errorType = 'uniqueViolated';
                         throw error;
@@ -4316,7 +4389,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         /**
          * Delete a key or just a value and return the new root of the tree
          * @param {Key} key
-         * @param {Value} value Optional. If not set, the whole key is deleted. If set, only this value is deleted
+         * @param {Value} value Optional. If not set, the whole key is deleted.
+         * If set, only this value is deleted
          */
             var newData = [], replaceWith, currentNode = this, deletePath = [];
 
@@ -4325,7 +4399,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             } // Empty tree
 
             // Either no match is found and the function will return from within the loop
-            // Or a match is found and deletePath will contain the path from the root to the node to delete after the loop
+            // Or a match is found and deletePath will contain the path
+            // from the root to the node to delete after the loop
             while (true) {
                 if (local.db.sortCompare(key, currentNode.key) === 0) {
                     break;
@@ -4381,9 +4456,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             if (!currentNode.left || !currentNode.right) {
                 replaceWith = currentNode.left || currentNode.right;
 
-                if (currentNode === this) { // This node is also the root
+                // This node is also the root
+                if (currentNode === this) {
                     replaceWith.parent = null;
-                    return replaceWith; // height of replaceWith is necessarily 1 because the tree was balanced before deletion
+                    // height of replaceWith is necessarily 1
+                    // because the tree was balanced before deletion
+                    return replaceWith;
                 }
                 if (currentNode.parent.left === currentNode) {
                     currentNode.parent.left = replaceWith;
@@ -4457,11 +4535,16 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         local.db._DbIndex = function (options) {
         /**
          * Create a new index
-         * All methods on an index guarantee that either the whole operation was successful and the index changed
-         * or the operation was unsuccessful and an error is thrown while the index is unchanged
-         * @param {String} options.fieldName On which field should the index apply (can use dot notation to index on sub fields)
-         * @param {Boolean} options.unique Optional, enforce a unique constraint (default: false)
-         * @param {Boolean} options.sparse Optional, allow a sparse index (we can have dbRow's for which fieldName is undefined) (default: false)
+         * All methods on an index guarantee that either
+         * the whole operation was successful and the index changed
+         * or the operation was unsuccessful and an error is thrown
+         * while the index is unchanged
+         * @param {String} options.fieldName On which field should the index apply
+         * (can use dot notation to index on sub fields)
+         * @param {Boolean} options.unique Optional,
+         * enforce a unique constraint (default: false)
+         * @param {Boolean} options.sparse Optional, allow a sparse index
+         * (we can have dbRow's for which fieldName is undefined) (default: false)
          */
             this.fieldName = options.fieldName;
             this.isInteger = options.isInteger;
@@ -4469,23 +4552,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             this.unique = options.unique || false;
             this.sparse = options.sparse || false;
 
-            this.reset(); // No data in the beginning
-        };
-        local.db._DbIndex.prototype.reset = function (dbRowList) {
-        /**
-         * Reset an index
-         * @param {dbRow or Array of dbRow's} dbRowList Optional, data to initialize the index with
-         *                                                 If an error is thrown during insertion, the index is not modified
-         */
+            // No data in the beginning
             this.tree = new local.db.AvlTree({ unique: this.unique });
-            if (dbRowList) {
-                this.insert(dbRowList);
-            }
         };
         local.db._DbIndex.prototype.insert = function (dbRow) {
         /**
          * Insert a new dbRow in the index
-         * If an array is passed, we insert all its elements (if one insertion fails the index is not modified)
+         * If an array is passed, we insert all its elements
+         * (if one insertion fails the index is not modified)
          * O(log(n))
          */
             var key, keys, ii, failingI, error, self = this;
@@ -4520,7 +4594,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             if (!Array.isArray(key)) {
                 self.tree = self.tree.insert(key, dbRow);
             } else {
-                // If an insert fails due to a unique constraint, roll back all inserts before it
+                // If an insert fails due to a unique constraint,
+                // roll back all inserts before it
                 keys = local.db.listUnique(key).map(projectForUnique);
 
                 for (ii = 0; ii < keys.length; ii += 1) {
@@ -4639,7 +4714,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
         local.db._DbIndex.prototype.getMatching = function (value) {
         /**
-         * Get all dbRow's in index whose key match value (if it is a Thing) or one of the elements of value (if it is an array of Things)
+         * Get all dbRow's in index whose key match value (if it is a Thing)
+         * or one of the elements of value (if it is an array of Things)
          * @param {Thing} value Value to match the key against
          * @return {Array of dbRow's}
          */
@@ -4664,7 +4740,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * Create a new cursor for this dbTable
          * @param {Datastore} db - The datastore this cursor is bound to
          * @param {Query} query - The query this cursor will operate on
-         * @param {Function} onError - Handler to be executed after cursor has found the results and before the callback passed to find/findOne/update/remove
+         * @param {Function} onError - Handler to be executed after cursor has found
+         * the results and before the callback passed to find/findOne/update/remove
          */
             this.db = db;
             this.query = query || {};
@@ -4738,7 +4815,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         local.db.Cursor.prototype._exec = function (_onError) {
         /**
          * Get all matching elements
-         * Will return pointers to matched elements (shallow copies), returning full copies is the role of find or findOne
+         * Will return pointers to matched elements (shallow copies),
+         * returning full copies is the role of find or findOne
          * This is an internal function, use exec which uses the executor
          *
          * @param {Function} onError - Signature: error, results
@@ -4752,7 +4830,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return _onError(error, res);
             }
 
-            self.db.dbIndexFindMany(self.query, function (error, candidates) {
+            self.db.dbIndexCullMany(self.query, function (error, candidates) {
                 var criteria, limit, skip;
                 if (error) {
                     return onError(error);
@@ -4761,7 +4839,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 try {
                     candidates.some(function (element) {
                         if (local.db.queryMatch(element, self.query)) {
-                            // If a sort is defined, wait for the results to be sorted before applying limit and skip
+                            // If a sort is defined, wait for the results to be sorted
+                            // before applying limit and skip
                             if (!self._sort) {
                                 if (self._skip && self._skip > skipped) {
                                     skipped += 1;
@@ -4845,12 +4924,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 switch (options.modeNext) {
                 case 1:
                     result = 0;
-                    local.db.dbTableCreate(self, options.onNext);
+                    self.dbIndexCullMany(options.query, options.onNext);
                     break;
                 case 2:
-                    self.dbIndexFindMany(options.query, options.onNext);
-                    break;
-                case 3:
                     data.forEach(function (dbRow) {
                         if (local.db.queryMatch(dbRow, options.query)) {
                             result += 1;
@@ -4864,20 +4940,6 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             });
             options.modeNext = 0;
             options.onNext();
-        };
-
-        local.db._DbTable.prototype.crudGetAllSync = function () {
-        /*
-         * this function will get all dbRow's in dbTable
-         */
-            var result;
-            result = [];
-            this.indexes._id.tree.executeOnEveryNode(function (node) {
-                node.data.forEach(function (dbRow) {
-                    result.push(dbRow);
-                });
-            });
-            return result;
         };
 
         local.db._DbTable.prototype.crudFindMany = function (options, onError) {
@@ -4899,7 +4961,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 switch (options.modeNext) {
                 case 1:
                     result = [];
-                    self.dbIndexFindMany(options.query, options.onNext);
+                    self.dbIndexCullMany(options.query, options.onNext);
                     break;
                 case 2:
                     sort = Object.keys(options.sort).map(function (key) {
@@ -5012,7 +5074,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 case 1:
                     removedList = [];
                     result = 0;
-                    self.dbIndexFindMany(options.query, options.onNext);
+                    self.dbIndexCullMany(options.query, options.onNext);
                     break;
                 case 2:
                     data.some(function (dbRow) {
@@ -5022,15 +5084,15 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                                 $$deleted: true,
                                 _id: dbRow._id
                             });
-                            Object.keys(self.indexes).forEach(function (key) {
-                                self.indexes[key].remove(dbRow);
+                            self.dbIndexList().forEach(function (dbIndex) {
+                                dbIndex.remove(dbRow);
                             });
                             if (options.one) {
                                 return true;
                             }
                         }
                     });
-                    self.dbTableSave();
+                    self.dbTablePersist();
                     options.onNext();
                     break;
                 default:
@@ -5050,15 +5112,40 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             this.crudRemoveMany(options, onError);
         };
 
-        local.db._DbTable.prototype.dbTableDrop = function (onError) {
+        local.db._DbTable.prototype.dbIndexList = function () {
+        /*
+         * this function will return all dbIndex's in dbTable
+         */
+            var self;
+            self = this;
+            return Object.keys(self.indexes).map(function (key) {
+                return self.indexes[key];
+            });
+        };
+
+        local.db._DbTable.prototype.dbRowList = function () {
+        /*
+         * this function will return all dbRow's in dbTable
+         */
+            var result;
+            result = [];
+            this.indexes._id.tree.executeOnEveryNode(function (node) {
+                node.data.forEach(function (dbRow) {
+                    result.push(dbRow);
+                });
+            });
+            return result;
+        };
+
+        local.db._DbTable.prototype.dbTableClear = function (onError) {
         /*
          * this function will drop dbTable
          */
             var self;
             self = this;
             delete self.timerDbTableSave;
-            Object.keys(self.indexes).forEach(function (key) {
-                self.indexes[key].reset();
+            self.dbIndexList().forEach(function (dbIndex) {
+                dbIndex.tree = new local.db.AvlTree({ unique: dbIndex.unique });
             });
             local.db.dbStorageRemoveItem(self.name, onError);
         };
@@ -5071,29 +5158,40 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             self = this;
             data = '';
             data += JSON.stringify(String(self.name)) + '\n';
-            self.crudGetAllSync().forEach(function (dbRow) {
+            self.dbRowList().forEach(function (dbRow) {
                 data += JSON.stringify(dbRow) + '\n';
             });
-            Object.keys(self.indexes).forEach(function (fieldName) {
-                if (fieldName === '_id') {
+            self.dbIndexList().forEach(function (dbIndex) {
+                if (dbIndex.fieldName === '_id') {
                     return;
                 }
                 data += JSON.stringify({ $$indexCreated: {
-                    fieldName: fieldName,
-                    isInteger: self.indexes[fieldName].isInteger,
-                    unique: self.indexes[fieldName].unique,
-                    sparse: self.indexes[fieldName].sparse
+                    fieldName: dbIndex.fieldName,
+                    isInteger: dbIndex.isInteger,
+                    unique: dbIndex.unique,
+                    sparse: dbIndex.sparse
                 } }) + '\n';
             });
             return data.slice(0, -1);
         };
 
-        local.db._DbTable.prototype.dbTableSave = function () {
+        //!! local.db._DbTable.prototype.dbTableImport = function (data) {
+        //!! /*
+         //!! * this function will import the data into dbTable
+         //!! */
+            //!! var self;
+            //!! self = this;
+            //!! data = data.trim().split('\n\n');
+            //!! data
+        //!! };
+
+        local.db._DbTable.prototype.dbTablePersist = function () {
         /*
-         * this function will save dbTable to dbStorage
+         * this function will persist dbTable to dbStorage
          */
             var self;
             self = this;
+            // throttle dbStorage writes to 2 every 2000 ms
             if (self.timerDbTableSave) {
                 return;
             }
@@ -5108,12 +5206,15 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             local.db.dbStorageSetItem(self.name, self.dbTableExport(), local.db.onErrorDefault);
         };
 
-        local.db._DbTable.prototype.dbIndexFindMany = function (query, onError) {
+        local.db._DbTable.prototype.dbIndexCullMany = function (query, onError) {
         /**
          * Return the dbRowList for a given query
-         * Crude implementation for now, we return the dbRowList given by the first usable index if any
-         * We try the following query types, in this order: basic match, $in match, comparison match
-         * One way to make it better would be to enable the use of multiple indexes if the first usable index
+         * Crude implementation for now, we return the dbRowList given
+         * by the first usable index if any
+         * We try the following query types,
+         * in this order: basic match, $in match, comparison match
+         * One way to make it better would be to enable the use of multiple indexes
+         * if the first usable index
          * returns too much data. I may do it in the future.
          *
          * Returned dbRowList will be scanned to find and remove all expired dbRow's
@@ -5127,15 +5228,17 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 usableQueryKeys;
             options = {};
             local.db.onNext(options, function (error, data) {
-                // jslint-hack
-                local.db.nop(error);
                 switch (options.modeNext) {
-                // STEP 1: get dbRowList list by checking indexes from most to least frequent usecase
+                // STEP 1: get dbRowList list by checking indexes
+                // from most to least frequent usecase
                 case 1:
                     // For a basic match
                     usableQueryKeys = [];
                     Object.keys(query).forEach(function (k) {
-                        if (typeof query[k] === 'string' || typeof query[k] === 'number' || typeof query[k] === 'boolean' || query[k] === null) {
+                        if (typeof query[k] === 'string' ||
+                                typeof query[k] === 'number' ||
+                                typeof query[k] === 'boolean' ||
+                                query[k] === null) {
                             usableQueryKeys.push(k);
                         }
                     });
@@ -5143,7 +5246,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         return self.indexes.hasOwnProperty(element);
                     });
                     if (usableQueryKeys.length > 0) {
-                        return options.onNext(null, self.indexes[usableQueryKeys[0]].getMatching(query[usableQueryKeys[0]]));
+                        return options.onNext(null, self.indexes[usableQueryKeys[0]]
+                            .getMatching(query[usableQueryKeys[0]]));
                     }
 
                     // For a $in match
@@ -5157,13 +5261,20 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         return self.indexes.hasOwnProperty(element);
                     });
                     if (usableQueryKeys.length > 0) {
-                        return options.onNext(null, self.indexes[usableQueryKeys[0]].getMatching(query[usableQueryKeys[0]].$in));
+                        return options.onNext(
+                            null,
+                            self.indexes[usableQueryKeys[0]]
+                                .getMatching(query[usableQueryKeys[0]].$in)
+                        );
                     }
 
                     // For a comparison match
                     usableQueryKeys = [];
                     Object.keys(query).forEach(function (k) {
-                        if (query[k] && (query[k].hasOwnProperty('$lt') || query[k].hasOwnProperty('$lte') || query[k].hasOwnProperty('$gt') || query[k].hasOwnProperty('$gte'))) {
+                        if (query[k] && (query[k].hasOwnProperty('$lt') ||
+                                query[k].hasOwnProperty('$lte') ||
+                                query[k].hasOwnProperty('$gt') ||
+                                query[k].hasOwnProperty('$gte'))) {
                             usableQueryKeys.push(k);
                         }
                     });
@@ -5180,9 +5291,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     }
 
                     // By default, return all the DB data
-                    return options.onNext(null, self.crudGetAllSync());
+                    return options.onNext(null, self.dbRowList());
                 // STEP 2: remove all expired dbRow's
                 default:
+                    // validate no error occurred
+                    local.db.assert(!error, error);
                     var validDocs = [],
                         ttlIndexesFieldNames = Object.keys(self.ttlIndexes);
                     onParallel = local.db.onParallel(function (error) {
@@ -5192,7 +5305,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     data.forEach(function (dbRow) {
                         var valid = true;
                         ttlIndexesFieldNames.forEach(function (ii) {
-                            if (dbRow[ii] !== undefined && Date.now() > new Date(dbRow[ii]).getTime() + self.ttlIndexes[ii] * 1000) {
+                            if (dbRow[ii] !== undefined &&
+                                    Date.now() > new Date(dbRow[ii]).getTime() +
+                                    self.ttlIndexes[ii] * 1000) {
                                 valid = false;
                             }
                         });
@@ -5226,37 +5341,48 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 dbRow.updatedAt = dbRow.updatedAt || timeNow;
                 local.db.dbRowCheckObject(dbRow);
                 // add to indexes
-                Object.keys(self.indexes).forEach(function (key) {
-                    self.indexes[key].insert(dbRow);
+                self.dbIndexList().forEach(function (dbIndex) {
+                    dbIndex.insert(dbRow);
                 });
                 return dbRow;
             });
             setTimeout(function () {
-                self.dbTableSave();
+                self.dbTablePersist();
                 onError(null, local.db.jsonCopy(dbRowList));
             }, 10);
         };
 
-        local.db._DbTable.prototype.crudUpdate = function (query, updateQuery, options, onError) {
+        local.db._DbTable.prototype.crudUpdate = function (
+            query,
+            updateQuery,
+            options,
+            onError
+        ) {
         /**
          * Update all docs matching query
          * @param {Object} query
          * @param {Object} updateQuery
          * @param {Object} options Optional options
-         *                 options.multi If true, can update multiple dbRow's (defaults to false)
-         *                 options.upsert If true, dbRow is inserted if the query doesn't match anything
-         * @param {Function} onError - callback, signature: (error, numAffected, affectedDocuments, upsert)
-         *                      If update was an upsert, upsert flag is set to true
-         *                      affectedDocuments can be one of the following:
-         *                        * For an upsert, the upserted dbRow
-         *                        * For an update, the array of updated dbRow's
+         * options.multi If true, can update multiple dbRow's (defaults to false)
+         * options.upsert If true, dbRow is inserted if the query doesn't match anything
+         * @param {Function} onError - callback, signature:
+         * (error, numAffected, affectedDocuments, upsert)
+         *    If update was an upsert, upsert flag is set to true
+         *    affectedDocuments can be one of the following:
+         *      * For an upsert, the upserted dbRow
+         *      * For an update, the array of updated dbRow's
          *
-         * WARNING: The API was changed between v1.7.4 and v1.8, for consistency and readability reasons. Prior and including to v1.7.4,
-         *          the onError signature was (error, numAffected, updated) where updated was the updated dbRow in case of an upsert
-         *          or the array of updated dbRow's for an update. That meant that the type of
-         *          affectedDocuments in a non multi update depended on whether there was an upsert or not, leaving only two ways for the
-         *          user to check whether an upsert had occured: checking the type of affectedDocuments or running another find query on
-         *          the whole dataset to check its size. Both options being ugly, the breaking change was necessary.
+         * WARNING: The API was changed between v1.7.4 and v1.8,
+         * for consistency and readability reasons. Prior and including to v1.7.4,
+         * the onError signature was (error, numAffected, updated)
+         * where updated was the updated dbRow in case of an upsert
+         * or the array of updated dbRow's for an update. That meant that the type of
+         * affectedDocuments in a non multi update depended
+         * on whether there was an upsert or not, leaving only two ways for the
+         * user to check whether an upsert had occured:
+         * checking the type of affectedDocuments or running another find query on
+         * the whole dataset to check its size. Both options being ugly,
+         * the breaking change was necessary.
          *
          * @api private Use Datastore.crudUpdate which has the same signature
          */
@@ -5275,7 +5401,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         return options.onNext();
                     }
 
-                    // Need to use an internal function not tied to the executor to avoid deadlock
+                    // Need to use an internal function not tied to the executor
+                    // to avoid deadlock
                     cursor = new local.db.Cursor(self, query);
                     cursor.limit(1)._exec(function (error, docs) {
                         if (error) {
@@ -5288,16 +5415,17 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                         try {
                             local.db.dbRowCheckObject(updateQuery);
-                            // updateQuery is a simple object with no modifier, use it as the dbRow to insert
+                            // updateQuery is a simple object with no modifier,
+                            // use it as the dbRow to insert
                             toBeInserted = updateQuery;
                         } catch (errorCaught) {
                             // updateQuery contains modifiers, use the find query as the base,
-                            // strip it from all operators and update it according to updateQuery
-                            try {
-                                toBeInserted = local.db.dbRowModify(local.db.dbRowDeepCopy(query, true), updateQuery);
-                            } catch (errorCaught2) {
-                                return onError(errorCaught2);
-                            }
+                            // strip it from all operators and update it
+                            // according to updateQuery
+                            toBeInserted = local.db.dbRowModify(
+                                local.db.dbRowDeepCopy(query, true),
+                                updateQuery
+                            );
                         }
 
                         toBeInserted = [toBeInserted];
@@ -5314,7 +5442,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     // Perform the update
                     modifications = [];
 
-                    self.dbIndexFindMany(query, function (error, dbRowList) {
+                    self.dbIndexCullMany(query, function (error, dbRowList) {
                         if (error) {
                             return onError(error);
                         }
@@ -5323,10 +5451,15 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         // the in-memory indexes are affected)
                         try {
                             for (ii = 0; ii < dbRowList.length; ii += 1) {
-                                if (local.db.queryMatch(dbRowList[ii], query) && (multi || numReplaced === 0)) {
+                                if (local.db.queryMatch(dbRowList[ii], query) &&
+                                        (multi ||
+                                        numReplaced === 0)) {
                                     numReplaced += 1;
                                     createdAt = dbRowList[ii].createdAt;
-                                    modifiedDoc = local.db.dbRowModify(dbRowList[ii], updateQuery);
+                                    modifiedDoc = local.db.dbRowModify(
+                                        dbRowList[ii],
+                                        updateQuery
+                                    );
                                     modifiedDoc.createdAt = createdAt;
                                     modifiedDoc.updatedAt = new Date().toISOString();
                                     modifications.push({
@@ -5341,10 +5474,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                         // Change the docs in memory
                         // update indexes
-                        Object.keys(self.indexes).forEach(function (key) {
-                            self.indexes[key].updateMultipleDocs(modifications);
+                        self.dbIndexList().forEach(function (dbIndex) {
+                            dbIndex.updateMultipleDocs(modifications);
                         });
-
                         // Update the datafile
                         var updatedDocs, updatedDocsDC;
                         updatedDocs = modifications.map(function (element) {
@@ -5355,7 +5487,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                             updatedDocsDC.push(local.db.jsonCopy(dbRow));
                         });
                         setTimeout(function () {
-                            self.dbTableSave();
+                            self.dbTablePersist();
                             onError(null, numReplaced, updatedDocsDC);
                         });
                     });
