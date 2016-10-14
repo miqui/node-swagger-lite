@@ -634,7 +634,7 @@ instruction
         }, {
             dbIndexCreateList: [{
                 fieldName: 'id',
-                isInteger: true,
+                integer: true,
                 unique: true
             }],
             dbRowList: local.swgg.dbRowListRandomCreate({
@@ -677,7 +677,7 @@ instruction
         }, {
             dbIndexCreateList: [{
                 fieldName: 'id',
-                isInteger: true,
+                integer: true,
                 unique: true
             }],
             dbRowList: local.swgg.dbRowListRandomCreate({
@@ -711,7 +711,7 @@ instruction
                 unique: true
             }, {
                 fieldName: 'id',
-                isInteger: true,
+                integer: true,
                 unique: true
             }, {
                 fieldName: 'username',

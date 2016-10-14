@@ -1,16 +1,16 @@
-<svg height="1214" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="1214" fill="#555" width="720"></rect>
+<svg height="1246" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="1246" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
-<tspan x="10" y="42">[MODE_BUILD=testExampleJs] - 2016-10-14T00:56:45Z - testing example.js</tspan>
+<tspan x="10" y="42">[MODE_BUILD=testExampleJs] - 2016-10-14T15:06:13Z - testing example.js</tspan>
 <tspan x="10" y="58"></tspan>
 <tspan x="10" y="74">npm install "kaizhu256/node-swagger-lite#alpha" &amp;&amp; export PORT=8081 &amp;&amp; node example.js</tspan>
 <tspan x="10" y="90"></tspan>
 <tspan x="10" y="106">/tmp/app</tspan>
-<tspan x="10" y="122">└─┬ swagger-lite@2016.9.2  (git://github.com/kaizhu256/node-swagger-lite.git#4d9c222318a3df22574\</tspan>
-<tspan x="10" y="138">fe43777fe4aec2bb60b23)</tspan>
-<tspan x="10" y="154">  └── utility2@2016.10.1  (git://github.com/kaizhu256/node-utility2.git#72b1bcd3897e380547eb7d6d\</tspan>
-<tspan x="10" y="170">b46ac38bf7340056)</tspan>
+<tspan x="10" y="122">└─┬ swagger-lite@2016.9.2  (git://github.com/kaizhu256/node-swagger-lite.git#bbd1e36f1cd1373db86\</tspan>
+<tspan x="10" y="138">4c2c8b76f4acfdcf95df1)</tspan>
+<tspan x="10" y="154">  └── utility2@2016.10.1  (git://github.com/kaizhu256/node-utility2.git#015106bd3332cbeba2becb5c\</tspan>
+<tspan x="10" y="170">8096bc2d89e18a58)</tspan>
 <tspan x="10" y="186"></tspan>
 <tspan x="10" y="202">npm WARN enoent ENOENT: no such file or directory, open '/tmp/app/package.json'</tspan>
 <tspan x="10" y="218">npm WARN app No description</tspan>
@@ -19,61 +19,63 @@
 <tspan x="10" y="266">npm WARN app No license field.</tspan>
 <tspan x="10" y="282">server listening on http-port 8081</tspan>
 <tspan x="10" y="298"></tspan>
-<tspan x="10" y="314">[MODE_BUILD=testExampleJs] - 2016-10-14T00:56:56Z - electron.screenCapture - http://localhost:80\</tspan>
+<tspan x="10" y="314">[MODE_BUILD=testExampleJs] - 2016-10-14T15:06:24Z - electron.screenCapture - http://localhost:80\</tspan>
 <tspan x="10" y="330">81</tspan>
 <tspan x="10" y="346"></tspan>
 <tspan x="10" y="362"></tspan>
 <tspan x="10" y="378">browserTest - created electron entry-page /home/travis/build/kaizhu256/node-swagger-lite/tmp/ele\</tspan>
-<tspan x="10" y="394">ctron.157c0b12-1094-4bf5-9b0e-5ec95635a569.html</tspan>
+<tspan x="10" y="394">ctron.157c3bad-6fd2-4046-bad0-298bbae4faf8.html</tspan>
 <tspan x="10" y="410"></tspan>
-<tspan x="10" y="426">[3408:1014/005656:ERROR:browser_main_loop.cc(231)] Running without the SUID sandbox! See https:/\</tspan>
+<tspan x="10" y="426">[3415:1014/150624:ERROR:browser_main_loop.cc(231)] Running without the SUID sandbox! See https:/\</tspan>
 <tspan x="10" y="442">/chromium.googlesource.com/chromium/src/+/master/docs/linux_suid_sandbox_development.md for more\</tspan>
 <tspan x="10" y="458"> information on developing with the sandbox on.</tspan>
 <tspan x="10" y="474">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
-<tspan x="10" y="490">[3408:1014/005657:WARNING:host_discardable_shared_memory_manager.cc(132)] Less than 64MB of free\</tspan>
-<tspan x="10" y="506"> space in temporary directory for shared memory files: 54</tspan>
+<tspan x="10" y="490">[3415:1014/150625:WARNING:host_discardable_shared_memory_manager.cc(132)] Less than 64MB of free\</tspan>
+<tspan x="10" y="506"> space in temporary directory for shared memory files: 53</tspan>
 <tspan x="10" y="522">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
-<tspan x="10" y="538">[3408:1014/005657:WARNING:audio_manager.cc(314)] Multiple instances of AudioManager detected</tspan>
-<tspan x="10" y="554">[3408:1014/005657:WARNING:audio_manager.cc(275)] Multiple instances of AudioManager detected</tspan>
-<tspan x="10" y="570">[3408:1014/005657:ERROR:bus.cc(432)] Failed to connect to the bus: Failed to connect to socket /\</tspan>
+<tspan x="10" y="538">[3415:1014/150625:WARNING:audio_manager.cc(314)] Multiple instances of AudioManager detected</tspan>
+<tspan x="10" y="554">[3415:1014/150625:WARNING:audio_manager.cc(275)] Multiple instances of AudioManager detected</tspan>
+<tspan x="10" y="570">[3415:1014/150625:ERROR:bus.cc(432)] Failed to connect to the bus: Failed to connect to socket /\</tspan>
 <tspan x="10" y="586">var/run/dbus/system_bus_socket: Connection refused</tspan>
-<tspan x="10" y="602">[3483:1014/005657:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple threads \</tspan>
+<tspan x="10" y="602">[3493:1014/150625:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple threads \</tspan>
 <tspan x="10" y="618">in process gpu-process. </tspan>
-<tspan x="10" y="634">[3408:1014/005657:ERROR:browser_gpu_channel_host_factory.cc(131)] Failed to create channel.</tspan>
+<tspan x="10" y="634">[3415:1014/150625:ERROR:browser_gpu_channel_host_factory.cc(131)] Failed to create channel.</tspan>
 <tspan x="10" y="650"></tspan>
 <tspan x="10" y="666">browserTest - opened url http://localhost:8081</tspan>
 <tspan x="10" y="682"></tspan>
-<tspan x="10" y="698">[3408:1014/005657:WARNING:backend_impl.cc(1803)] Destroying invalid entry.</tspan>
-<tspan x="10" y="714">[3408:1014/005657:ERROR:backend_impl.cc(1032)] Critical error found -8</tspan>
-<tspan x="10" y="730">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="746">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="762">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="778">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="794">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="810">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="826">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="842">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="858">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="874">[3408:1014/005657:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
-<tspan x="10" y="890">[3408:1014/005657:ERROR:entry_impl.cc(960)] Failed to save user data</tspan>
-<tspan x="10" y="906">[3408:1014/005657:INFO:CONSOLE(205)] "server listening on http-port 8081", source: file:///home/\</tspan>
-<tspan x="10" y="922">travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c0b12-1094-4bf5-9b0e-5ec95635a569.html \</tspan>
-<tspan x="10" y="938">(205)</tspan>
-<tspan x="10" y="954">[3408:1014/005658:ERROR:leveldb_database.cc(306)] Failed to open LevelDB database from /home/tra\</tspan>
-<tspan x="10" y="970">vis/.config/Electron/IndexedDB/http_localhost_8081.indexeddb.leveldb,IO error: /home/travis/.con\</tspan>
-<tspan x="10" y="986">fig/Electron/IndexedDB/http_localhost_8081.indexeddb.leveldb/LOCK: No further details. (ChromeMe\</tspan>
-<tspan x="10" y="1002">thodBFE: 15::LockFile::1)</tspan>
-<tspan x="10" y="1018">[3408:1014/005658:ERROR:indexed_db_backing_store.cc(1058)] Unable to open backing store, not try\</tspan>
-<tspan x="10" y="1034">ing to recover - IO error: /home/travis/.config/Electron/IndexedDB/http_localhost_8081.indexeddb\</tspan>
-<tspan x="10" y="1050">.leveldb/LOCK: No further details. (ChromeMethodBFE: 15::LockFile::1)</tspan>
-<tspan x="10" y="1066">[3408:1014/005658:INFO:CONSOLE(205)] "Uncaught Error: {"isTrusted":true}", source: file:///home/\</tspan>
-<tspan x="10" y="1082">travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c0b12-1094-4bf5-9b0e-5ec95635a569.html \</tspan>
-<tspan x="10" y="1098">(205)</tspan>
-<tspan x="10" y="1114"></tspan>
-<tspan x="10" y="1130">browserTest - created screen-capture file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/b\</tspan>
-<tspan x="10" y="1146">uild/screen-capture.testExampleJs.browser..png</tspan>
-<tspan x="10" y="1162"></tspan>
-<tspan x="10" y="1178"></tspan>
-<tspan x="10" y="1194">browserTest - exit-code 0 - http://localhost:8081</tspan>
+<tspan x="10" y="698">[3415:1014/150626:WARNING:backend_impl.cc(1564)] Messed up entry found.</tspan>
+<tspan x="10" y="714">[3415:1014/150626:ERROR:backend_impl.cc(1032)] Critical error found -8</tspan>
+<tspan x="10" y="730">[3415:1014/150626:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
+<tspan x="10" y="746">[3415:1014/150626:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
+<tspan x="10" y="762">[3415:1014/150626:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
+<tspan x="10" y="778">[3415:1014/150626:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
+<tspan x="10" y="794">[3415:1014/150626:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
+<tspan x="10" y="810">[3415:1014/150626:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
+<tspan x="10" y="826">[3415:1014/150626:WARNING:storage_block-inl.h(131)] Failed data load.</tspan>
+<tspan x="10" y="842">[3415:1014/150626:ERROR:entry_impl.cc(960)] Failed to save user data</tspan>
+<tspan x="10" y="858">[3415:1014/150626:INFO:CONSOLE(205)] "Uncaught TypeError: Cannot read property 'db' of undefined\</tspan>
+<tspan x="10" y="874">", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c3bad-6fd2-4046\</tspan>
+<tspan x="10" y="890">-bad0-298bbae4faf8.html (205)</tspan>
+<tspan x="10" y="906">[3415:1014/150626:INFO:CONSOLE(205)] "Uncaught TypeError: Cannot read property 'local' of undefi\</tspan>
+<tspan x="10" y="922">ned", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c3bad-6fd2-4\</tspan>
+<tspan x="10" y="938">046-bad0-298bbae4faf8.html (205)</tspan>
+<tspan x="10" y="954">[3415:1014/150626:INFO:CONSOLE(205)] "Uncaught TypeError: Cannot read property 'stateInit' of un\</tspan>
+<tspan x="10" y="970">defined", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c3bad-6f\</tspan>
+<tspan x="10" y="986">d2-4046-bad0-298bbae4faf8.html (205)</tspan>
+<tspan x="10" y="1002">[3415:1014/150626:INFO:CONSOLE(205)] "Uncaught TypeError: Cannot read property 'onResetBefore' o\</tspan>
+<tspan x="10" y="1018">f undefined", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c3ba\</tspan>
+<tspan x="10" y="1034">d-6fd2-4046-bad0-298bbae4faf8.html (205)</tspan>
+<tspan x="10" y="1050">[3415:1014/150626:INFO:CONSOLE(205)] "Uncaught TypeError: Cannot read property 'local' of undefi\</tspan>
+<tspan x="10" y="1066">ned", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c3bad-6fd2-4\</tspan>
+<tspan x="10" y="1082">046-bad0-298bbae4faf8.html (205)</tspan>
+<tspan x="10" y="1098">[3415:1014/150626:INFO:CONSOLE(205)] "Uncaught TypeError: Cannot read property 'onResetBefore' o\</tspan>
+<tspan x="10" y="1114">f undefined", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c3ba\</tspan>
+<tspan x="10" y="1130">d-6fd2-4046-bad0-298bbae4faf8.html (205)</tspan>
+<tspan x="10" y="1146"></tspan>
+<tspan x="10" y="1162">browserTest - created screen-capture file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/b\</tspan>
+<tspan x="10" y="1178">uild/screen-capture.testExampleJs.browser..png</tspan>
+<tspan x="10" y="1194"></tspan>
+<tspan x="10" y="1210"></tspan>
+<tspan x="10" y="1226">browserTest - exit-code 0 - http://localhost:8081</tspan>
 </text>
 </svg>

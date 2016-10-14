@@ -2311,49 +2311,6 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             });
         };
 
-        local.db.dbIndexCreate = function (dbTable, options, onError) {
-        /*
-         * this function will create an index for the given dbTable
-         */
-        /**
-         * Create an index is for this field. Same parameters as lib/indexes
-         * For now this function is synchronous, we need to test how much time it takes
-         * We use an async API for consistency with the rest of the code
-         * @param {String} options.fieldName
-         * @param {Boolean} options.unique
-         * @param {Boolean} options.sparse
-         * @param {Number} options.expireAfterSeconds - Optional, if set this index
-         *     becomes a TTL index (only works on Date fields, not arrays of Date)
-         * @param {Function} onError - callback, signature: error
-         */
-            var dbIndex, self;
-            // require options.fieldName
-            local.db.assert(options.fieldName, options.fieldName);
-            self = local.db.dbTableDict[dbTable.name];
-            dbIndex = self.indexes[options.fieldName] = new local.db._DbIndex(options);
-            // With this implementation index creation is not necessary to ensure TTL
-            // but we stick with MongoDB's API here
-            if (options.expireAfterSeconds !== undefined) {
-                self.ttlIndexes[options.fieldName] = options.expireAfterSeconds;
-            }
-            dbIndex.insert(self.dbRowList());
-            // We may want to force all options to be persisted including defaults,
-            // not just the ones passed the index creation function
-            self.dbTablePersist();
-            onError();
-        };
-
-        local.db.dbIndexRemove = function (dbTable, options, onError) {
-        /*
-         * this function will remove the dbIndex from dbTable with the given options
-         */
-            var self;
-            self = local.db.dbTableDict[dbTable.name];
-            delete self.indexes[options.fieldName];
-            self.dbTablePersist();
-            onError();
-        };
-
         local.db.dbReset = function (onError) {
         /*
          * this function will reset db's persistence
@@ -2631,7 +2588,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 switch (options.modeNext) {
                 case 1:
                     self = local.db.dbTableDict[options.name] =
-                        local.db.dbTableDict[options.name] || new local.db._DbTable();
+                        local.db.dbTableDict[options.name] || new local.db._DbTable(options);
                     if (self.initialized) {
                         options.onNext();
                         return;
@@ -2642,15 +2599,6 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         options && options.name && typeof options.name === 'string',
                         options && options.name
                     );
-                    self.name = self.name || options.name;
-                    // Indexed by field name, dot notation can be used
-                    // _id is always indexed and since _ids are generated randomly
-                    // the underlying binary is always well-balanced
-                    self.indexes = {
-                        _id: new local.db._DbIndex({ fieldName: '_id', unique: true }),
-                        createdAt: new local.db._DbIndex({ fieldName: 'createdAt' }),
-                        updatedAt: new local.db._DbIndex({ fieldName: 'updatedAt' })
-                    };
                     self.ttlIndexes = {};
                     options.onNext();
                     break;
@@ -2706,9 +2654,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                             }
                         } else if (dbRow.$$indexCreated &&
                                 dbRow.$$indexCreated.fieldName !== undefined) {
-                            self.indexes[dbRow.$$indexCreated.fieldName] = dbRow.$$indexCreated;
+                            self.dbIndexDict[dbRow.$$indexCreated.fieldName] =
+                                dbRow.$$indexCreated;
                         } else if (typeof dbRow.$$indexRemoved === 'string') {
-                            delete self.indexes[dbRow.$$indexRemoved];
+                            delete self.dbIndexDict[dbRow.$$indexRemoved];
                         }
                     });
                     Object.keys(options.dataById).forEach(function (k) {
@@ -2716,9 +2665,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     });
                     // Fill cached database (i.e. all indexes) with data
                     self.dbIndexList().forEach(function (dbIndex) {
-                        dbIndex = self.indexes[dbIndex.fieldName] =
+                        dbIndex = self.dbIndexDict[dbIndex.fieldName] =
                             new local.db._DbIndex(dbIndex);
-                        dbIndex.tree = new local.db.AvlTree({ unique: dbIndex.unique });
+                        dbIndex.tree = new local.db.DbTree({ unique: dbIndex.unique });
                         dbIndex.insert(options.tdata);
                     });
                     self.dbTablePersist();
@@ -2738,6 +2687,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         local.db.dbTableDict = {};
+
+        local.db.isNullOrUndefined = function (arg) {
+        /*
+         * this function will test if the arg is null or undefined
+         */
+            return arg === null || arg === undefined;
+        };
 
         local.db.jsonCopy = function (arg) {
         /*
@@ -3079,7 +3035,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 });
             }
 
-            if (typeof obj === 'object' && obj !== null) {
+            if (obj && typeof obj === 'object') {
                 Object.keys(obj).forEach(function (k) {
                     checkKey(k, obj[k]);
                     local.db.dbRowCheckObject(obj[k]);
@@ -3122,17 +3078,6 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             // For now everything else is undefined. We should probably throw an error instead
             return undefined;
-        };
-        local.db.dbRowIsPrimitiveType = function (obj) {
-        /**
-         * Tells if an object is a primitive type or a 'real' object
-         * Arrays are considered primitive
-         */
-            return (typeof obj === 'boolean' ||
-                typeof obj === 'number' ||
-                typeof obj === 'string' ||
-                obj === null ||
-                Array.isArray(obj));
         };
         // ==============================================================
         // Updating dbRow's
@@ -3694,14 +3639,22 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                 return true;
             }
+
             // Primitive query against a primitive type
             // This is a bit of a hack since we construct an object with an arbitrary key
             // only to dereference it later
             // But I don't have time for a cleaner implementation now
-            if (local.db.dbRowIsPrimitiveType(obj) || local.db.dbRowIsPrimitiveType(query)) {
-                return matchQueryPart({
-                    needAKey: obj
-                }, 'needAKey', query);
+            if (local.db.isNullOrUndefined(obj) ||
+                    typeof obj === 'boolean' ||
+                    typeof obj === 'number' ||
+                    typeof obj === 'string' ||
+                    Array.isArray(obj) ||
+                    local.db.isNullOrUndefined(query) ||
+                    typeof query === 'boolean' ||
+                    typeof query === 'number' ||
+                    typeof query === 'string' ||
+                    Array.isArray(query)) {
+                return matchQueryPart({ needAKey: obj }, 'needAKey', query);
             }
 
             // Normal query
@@ -3726,15 +3679,15 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * Copying
          * Querying, update
          */
-        local.db.AvlTree = function (options) {
+        local.db.DbTree = function (options) {
         /**
-         * Constructor of the internal AvlTree
+         * Constructor of the internal DbTree
          *
          * @param {Object} options Optional
          * @param {Boolean}  options.unique Whether to enforce a 'unique' constraint
          * on the key or not
-         * @param {Key}      options.key Initialize this AvlTree's key with key
-         * @param {Value}    options.value Initialize this AvlTree's data with [value]
+         * @param {Key}      options.key Initialize this DbTree's key with key
+         * @param {Value}    options.value Initialize this DbTree's data with [value]
          */
             this.left = null;
             this.right = null;
@@ -3746,25 +3699,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             this.unique = options.unique || false;
 
         };
-        // ================================
-        // Methods used to test the tree
-        // ================================
-        local.db.AvlTree.prototype.getMaxKeyDescendant = function () {
-        /**
-         * Get the descendant with max key
-         */
-            return this.right
-                ? this.right.getMaxKeyDescendant()
-                : this;
-        };
         // ============================================
         // Methods used to actually work on the tree
         // ============================================
 
-        local.db.AvlTree.prototype.createSimilar = function (options) {
+        local.db.DbTree.prototype.createSimilar = function (options) {
         /**
          * Create a BST similar (i.e. same options except for key and value) to the current one
-         * Use the same constructor (i.e. AvlTree)
+         * Use the same constructor (i.e. DbTree)
          * @param {Object} options see constructor
          */
             options = options || {};
@@ -3772,7 +3714,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return new this.constructor(options);
         };
-        local.db.AvlTree.prototype.createLeftChild = function (options) {
+        local.db.DbTree.prototype.createLeftChild = function (options) {
         /**
          * Create the left child of this BST and return it
          */
@@ -3782,7 +3724,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return leftChild;
         };
-        local.db.AvlTree.prototype.createRightChild = function (options) {
+        local.db.DbTree.prototype.createRightChild = function (options) {
         /**
          * Create the right child of this BST and return it
          */
@@ -3792,526 +3734,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return rightChild;
         };
-        local.db.AvlTree.prototype.insert = function (key, value) {
+        local.db.DbTree.prototype.insert = function (key, value) {
         /**
-         * Insert a new element
-         */
-            // Empty tree, insert as root
-            if (!this.hasOwnProperty('key')) {
-                this.key = key;
-                this.data.push(value);
-                return;
-            }
-
-            // Same key as root
-            if (local.db.sortCompare(this.key, key) === 0) {
-                if (this.unique) {
-                    var error = new Error("Can't insert key " + key +
-                        ', it violates the unique constraint');
-                    error.key = key;
-                    error.errorType = 'uniqueViolated';
-                    throw error;
-                }
-                this.data.push(value);
-            }
-
-            if (local.db.sortCompare(key, this.key) < 0) {
-                // Insert in left subtree
-                if (this.left) {
-                    this.left.insert(key, value);
-                } else {
-                    this.createLeftChild({
-                        key: key,
-                        value: value
-                    });
-                }
-            } else {
-                // Insert in right subtree
-                if (this.right) {
-                    this.right.insert(key, value);
-                } else {
-                    this.createRightChild({
-                        key: key,
-                        value: value
-                    });
-                }
-            }
-        };
-        local.db.AvlTree.prototype.search = function (key) {
-        /**
-         * Search for all data corresponding to a key
-         */
-            if (!this.hasOwnProperty('key')) {
-                return [];
-            }
-
-            if (local.db.sortCompare(this.key, key) === 0) {
-                return this.data;
-            }
-
-            if (local.db.sortCompare(key, this.key) < 0) {
-                if (this.left) {
-                    return this.left.search(key);
-                }
-                return [];
-            }
-            if (this.right) {
-                return this.right.search(key);
-            }
-            return [];
-        };
-        local.db.AvlTree.prototype.getLowerBoundMatcher = function (query) {
-        /**
-         * Return a function that tells whether a given key matches a lower bound
-         */
-            // No lower bound
-            if (!query.hasOwnProperty('$gt') && !query.hasOwnProperty('$gte')) {
-                return function () {
-                    return true;
-                };
-            }
-
-            if (query.hasOwnProperty('$gt') && query.hasOwnProperty('$gte')) {
-                if (local.db.sortCompare(query.$gte, query.$gt) === 0) {
-                    return function (key) {
-                        return local.db.sortCompare(key, query.$gt) > 0;
-                    };
-                }
-
-                if (local.db.sortCompare(query.$gte, query.$gt) > 0) {
-                    return function (key) {
-                        return local.db.sortCompare(key, query.$gte) >= 0;
-                    };
-                }
-                return function (key) {
-                    return local.db.sortCompare(key, query.$gt) > 0;
-                };
-            }
-
-            if (query.hasOwnProperty('$gt')) {
-                return function (key) {
-                    return local.db.sortCompare(key, query.$gt) > 0;
-                };
-            }
-            return function (key) {
-                return local.db.sortCompare(key, query.$gte) >= 0;
-            };
-        };
-        local.db.AvlTree.prototype.getUpperBoundMatcher = function (query) {
-        /**
-         * Return a function that tells whether a given key matches an upper bound
-         */
-            // No lower bound
-            if (!query.hasOwnProperty('$lt') && !query.hasOwnProperty('$lte')) {
-                return function () {
-                    return true;
-                };
-            }
-
-            if (query.hasOwnProperty('$lt') && query.hasOwnProperty('$lte')) {
-                if (local.db.sortCompare(query.$lte, query.$lt) === 0) {
-                    return function (key) {
-                        return local.db.sortCompare(key, query.$lt) < 0;
-                    };
-                }
-
-                if (local.db.sortCompare(query.$lte, query.$lt) < 0) {
-                    return function (key) {
-                        return local.db.sortCompare(key, query.$lte) <= 0;
-                    };
-                }
-                return function (key) {
-                    return local.db.sortCompare(key, query.$lt) < 0;
-                };
-            }
-
-            if (query.hasOwnProperty('$lt')) {
-                return function (key) {
-                    return local.db.sortCompare(key, query.$lt) < 0;
-                };
-            }
-            return function (key) {
-                return local.db.sortCompare(key, query.$lte) <= 0;
-            };
-        };
-        // Append all elements in toAppend to array
-        function append(array, toAppend) {
-            var ii;
-
-            for (ii = 0; ii < toAppend.length; ii += 1) {
-                array.push(toAppend[ii]);
-            }
-        }
-        local.db.AvlTree.prototype.betweenBounds = function (query, lbm, ubm) {
-        /**
-         * Get all data for a key between bounds
-         * Return it in key order
-         * @param {Object} query Mongo-style query
-         * where keys are $lt, $lte, $gt or $gte (other keys are not considered)
-         * @param {Functions} lbm/ubm matching functions calculated at the first recursive step
-         */
-            var res = [];
-
-            if (!this.hasOwnProperty('key')) {
-                return [];
-            } // Empty tree
-
-            lbm = lbm || this.getLowerBoundMatcher(query);
-            ubm = ubm || this.getUpperBoundMatcher(query);
-
-            if (lbm(this.key) && this.left) {
-                append(res, this.left.betweenBounds(query, lbm, ubm));
-            }
-            if (lbm(this.key) && ubm(this.key)) {
-                append(res, this.data);
-            }
-            if (ubm(this.key) && this.right) {
-                append(res, this.right.betweenBounds(query, lbm, ubm));
-            }
-
-            return res;
-        };
-        local.db.AvlTree.prototype.deleteIfLeaf = function () {
-        /**
-         * Delete the current node if it is a leaf
-         * Return true if it was deleted
-         */
-            if (this.left || this.right) {
-                return false;
-            }
-
-            // The leaf is itself a root
-            if (!this.parent) {
-                delete this.key;
-                this.data = [];
-                return true;
-            }
-
-            if (this.parent.left === this) {
-                this.parent.left = null;
-            } else {
-                this.parent.right = null;
-            }
-
-            return true;
-        };
-        local.db.AvlTree.prototype.deleteIfOnlyOneChild = function () {
-        /**
-         * Delete the current node if it has only one child
-         * Return true if it was deleted
-         */
-            var child;
-
-            if (this.left && !this.right) {
-                child = this.left;
-            }
-            if (!this.left && this.right) {
-                child = this.right;
-            }
-            if (!child) {
-                return false;
-            }
-
-            // Root
-            if (!this.parent) {
-                this.key = child.key;
-                this.data = child.data;
-
-                this.left = null;
-                if (child.left) {
-                    this.left = child.left;
-                    child.left.parent = this;
-                }
-
-                this.right = null;
-                if (child.right) {
-                    this.right = child.right;
-                    child.right.parent = this;
-                }
-
-                return true;
-            }
-
-            if (this.parent.left === this) {
-                this.parent.left = child;
-                child.parent = this.parent;
-            } else {
-                this.parent.right = child;
-                child.parent = this.parent;
-            }
-
-            return true;
-        };
-        local.db.AvlTree.prototype.delete = function (key, value) {
-        /**
-         * Delete a key or just a value
-         * @param {Key} key
-         * @param {Value} value Optional. If not set, the whole key is deleted.
-         * If set, only this value is deleted
-         */
-            var newData, replaceWith, self;
-            newData = [];
-            self = this;
-
-            if (!this.hasOwnProperty('key')) {
-                return;
-            }
-
-            if (local.db.sortCompare(key, this.key) < 0) {
-                if (this.left) {
-                    this.left.delete(key, value);
-                }
-                return;
-            }
-
-            if (local.db.sortCompare(key, this.key) > 0) {
-                if (this.right) {
-                    this.right.delete(key, value);
-                }
-                return;
-            }
-
-            if (local.db.sortCompare(key, this.key) !== 0) {
-                return;
-            }
-
-            // Delete only a value
-            if (this.data.length > 1 && value !== undefined) {
-                this.data.forEach(function (d) {
-                    if (d !== value) {
-                        newData.push(d);
-                    }
-                });
-                self.data = newData;
-                return;
-            }
-
-            // Delete the whole node
-            if (this.deleteIfLeaf()) {
-                return;
-            }
-            if (this.deleteIfOnlyOneChild()) {
-                return;
-            }
-
-            // We are in the case where the node to delete has two children
-            // Randomize replacement to avoid unbalancing the tree too much
-            if (Math.random() >= 0.5) {
-                // Use the in-order predecessor
-                replaceWith = this.left.getMaxKeyDescendant();
-
-                this.key = replaceWith.key;
-                this.data = replaceWith.data;
-
-                if (this === replaceWith.parent) { // Special case
-                    this.left = replaceWith.left;
-                    if (replaceWith.left) {
-                        replaceWith.left.parent = replaceWith.parent;
-                    }
-                } else {
-                    replaceWith.parent.right = replaceWith.left;
-                    if (replaceWith.left) {
-                        replaceWith.left.parent = replaceWith.parent;
-                    }
-                }
-            } else {
-                // Use the in-order successor
-                replaceWith = this.right.getMinKeyDescendant();
-
-                this.key = replaceWith.key;
-                this.data = replaceWith.data;
-
-                if (this === replaceWith.parent) { // Special case
-                    this.right = replaceWith.right;
-                    if (replaceWith.right) {
-                        replaceWith.right.parent = replaceWith.parent;
-                    }
-                } else {
-                    replaceWith.parent.left = replaceWith.right;
-                    if (replaceWith.right) {
-                        replaceWith.right.parent = replaceWith.parent;
-                    }
-                }
-            }
-        };
-        local.db.AvlTree.prototype.executeOnEveryNode = function (fn) {
-        /**
-         * Execute a function on every node of the tree, in key order
-         * @param {Function} fn Signature: node.
-         * Most useful will probably be node.key and node.data
-         */
-            if (this.left) {
-                this.left.executeOnEveryNode(fn);
-            }
-            fn(this);
-            if (this.right) {
-                this.right.executeOnEveryNode(fn);
-            }
-        };
-        local.db.AvlTree.prototype.balanceFactor = function () {
-        /**
-         * Return the balance factor
-         */
-            var leftH = this.left ? this.left.height : 0,
-                rightH = this.right ? this.right.height : 0;
-            return leftH - rightH;
-        };
-
-        local.db.AvlTree.prototype.rightRotation = function () {
-        /**
-         * Perform a right rotation of the tree if possible
-         * and return the root of the resulting tree
-         * The resulting tree's nodes' heights are also updated
-         */
-            var q = this, p = this.left, b, ah, bh, ch;
-
-            if (!p) {
-                return this;
-            } // No change
-
-            b = p.right;
-
-            // Alter tree structure
-            if (q.parent) {
-                p.parent = q.parent;
-                if (q.parent.left === q) {
-                    q.parent.left = p;
-                } else {
-                    q.parent.right = p;
-                }
-            } else {
-                p.parent = null;
-            }
-            p.right = q;
-            q.parent = p;
-            q.left = b;
-            if (b) {
-                b.parent = q;
-            }
-
-            // Update heights
-            ah = p.left ? p.left.height : 0;
-            bh = b ? b.height : 0;
-            ch = q.right ? q.right.height : 0;
-            q.height = Math.max(bh, ch) + 1;
-            p.height = Math.max(ah, q.height) + 1;
-
-            return p;
-        };
-        local.db.AvlTree.prototype.leftRotation = function () {
-        /**
-         * Perform a left rotation of the tree if possible
-         * and return the root of the resulting tree
-         * The resulting tree's nodes' heights are also updated
-         */
-            var p = this, q = this.right, b, ah, bh, ch;
-
-            if (!q) {
-                return this;
-            } // No change
-
-            b = q.left;
-
-            // Alter tree structure
-            if (p.parent) {
-                q.parent = p.parent;
-                if (p.parent.left === p) {
-                    p.parent.left = q;
-                } else {
-                    p.parent.right = q;
-                }
-            } else {
-                q.parent = null;
-            }
-            q.left = p;
-            p.parent = q;
-            p.right = b;
-            if (b) {
-                b.parent = p;
-            }
-
-            // Update heights
-            ah = p.left ? p.left.height : 0;
-            bh = b ? b.height : 0;
-            ch = q.right ? q.right.height : 0;
-            p.height = Math.max(ah, bh) + 1;
-            q.height = Math.max(ch, p.height) + 1;
-
-            return q;
-        };
-        local.db.AvlTree.prototype.rightTooSmall = function () {
-        /**
-         * Modify the tree if its right subtree is too small compared to the left
-         * Return the new root if any
-         */
-            if (this.balanceFactor() <= 1) {
-                return this;
-            } // Right is not too small, don't change
-
-            if (this.left.balanceFactor() < 0) {
-                this.left.leftRotation();
-            }
-
-            return this.rightRotation();
-        };
-        local.db.AvlTree.prototype.leftTooSmall = function () {
-        /**
-         * Modify the tree if its left subtree is too small compared to the right
-         * Return the new root if any
-         */
-            if (this.balanceFactor() >= -1) {
-                return this;
-            } // Left is not too small, don't change
-
-            if (this.right.balanceFactor() > 0) {
-                this.right.rightRotation();
-            }
-
-            return this.leftRotation();
-        };
-        local.db.AvlTree.prototype.rebalanceAlongPath = function (path) {
-        /**
-         * Rebalance the tree along the given path.
-         * The path is given reversed (as he was calculated
-         * in the insert and delete functions).
-         * Returns the new root of the tree
-         * Of course, the first element of the path must be the root of the tree
-         */
-            var newRoot = this, rotated, ii;
-
-            if (!this.hasOwnProperty('key')) {
-                delete this.height;
-                return this;
-            } // Empty tree
-
-            // Rebalance the tree and update all heights
-            for (ii = path.length - 1; ii >= 0; ii -= 1) {
-                path[ii].height = 1 + Math.max(path[ii].left
-                    ? path[ii].left.height
-                    : 0, path[ii].right
-                    ? path[ii].right.height
-                    : 0);
-
-                if (path[ii].balanceFactor() > 1) {
-                    rotated = path[ii].rightTooSmall();
-                    if (ii === 0) {
-                        newRoot = rotated;
-                    }
-                }
-
-                if (path[ii].balanceFactor() < -1) {
-                    rotated = path[ii].leftTooSmall();
-                    if (ii === 0) {
-                        newRoot = rotated;
-                    }
-                }
-            }
-
-            return newRoot;
-        };
-        local.db.AvlTree.prototype.insert = function (key, value) {
-        /**
-         * Insert a key, value pair in the tree while maintaining the AvlTree height constraint
+         * Insert a key, value pair in the tree while maintaining the DbTree height constraint
          * Return a pointer to the root node, which may have changed
          */
             var error,
@@ -4367,7 +3792,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return this.rebalanceAlongPath(insertPath);
         };
 
-        local.db.AvlTree.prototype.delete = function (key, value) {
+        local.db.DbTree.prototype.delete = function (key, value) {
         /**
          * Delete a key or just a value and return the new root of the tree
          * @param {Key} key
@@ -4492,6 +3917,386 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return this.rebalanceAlongPath(deletePath);
         };
 
+        local.db.DbTree.prototype.search = function (key) {
+        /**
+         * Search for all data corresponding to a key
+         */
+            if (!this.hasOwnProperty('key')) {
+                return [];
+            }
+
+            if (local.db.sortCompare(this.key, key) === 0) {
+                return this.data;
+            }
+
+            if (local.db.sortCompare(key, this.key) < 0) {
+                if (this.left) {
+                    return this.left.search(key);
+                }
+                return [];
+            }
+            if (this.right) {
+                return this.right.search(key);
+            }
+            return [];
+        };
+        local.db.DbTree.prototype.getLowerBoundMatcher = function (query) {
+        /**
+         * Return a function that tells whether a given key matches a lower bound
+         */
+            // No lower bound
+            if (!query.hasOwnProperty('$gt') && !query.hasOwnProperty('$gte')) {
+                return function () {
+                    return true;
+                };
+            }
+
+            if (query.hasOwnProperty('$gt') && query.hasOwnProperty('$gte')) {
+                if (local.db.sortCompare(query.$gte, query.$gt) === 0) {
+                    return function (key) {
+                        return local.db.sortCompare(key, query.$gt) > 0;
+                    };
+                }
+
+                if (local.db.sortCompare(query.$gte, query.$gt) > 0) {
+                    return function (key) {
+                        return local.db.sortCompare(key, query.$gte) >= 0;
+                    };
+                }
+                return function (key) {
+                    return local.db.sortCompare(key, query.$gt) > 0;
+                };
+            }
+
+            if (query.hasOwnProperty('$gt')) {
+                return function (key) {
+                    return local.db.sortCompare(key, query.$gt) > 0;
+                };
+            }
+            return function (key) {
+                return local.db.sortCompare(key, query.$gte) >= 0;
+            };
+        };
+        local.db.DbTree.prototype.getUpperBoundMatcher = function (query) {
+        /**
+         * Return a function that tells whether a given key matches an upper bound
+         */
+            // No lower bound
+            if (!query.hasOwnProperty('$lt') && !query.hasOwnProperty('$lte')) {
+                return function () {
+                    return true;
+                };
+            }
+
+            if (query.hasOwnProperty('$lt') && query.hasOwnProperty('$lte')) {
+                if (local.db.sortCompare(query.$lte, query.$lt) === 0) {
+                    return function (key) {
+                        return local.db.sortCompare(key, query.$lt) < 0;
+                    };
+                }
+
+                if (local.db.sortCompare(query.$lte, query.$lt) < 0) {
+                    return function (key) {
+                        return local.db.sortCompare(key, query.$lte) <= 0;
+                    };
+                }
+                return function (key) {
+                    return local.db.sortCompare(key, query.$lt) < 0;
+                };
+            }
+
+            if (query.hasOwnProperty('$lt')) {
+                return function (key) {
+                    return local.db.sortCompare(key, query.$lt) < 0;
+                };
+            }
+            return function (key) {
+                return local.db.sortCompare(key, query.$lte) <= 0;
+            };
+        };
+        // Append all elements in toAppend to array
+        function append(array, toAppend) {
+            var ii;
+
+            for (ii = 0; ii < toAppend.length; ii += 1) {
+                array.push(toAppend[ii]);
+            }
+        }
+        local.db.DbTree.prototype.betweenBounds = function (query, lbm, ubm) {
+        /**
+         * Get all data for a key between bounds
+         * Return it in key order
+         * @param {Object} query Mongo-style query
+         * where keys are $lt, $lte, $gt or $gte (other keys are not considered)
+         * @param {Functions} lbm/ubm matching functions calculated at the first recursive step
+         */
+            var res = [];
+
+            if (!this.hasOwnProperty('key')) {
+                return [];
+            } // Empty tree
+
+            lbm = lbm || this.getLowerBoundMatcher(query);
+            ubm = ubm || this.getUpperBoundMatcher(query);
+
+            if (lbm(this.key) && this.left) {
+                append(res, this.left.betweenBounds(query, lbm, ubm));
+            }
+            if (lbm(this.key) && ubm(this.key)) {
+                append(res, this.data);
+            }
+            if (ubm(this.key) && this.right) {
+                append(res, this.right.betweenBounds(query, lbm, ubm));
+            }
+
+            return res;
+        };
+        local.db.DbTree.prototype.deleteIfLeaf = function () {
+        /**
+         * Delete the current node if it is a leaf
+         * Return true if it was deleted
+         */
+            if (this.left || this.right) {
+                return false;
+            }
+
+            // The leaf is itself a root
+            if (!this.parent) {
+                delete this.key;
+                this.data = [];
+                return true;
+            }
+
+            if (this.parent.left === this) {
+                this.parent.left = null;
+            } else {
+                this.parent.right = null;
+            }
+
+            return true;
+        };
+        local.db.DbTree.prototype.deleteIfOnlyOneChild = function () {
+        /**
+         * Delete the current node if it has only one child
+         * Return true if it was deleted
+         */
+            var child;
+
+            if (this.left && !this.right) {
+                child = this.left;
+            }
+            if (!this.left && this.right) {
+                child = this.right;
+            }
+            if (!child) {
+                return false;
+            }
+
+            // Root
+            if (!this.parent) {
+                this.key = child.key;
+                this.data = child.data;
+
+                this.left = null;
+                if (child.left) {
+                    this.left = child.left;
+                    child.left.parent = this;
+                }
+
+                this.right = null;
+                if (child.right) {
+                    this.right = child.right;
+                    child.right.parent = this;
+                }
+
+                return true;
+            }
+
+            if (this.parent.left === this) {
+                this.parent.left = child;
+                child.parent = this.parent;
+            } else {
+                this.parent.right = child;
+                child.parent = this.parent;
+            }
+
+            return true;
+        };
+        local.db.DbTree.prototype.executeOnEveryNode = function (fn) {
+        /**
+         * Execute a function on every node of the tree, in key order
+         * @param {Function} fn Signature: node.
+         * Most useful will probably be node.key and node.data
+         */
+            if (this.left) {
+                this.left.executeOnEveryNode(fn);
+            }
+            fn(this);
+            if (this.right) {
+                this.right.executeOnEveryNode(fn);
+            }
+        };
+        local.db.DbTree.prototype.balanceFactor = function () {
+        /**
+         * Return the balance factor
+         */
+            var leftH = this.left ? this.left.height : 0,
+                rightH = this.right ? this.right.height : 0;
+            return leftH - rightH;
+        };
+
+        local.db.DbTree.prototype.rightRotation = function () {
+        /**
+         * Perform a right rotation of the tree if possible
+         * and return the root of the resulting tree
+         * The resulting tree's nodes' heights are also updated
+         */
+            var q = this, p = this.left, b, ah, bh, ch;
+
+            if (!p) {
+                return this;
+            } // No change
+
+            b = p.right;
+
+            // Alter tree structure
+            if (q.parent) {
+                p.parent = q.parent;
+                if (q.parent.left === q) {
+                    q.parent.left = p;
+                } else {
+                    q.parent.right = p;
+                }
+            } else {
+                p.parent = null;
+            }
+            p.right = q;
+            q.parent = p;
+            q.left = b;
+            if (b) {
+                b.parent = q;
+            }
+
+            // Update heights
+            ah = p.left ? p.left.height : 0;
+            bh = b ? b.height : 0;
+            ch = q.right ? q.right.height : 0;
+            q.height = Math.max(bh, ch) + 1;
+            p.height = Math.max(ah, q.height) + 1;
+
+            return p;
+        };
+        local.db.DbTree.prototype.leftRotation = function () {
+        /**
+         * Perform a left rotation of the tree if possible
+         * and return the root of the resulting tree
+         * The resulting tree's nodes' heights are also updated
+         */
+            var p = this, q = this.right, b, ah, bh, ch;
+
+            if (!q) {
+                return this;
+            } // No change
+
+            b = q.left;
+
+            // Alter tree structure
+            if (p.parent) {
+                q.parent = p.parent;
+                if (p.parent.left === p) {
+                    p.parent.left = q;
+                } else {
+                    p.parent.right = q;
+                }
+            } else {
+                q.parent = null;
+            }
+            q.left = p;
+            p.parent = q;
+            p.right = b;
+            if (b) {
+                b.parent = p;
+            }
+
+            // Update heights
+            ah = p.left ? p.left.height : 0;
+            bh = b ? b.height : 0;
+            ch = q.right ? q.right.height : 0;
+            p.height = Math.max(ah, bh) + 1;
+            q.height = Math.max(ch, p.height) + 1;
+
+            return q;
+        };
+        local.db.DbTree.prototype.rightTooSmall = function () {
+        /**
+         * Modify the tree if its right subtree is too small compared to the left
+         * Return the new root if any
+         */
+            if (this.balanceFactor() <= 1) {
+                return this;
+            } // Right is not too small, don't change
+
+            if (this.left.balanceFactor() < 0) {
+                this.left.leftRotation();
+            }
+
+            return this.rightRotation();
+        };
+        local.db.DbTree.prototype.leftTooSmall = function () {
+        /**
+         * Modify the tree if its left subtree is too small compared to the right
+         * Return the new root if any
+         */
+            if (this.balanceFactor() >= -1) {
+                return this;
+            } // Left is not too small, don't change
+
+            if (this.right.balanceFactor() > 0) {
+                this.right.rightRotation();
+            }
+
+            return this.leftRotation();
+        };
+        local.db.DbTree.prototype.rebalanceAlongPath = function (path) {
+        /**
+         * Rebalance the tree along the given path.
+         * The path is given reversed (as he was calculated
+         * in the insert and delete functions).
+         * Returns the new root of the tree
+         * Of course, the first element of the path must be the root of the tree
+         */
+            var newRoot = this, rotated, ii;
+
+            if (!this.hasOwnProperty('key')) {
+                delete this.height;
+                return this;
+            } // Empty tree
+
+            // Rebalance the tree and update all heights
+            for (ii = path.length - 1; ii >= 0; ii -= 1) {
+                path[ii].height = 1 + Math.max(path[ii].left
+                    ? path[ii].left.height
+                    : 0, path[ii].right
+                    ? path[ii].right.height
+                    : 0);
+
+                if (path[ii].balanceFactor() > 1) {
+                    rotated = path[ii].rightTooSmall();
+                    if (ii === 0) {
+                        newRoot = rotated;
+                    }
+                }
+
+                if (path[ii].balanceFactor() < -1) {
+                    rotated = path[ii].leftTooSmall();
+                    if (ii === 0) {
+                        newRoot = rotated;
+                    }
+                }
+            }
+
+            return newRoot;
+        };
         function projectForUnique(elt) {
         /**
          * Type-aware projection
@@ -4529,13 +4334,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * (we can have dbRow's for which fieldName is undefined) (default: false)
          */
             this.fieldName = options.fieldName;
-            this.isInteger = options.isInteger;
+            this.integer = options.integer;
 
             this.unique = options.unique || false;
             this.sparse = options.sparse || false;
 
             // No data in the beginning
-            this.tree = new local.db.AvlTree({ unique: this.unique });
+            this.tree = new local.db.DbTree({ unique: this.unique });
         };
         local.db._DbIndex.prototype.insert = function (dbRow) {
         /**
@@ -4554,14 +4359,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             key = local.db.queryGetDotValue(dbRow, self.fieldName);
 
             // We don't index dbRow's that don't contain the field if the index is sparse
-            if (key === undefined && self.sparse) {
+            if (self.sparse && local.db.isNullOrUndefined(key)) {
                 return;
             }
 
             // auto-create keyUnique
             if (self.unique && !(key === 0 || key) && self.fieldName.indexOf('.') < 0) {
                 while (true) {
-                    key = self.isInteger
+                    key = self.integer
                         ? Math.floor(Math.random() * 0x20000000000000)
                         : ('a' +
                             Math.random().toString(36).slice(2) +
@@ -4644,7 +4449,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             key = local.db.queryGetDotValue(dbRow, self.fieldName);
 
-            if (key === undefined && self.sparse) {
+            if (self.sparse && local.db.isNullOrUndefined(key)) {
                 return;
             }
 
@@ -4886,11 +4691,28 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             });
         };
 
-        local.db._DbTable = function () {
+        local.db._DbTable = function (options) {
         /**
          * this function will create a dbTable
          */
-            return;
+            local.db.objectSetDefault(this, options);
+            // validate options
+            local.db.assert(
+                this.name && typeof this.name === 'string',
+                'invalid name - ' + this.name
+            );
+            local.db.assert(
+                !local.db.dbTableDict[this.name] || local.db.dbTableDict[this.name] === this,
+                'non-unique name - ' + this.name
+            );
+            // register dbTable in dbTableDict
+            local.db.dbTableDict[this.name] = this;
+            // init dbIndexDict
+            this.dbIndexDict = {
+                _id: new local.db._DbIndex({ fieldName: '_id', unique: true }),
+                createdAt: new local.db._DbIndex({ fieldName: 'createdAt' }),
+                updatedAt: new local.db._DbIndex({ fieldName: 'updatedAt' })
+            };
         };
 
         local.db._DbTable.prototype.crudCountMany = function (options, onError) {
@@ -5094,15 +4916,62 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             this.crudRemoveMany(options, onError);
         };
 
+        local.db._DbTable.prototype.dbIndexCreate = function (options) {
+        /*
+         * this function will create an index for the given dbTable
+         */
+        /**
+         * Create an index is for this field. Same parameters as lib/indexes
+         * For now this function is synchronous, we need to test how much time it takes
+         * We use an async API for consistency with the rest of the code
+         * @param {String} options.fieldName
+         * @param {Boolean} options.unique
+         * @param {Boolean} options.sparse
+         * @param {Number} options.expireAfterSeconds - Optional, if set this index
+         *     becomes a TTL index (only works on Date fields, not arrays of Date)
+         * @param {Function} onError - callback, signature: error
+         */
+            var dbIndex, self;
+            // validate fieldName
+            local.db.assert(!(options.fieldName &&
+                options.fieldName === '_id' &&
+                options.fieldName === 'createdAt' &&
+                options.fieldName === 'updatedAt'), 'invalid fieldName ' + options.fieldName);
+            self = this;
+            dbIndex = self.dbIndexDict[options.fieldName] = new local.db._DbIndex(options);
+            // With this implementation index creation is not necessary to ensure TTL
+            // but we stick with MongoDB's API here
+            if (options.expireAfterSeconds !== undefined) {
+                self.ttlIndexes[options.fieldName] = options.expireAfterSeconds;
+            }
+            dbIndex.insert(self.dbRowList());
+            // We may want to force all options to be persisted including defaults,
+            // not just the ones passed the index creation function
+            self.dbTablePersist();
+        };
+
         local.db._DbTable.prototype.dbIndexList = function () {
         /*
          * this function will return all dbIndex's in dbTable
          */
             var self;
             self = this;
-            return Object.keys(self.indexes).map(function (key) {
-                return self.indexes[key];
+            return Object.keys(self.dbIndexDict).map(function (key) {
+                return self.dbIndexDict[key];
             });
+        };
+
+        local.db._DbTable.prototype.dbIndexRemove = function (options) {
+        /*
+         * this function will remove the dbIndex from dbTable with the given options
+         */
+            // validate fieldName
+            local.db.assert(!(options.fieldName &&
+                options.fieldName === '_id' &&
+                options.fieldName === 'createdAt' &&
+                options.fieldName === 'updatedAt'), 'invalid fieldName ' + options.fieldName);
+            delete this.dbIndexDict[options.fieldName];
+            this.dbTablePersist();
         };
 
         local.db._DbTable.prototype.dbRowList = function () {
@@ -5111,7 +4980,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
             var result;
             result = [];
-            this.indexes._id.tree.executeOnEveryNode(function (node) {
+            this.dbIndexDict._id.tree.executeOnEveryNode(function (node) {
                 node.data.forEach(function (dbRow) {
                     result.push(dbRow);
                 });
@@ -5121,13 +4990,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         local.db._DbTable.prototype.dbTableClear = function (onError) {
         /*
-         * this function will drop dbTable
+         * this function will clear dbTable
          */
             var self;
             self = this;
             delete self.timerDbTableSave;
             self.dbIndexList().forEach(function (dbIndex) {
-                dbIndex.tree = new local.db.AvlTree({ unique: dbIndex.unique });
+                dbIndex.tree = new local.db.DbTree({ unique: dbIndex.unique });
             });
             local.db.dbStorageRemoveItem(self.name, onError);
         };
@@ -5149,7 +5018,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 }
                 data += JSON.stringify({ $$indexCreated: {
                     fieldName: dbIndex.fieldName,
-                    isInteger: dbIndex.isInteger,
+                    integer: dbIndex.integer,
                     unique: dbIndex.unique,
                     sparse: dbIndex.sparse
                 } }) + '\n';
@@ -5157,15 +5026,54 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return data.slice(0, -1);
         };
 
-        //!! local.db._DbTable.prototype.dbTableImport = function (data) {
-        //!! /*
-         //!! * this function will import the data into dbTable
-         //!! */
-            //!! var self;
-            //!! self = this;
-            //!! data = data.trim().split('\n\n');
-            //!! data
-        //!! };
+        local.db._DbTable.prototype.dbTableExport2 = function () {
+        /*
+         * this function will export dbTable
+         */
+            var data, self;
+            self = this;
+            data = '';
+            data += JSON.stringify(String(self.name));
+            data += '\n\n';
+            self.dbIndexList().forEach(function (dbIndex) {
+                switch (dbIndex.fieldName) {
+                case '_id':
+                case 'createdAt':
+                case 'updatedAt':
+                    return;
+                }
+                data += JSON.stringify({
+                    fieldName: dbIndex.fieldName,
+                    integer: dbIndex.integer,
+                    unique: dbIndex.unique,
+                    sparse: dbIndex.sparse
+                }) + '\n';
+            });
+            data += '\n';
+            self.dbRowList().forEach(function (dbRow) {
+                data += JSON.stringify(dbRow) + '\n';
+            });
+            return data;
+        };
+
+        local.db._DbTable.prototype.dbTableImport = function (data) {
+        /*
+         * this function will import the data into dbTable
+         */
+            var self;
+            self = this;
+            delete self.timerDbTableSave;
+            data = data.split('\n\n').map(function (element) {
+                return element.trim().split('\n').map(function (element) {
+                    return JSON.parse(element);
+                });
+            });
+            data[1].forEach(function (dbIndex) {
+                dbIndex = self.dbIndexDict[dbIndex.fieldName] = new local.db._DbIndex(dbIndex);
+                dbIndex.insert(self.dbRowList());
+                dbIndex.insert(data[2]);
+            });
+        };
 
         local.db._DbTable.prototype.dbTablePersist = function () {
         /*
@@ -5225,10 +5133,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         }
                     });
                     usableQueryKeys = usableQueryKeys.filter(function (element) {
-                        return self.indexes.hasOwnProperty(element);
+                        return self.dbIndexDict.hasOwnProperty(element);
                     });
                     if (usableQueryKeys.length > 0) {
-                        return options.onNext(null, self.indexes[usableQueryKeys[0]]
+                        return options.onNext(null, self.dbIndexDict[usableQueryKeys[0]]
                             .getMatching(query[usableQueryKeys[0]]));
                     }
 
@@ -5240,12 +5148,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         }
                     });
                     usableQueryKeys = usableQueryKeys.filter(function (element) {
-                        return self.indexes.hasOwnProperty(element);
+                        return self.dbIndexDict.hasOwnProperty(element);
                     });
                     if (usableQueryKeys.length > 0) {
                         return options.onNext(
                             null,
-                            self.indexes[usableQueryKeys[0]]
+                            self.dbIndexDict[usableQueryKeys[0]]
                                 .getMatching(query[usableQueryKeys[0]].$in)
                         );
                     }
@@ -5261,12 +5169,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         }
                     });
                     usableQueryKeys = usableQueryKeys.filter(function (element) {
-                        return self.indexes.hasOwnProperty(element);
+                        return self.dbIndexDict.hasOwnProperty(element);
                     });
                     if (usableQueryKeys.length > 0) {
                         return options.onNext(
                             null,
-                            self.indexes[usableQueryKeys[0]].tree.betweenBounds(
+                            self.dbIndexDict[usableQueryKeys[0]].tree.betweenBounds(
                                 query[usableQueryKeys[0]]
                             )
                         );
@@ -5297,7 +5205,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                             validDocs.push(dbRow);
                         } else {
                             onParallel.counter += 1;
-                            self.remove({ _id: dbRow._id }, {}, onParallel);
+                            self.crudRemoveOne({ query: { _id: dbRow._id } }, onParallel);
                         }
                     });
                     onParallel();
@@ -5322,11 +5230,35 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 dbRow.createdAt = dbRow.createdAt || timeNow;
                 dbRow.updatedAt = dbRow.updatedAt || timeNow;
                 local.db.dbRowCheckObject(dbRow);
-                // add to indexes
-                self.dbIndexList().forEach(function (dbIndex) {
-                    dbIndex.insert(dbRow);
-                });
                 return dbRow;
+            });
+            // add to indexes
+            self.dbIndexList().forEach(function (dbIndex) {
+                dbIndex.insert(dbRowList);
+            });
+            setTimeout(function () {
+                self.dbTablePersist();
+                onError(null, local.db.jsonCopy(dbRowList));
+            }, 10);
+        };
+
+        local.db._DbTable.prototype.crudSetMany = function (dbRowList, onError) {
+        /*
+         * this function will set many dbRow's into dbTable
+         */
+            var self, timeNow;
+            self = this;
+            timeNow = new Date().toISOString();
+            dbRowList = dbRowList.map(function (dbRow) {
+                dbRow = local.db.jsonCopy(dbRow);
+                dbRow.createdAt = dbRow.createdAt || timeNow;
+                dbRow.updatedAt = dbRow.updatedAt || timeNow;
+                local.db.dbRowCheckObject(dbRow);
+                return dbRow;
+            });
+            // add to indexes
+            self.dbIndexList().forEach(function (dbIndex) {
+                dbIndex.insert(dbRowList);
             });
             setTimeout(function () {
                 self.dbTablePersist();
@@ -7795,30 +7727,21 @@ local.utility2.templateTestReportHtml = '\
                     break;
                 case 2:
                     self = data;
+                    // remove dbIndex
+                    optionsList[
+                        optionsList.modeNext
+                    ].dbIndexRemoveList.forEach(function (index) {
+                        self.dbIndexRemove(index, onParallel);
+                    });
+                    // create dbIndex
+                    optionsList[
+                        optionsList.modeNext
+                    ].dbIndexCreateList.forEach(function (index) {
+                        self.dbIndexCreate(index);
+                    });
+                    // upsert dbRow
                     onParallel = local.utility2.onParallel(options.onNext);
                     onParallel.counter += 1;
-                    // remove dbIndex
-                    optionsList[optionsList.modeNext].dbIndexCreateList
-                        .concat(optionsList[optionsList.modeNext].dbIndexRemoveList)
-                        .forEach(function (index) {
-                            onParallel.counter += 1;
-                            local.db.dbIndexRemove(self, index, onParallel);
-                        });
-                    onParallel();
-                    break;
-                case 3:
-                    onParallel.counter += 1;
-                    // create dbIndex
-                    optionsList[optionsList.modeNext].dbIndexCreateList
-                        .forEach(function (index) {
-                            onParallel.counter += 1;
-                            local.db.dbIndexCreate(self, index, onParallel);
-                        });
-                    onParallel();
-                    break;
-                case 4:
-                    onParallel.counter += 1;
-                    // upsert dbRow
                     optionsList[optionsList.modeNext].dbRowList.forEach(function (dbRow) {
                         onParallel.counter += 1;
                         self.crudUpdate({ id: dbRow.id }, dbRow, { upsert: true }, onParallel);
