@@ -1,0 +1,2524 @@
+<style>
+.docApiDiv {
+    font-family: Arial, Helvetica, sans-serif;
+}
+.docApiDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.docApiDiv a[href]:hover {
+    text-decoration: underline;
+}
+.docApiSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.docApiCodeCommentSpan {
+    background-color: #bbf;
+    color: #000;
+    display: block;
+}
+.docApiCodeKeywordSpan {
+    color: #f00;
+    font-weight: bold;
+}
+.docApiCodePre {
+    background-color: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.docApiSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<div class="docApiDiv">
+<h1>api documentation
+    <a
+        
+        href="https://github.com/kaizhu256/node-swagger-lite"
+        
+    >(swagger-lite v2016.9.2)</a>
+</h1>
+<div class="docApiSectionDiv"><a href="#"><h1>table of contents</h1></a><ul>
+
+    <li><a href="#module.swgg">module swgg</a><ol>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.apiAjax">
+            function <span class="docApiSignatureSpan">swgg.</span>apiAjax
+            <span class="docApiSignatureSpan">(self,&nbsp;options,&nbsp;onError)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.apiDictUpdate">
+            function <span class="docApiSignatureSpan">swgg.</span>apiDictUpdate
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.dbRowListRandomCreate">
+            function <span class="docApiSignatureSpan">swgg.</span>dbRowListRandomCreate
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.dbRowRandomCreate">
+            function <span class="docApiSignatureSpan">swgg.</span>dbRowRandomCreate
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.idDomElementCreate">
+            function <span class="docApiSignatureSpan">swgg.</span>idDomElementCreate
+            <span class="docApiSignatureSpan">(seed)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.jwtDecodedEncryptAndEncode">
+            function <span class="docApiSignatureSpan">swgg.</span>jwtDecodedEncryptAndEncode
+            <span class="docApiSignatureSpan">(user)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.jwtEncodedDecodeAndDecrypt">
+            function <span class="docApiSignatureSpan">swgg.</span>jwtEncodedDecodeAndDecrypt
+            <span class="docApiSignatureSpan">(user)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.jwtEncodedSetHeader">
+            function <span class="docApiSignatureSpan">swgg.</span>jwtEncodedSetHeader
+            <span class="docApiSignatureSpan">(request,&nbsp;response)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.keyUniqueInit">
+            function <span class="docApiSignatureSpan">swgg.</span>keyUniqueInit
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareBodyParse">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareBodyParse
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareCrudBuiltin">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareCrudBuiltin
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareCrudEnd">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareCrudEnd
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareError">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareError
+            <span class="docApiSignatureSpan">(error,&nbsp;request,&nbsp;response)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareJsonpStateInit">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareJsonpStateInit
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareRouter">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareRouter
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareUserLogin">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareUserLogin
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.middlewareValidate">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareValidate
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.normalizeParamDictSwagger">
+            function <span class="docApiSignatureSpan">swgg.</span>normalizeParamDictSwagger
+            <span class="docApiSignatureSpan">(data,&nbsp;pathObject)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.onErrorJsonapi">
+            function <span class="docApiSignatureSpan">swgg.</span>onErrorJsonapi
+            <span class="docApiSignatureSpan">(onError)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.schemaNormalizeAndCopy">
+            function <span class="docApiSignatureSpan">swgg.</span>schemaNormalizeAndCopy
+            <span class="docApiSignatureSpan">(schema)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.serverRespondJsonapi">
+            function <span class="docApiSignatureSpan">swgg.</span>serverRespondJsonapi
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;error,&nbsp;data,&nbsp;meta)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.stateInit">
+            function <span class="docApiSignatureSpan">swgg.</span>stateInit
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.urlBaseGet">
+            function <span class="docApiSignatureSpan">swgg.</span>urlBaseGet
+            <span class="docApiSignatureSpan">()</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.userLoginByPassword">
+            function <span class="docApiSignatureSpan">swgg.</span>userLoginByPassword
+            <span class="docApiSignatureSpan">(options,&nbsp;onError)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.userLogout">
+            function <span class="docApiSignatureSpan">swgg.</span>userLogout
+            <span class="docApiSignatureSpan">(options,&nbsp;onError)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.validateByParamDefList">
+            function <span class="docApiSignatureSpan">swgg.</span>validateByParamDefList
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.validateByPropDef">
+            function <span class="docApiSignatureSpan">swgg.</span>validateByPropDef
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.validateBySchema">
+            function <span class="docApiSignatureSpan">swgg.</span>validateBySchema
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <a class="docApiElementLiA" href="#element.swgg.validateBySwagger">
+            function <span class="docApiSignatureSpan">swgg.</span>validateBySwagger
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+            
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>apiDict</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>dbTableUser</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>idDomElementDict</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>local</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>swaggerJson</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>swaggerSchemaJson</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>templateApiDict</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">object <span class="docApiSignatureSpan">swgg.</span>uiEventListenerDict</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateSwaggerJson</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateSwaggerUiLogoSmallBase64</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateUiDatatable</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateUiMain</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateUiOperation</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateUiParam</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateUiResource</span>
+        
+        </li>
+        
+        <li>
+            
+            <span class="docApiSignatureSpan">string <span class="docApiSignatureSpan">swgg.</span>templateUiResponseAjax</span>
+        
+        </li>
+        
+    </ol></li>
+
+</ul></div>
+    
+    <div class="docApiSectionDiv">
+    <h1><a href="#module.swgg" id="module.swgg">module swgg</a></h1>
+        
+        
+        <h2>
+            <a href="#element.swgg.apiAjax" id="element.swgg.apiAjax">
+            function <span class="docApiSignatureSpan">swgg.</span>apiAjax
+            <span class="docApiSignatureSpan">(self,&nbsp;options,&nbsp;onError)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">apiAjax = function (self,&nbsp;options,&nbsp;onError) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will send a swagger-api ajax-request with the pathObject self
+ */
+</span>    var isMultipartFormData, tmp;
+    isMultipartFormData = (self.consumes &amp;&amp; self.consumes[0]) === &#x27;multipart/form-data&#x27;;
+    local.utility2.objectSetDefault(options, {
+        data: &#x27;&#x27;,
+        paramDict: {},
+        url: &#x27;&#x27;
+    });
+    // try to validate paramDict
+    local.utility2.tryCatchOnError(function () {
+        local.swgg.validateByParamDefList({
+            // normalize paramDict
+            data: local.swgg.normalizeParamDictSwagger(
+                local.utility2.jsonCopy(options.paramDict),
+                self
+            ),
+            dataReadonlyRemove: options.paramDict,
+            key: self.operationId,
+            paramDefList: self.parameters
+        });
+    }, function (error) {
+        options.errorValidate = error;
+        onError(error);
+    });
+    if (options.errorValidate) {
+        return;
+    }
+    // init options-defaults
+    local.utility2.objectSetDefault(options, {
+        inForm: isMultipartFormData
+            ? new local.utility2.FormData()
+            : &#x27;&#x27;,
+        inHeader: {},
+        inPath: self._path,
+        inQuery: &#x27;&#x27;,
+        headers: {},
+        method: self._method,
+        responseType: self.produces &amp;&amp;
+                self.produces[0].indexOf(&#x27;application/octet-stream&#x27;) === 0
+            ? &#x27;arraybuffer&#x27;
+            : &#x27;&#x27;
+    });
+    // init paramDict
+    self.parameters.forEach(function (paramDef) {
+        tmp = options.paramDict[paramDef.name];
+        if (tmp === undefined) {
+            return;
+        }
+        if (!(paramDef.type === &#x27;string&#x27; || tmp instanceof local.utility2.Blob)) {
+            tmp = JSON.stringify(tmp);
+        }
+        switch (paramDef.in) {
+        case &#x27;body&#x27;:
+            options.inBody = tmp;
+            break;
+        case &#x27;formData&#x27;:
+            if (isMultipartFormData) {
+                options.inForm.append(paramDef.name, tmp, tmp &amp;&amp; tmp.name);
+                break;
+            }
+            options.inForm += &#x27;&amp;&#x27; + encodeURIComponent(paramDef.name) + &#x27;=&#x27; +
+                encodeURIComponent(tmp);
+            break;
+        case &#x27;header&#x27;:
+            options.inHeader[encodeURIComponent(paramDef.name.toLowerCase())] = tmp;
+            break;
+        case &#x27;query&#x27;:
+            options.inQuery += &#x27;&amp;&#x27; + encodeURIComponent(paramDef.name) + &#x27;=&#x27; +
+                encodeURIComponent(tmp);
+            break;
+        case &#x27;path&#x27;:
+            options.inPath = options.inPath
+                .replace(&#x27;{&#x27; + paramDef.name + &#x27;}&#x27;, encodeURIComponent(tmp));
+            break;
+        }
+    });
+    // init data
+    options.data = options.inBody || (isMultipartFormData
+        ? options.inForm
+        : options.inForm.slice(1));
+    // init headers
+    local.utility2.objectSetOverride(options.headers, options.inHeader);
+    // init headers - Content-Type
+    if (options.inForm) {
+        options.headers[&#x27;Content-Type&#x27;] = isMultipartFormData
+            ? &#x27;multipart/form-data&#x27;
+            : &#x27;application/x-www-form-urlencoded&#x27;;
+    }
+    // init headers - Authorization
+    options.jwtEncoded = options.jwtEncoded || local.swgg.userJwtEncoded;
+    if (options.jwtEncoded) {
+        options.headers.Authorization = options.headers.Authorization ||
+            &#x27;Bearer &#x27; + options.jwtEncoded;
+    }
+    // init url
+    options.url = (local.swgg.urlBaseGet() + options.inPath + &#x27;?&#x27; +
+        options.inQuery.slice(1))
+        .replace((/\?$/), &#x27;&#x27;);
+    if (!(options.headers[&#x27;Content-Type&#x27;] || options.headers[&#x27;content-type&#x27;])) {
+        options.headers[&#x27;content-type&#x27;] = &#x27;application/json; charset=UTF-8&#x27;;
+    }
+    // send ajax-request
+    return local.utility2.ajax(options, function (error, xhr) {
+        // try to init responseJson
+        local.utility2.tryCatchOnError(function () {
+            xhr.responseJson = JSON.parse(xhr.responseText);
+        }, local.utility2.nop);
+        // init userJwtEncoded
+        tmp = xhr.getResponseHeader(&#x27;swgg-jwt-encoded&#x27;);
+        if (tmp) {
+            local.swgg.userJwtEncoded = tmp;
+        }
+        onErro ...</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    break;
+}
+// update apiDict
+self = local.swgg.apiDict[key] = local.swgg.apiDict[self._keyPath] =
+    local.utility2.jsonCopy(self);
+// init _ajax
+self._ajax = function (options, onError) {
+    return local.swgg.<span class="docApiCodeKeywordSpan">apiAjax</span>(self, options, onError);
+};
+// remove underscored keys from self
+tmp = local.utility2.jsonCopy(self);
+Object.keys(tmp).forEach(function (key) {
+    if (key[0] === &#x27;_&#x27;) {
+        delete tmp[key];
+    }
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.apiDictUpdate" id="element.swgg.apiDictUpdate">
+            function <span class="docApiSignatureSpan">swgg.</span>apiDictUpdate
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">apiDictUpdate = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will update the swagger-api dict of api-calls
+ */
+</span>    var tmp;
+    options = options || {};
+    // init apiDict
+    local.swgg.apiDict = local.swgg.apiDict || {};
+    // init swaggerJson
+    local.swgg.swaggerJson = local.swgg.swaggerJson ||
+        JSON.parse(local.swgg.templateSwaggerJson);
+    // save tags
+    tmp = {};
+    [local.swgg.swaggerJson.tags, options.tags || []].forEach(function (tagList) {
+        tagList.forEach(function (tag) {
+            local.utility2.objectSetOverride(tmp, local.utility2.objectLiteralize({
+                &#x27;$[]&#x27;: [tag.name, tag]
+            }));
+        }, 2);
+    });
+    tmp = Object.keys(tmp).sort().map(function (key) {
+        return tmp[key];
+    });
+    // merge options into swaggerJson
+    options = local.utility2.objectSetOverride(local.swgg.swaggerJson, options, 10);
+    // restore tags
+    local.swgg.swaggerJson.tags = tmp;
+    Object.keys(options.definitions).forEach(function (schemaName) {
+        // normalize definition
+        options.definitions[schemaName] = local.swgg.schemaNormalizeAndCopy(
+            options.definitions[schemaName]
+        );
+    });
+    // init apiDict from paths
+    Object.keys(options.paths).forEach(function (path) {
+        Object.keys(options.paths[path]).forEach(function (method) {
+            var self;
+            self = options.paths[path][method];
+            self._method = method;
+            self._path = path;
+            local.utility2.objectSetOverride(
+                local.swgg.apiDict,
+                local.utility2.objectLiteralize({
+                    &#x27;$[]&#x27;: [self.tags[0] + &#x27; &#x27; + self.operationId, self]
+                }),
+                2
+            );
+        });
+    });
+    // init apiDict from x-swgg-apiDict
+    Object.keys(options[&#x27;x-swgg-apiDict&#x27;] || {}).forEach(function (key) {
+        // init self
+        local.utility2.objectSetOverride(
+            local.swgg.apiDict,
+            local.utility2.objectLiteralize({
+                &#x27;$[]&#x27;: [key, local.utility2.jsonCopy(options[&#x27;x-swgg-apiDict&#x27;][key])]
+            }),
+            10
+        );
+    });
+    // init apiDict
+    Object.keys(local.swgg.apiDict).forEach(function (key) {
+        var self;
+        self = local.swgg.apiDict[key];
+        if (key === self._keyPath) {
+            return;
+        }
+        // init _operationId
+        self._operationId = self._operationId || key.split(&#x27; &#x27;)[1];
+        // init _fileUploadNumber
+        self._fileUploadNumber = 1;
+        self._operationId.replace(
+            (/^fileUploadManyByForm\.(\d+)/),
+            function (match0, match1) {
+                // jslint-hack - nop
+                local.utility2.nop(match0);
+                self._fileUploadNumber = Number(match1);
+            }
+        );
+        // init _keyAlias and _keyUnique
+        tmp = local.swgg.keyUniqueInit({ operationId: self._operationId });
+        self._keyAlias = tmp.keyAlias;
+        self._keyUnique = tmp.keyUnique;
+        // init _tags0
+        self._tags0 = key.split(&#x27; &#x27;)[0];
+        // init templateApiDict
+        if (local.swgg.templateApiDict[self._operationId.split(&#x27;.&#x27;)[0]]) {
+            local.utility2.objectSetDefault(
+                self,
+                JSON.parse(local.swgg.templateApiDict[self._operationId.split(&#x27;.&#x27;)[0]]
+                    .replace((/\{\{_fileUploadNumber\}\}/g), self._fileUploadNumber)
+                    .replace((/\{\{_keyAlias\}\}/g), self._keyAlias)
+                    .replace((/\{\{_keyUnique\}\}/g), self._keyUnique)
+                    .replace((/\{\{_schemaName\}\}/g), self._schemaName)
+                    .replace((/\{\{_tags0\}\}/g), self._tags0)
+                    .replace((/\{\{operationId\}\}/g), self._operationId))
+            );
+        }
+        // init default
+        local.utility2.objectSetDefault(self, {
+            _keyOperationId: key,
+            operationId: self._operationId,
+            parameters: [],
+            responses: {
+                200: {
+                    description: &#x27;ok - &#x27; +
+                        &#x27;http://jsonapi.org/format/#document- ...</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    (function () {
+// init petstore-api - frontend
+local.tmp =
+    JSON.parse(local.utility2.assetsDict[&#x27;/assets.swgg.lib.swagger.petstore.json&#x27;]);
+delete local.tmp.basePath;
+delete local.tmp.host;
+delete local.tmp.schemes;
+local.swgg.<span class="docApiCodeKeywordSpan">apiDictUpdate</span>(local.tmp);
+// init petstore-api - backend
+local.swgg.apiDictUpdate({
+    definitions: {
+        File: {
+            allOf: [{ $ref: &#x27;#/definitions/BuiltinFile&#x27; }]
+        },
+        Pet: {
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.dbRowListRandomCreate" id="element.swgg.dbRowListRandomCreate">
+            function <span class="docApiSignatureSpan">swgg.</span>dbRowListRandomCreate
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">dbRowListRandomCreate = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will return a dbRowList of options.length random dbRow&#x27;s
+ */
+</span>    local.utility2.objectSetDefault(options, { dbRowList: [] });
+    for (options.ii = 0; options.ii &lt; options.length; options.ii += 1) {
+        options.dbRowList.push(local.swgg.dbRowRandomCreate(options));
+    }
+    return options.dbRowList;
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    name: &#x27;File&#x27;
+}, {
+    dbIndexCreateList: [{
+        fieldName: &#x27;id&#x27;,
+        isInteger: true,
+        unique: true
+    }],
+    dbRowList: local.swgg.<span class="docApiCodeKeywordSpan">dbRowListRandomCreate</span>({
+        dbRowList: [{
+            id: 0,
+            name: &#x27;birdie&#x27;,
+            photoUrls: [],
+            status: &#x27;available&#x27;,
+            tags: [{ name: &#x27;bird&#x27;}]
+        }, {
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.dbRowRandomCreate" id="element.swgg.dbRowRandomCreate">
+            function <span class="docApiSignatureSpan">swgg.</span>dbRowRandomCreate
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">dbRowRandomCreate = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will return a random dbRow
+ */
+</span>    var dbRow, ii, max, min, propDef, tmp;
+    dbRow = {};
+    Object.keys(options.properties).forEach(function (key) {
+        propDef = options.properties[key];
+        if (propDef.readOnly) {
+            return;
+        }
+        if (propDef.enum) {
+            dbRow[key] = local.utility2.listGetElementRandom(propDef.enum);
+            return;
+        }
+        // http://json-schema.org/latest/json-schema-validation.html#anchor13
+        // 5.1.  Validation keywords for numeric instances (number and integer)
+        max = isFinite(propDef.maximum)
+            ? propDef.maximum
+            : 999;
+        min = isFinite(propDef.maximum)
+            ? propDef.minimum
+            : -999;
+        switch (propDef.type) {
+        case &#x27;array&#x27;:
+            tmp = [];
+            // http://json-schema.org/latest/json-schema-validation.html#anchor36
+            // 5.3.  Validation keywords for arrays
+            for (ii = 0; ii &lt; (propDef.minItems || 0); ii += 1) {
+                tmp.push(null);
+            }
+            break;
+        case &#x27;boolean&#x27;:
+            tmp = local.utility2.listGetElementRandom([false, true]);
+            break;
+        case &#x27;integer&#x27;:
+            if (propDef.exclusiveMaximum) {
+                max -= 1;
+            }
+            if (propDef.exclusiveMinimum) {
+                min += 1;
+            }
+            tmp = Math.floor(min + Math.random() * (max - min));
+            break;
+        case &#x27;object&#x27;:
+            tmp = {};
+            // http://json-schema.org/latest/json-schema-validation.html#anchor53
+            // 5.4.  Validation keywords for objects
+            for (ii = 0; ii &lt; (propDef.minProperties || 0); ii += 1) {
+                tmp[&#x27;property&#x27; + ii] = null;
+            }
+            break;
+        case &#x27;number&#x27;:
+            if (propDef.exclusiveMinimum) {
+                min = min &lt; 0
+                    ? min * 0.99999
+                    : min * 1.00001 + 0.00001;
+            }
+            if (propDef.exclusiveMaximum) {
+                max = max &gt; 0
+                    ? max * 0.99999
+                    : max * 1.00001 - 0.00001;
+            }
+            tmp = min + Math.random() * (max - min);
+            break;
+        case &#x27;string&#x27;:
+            tmp = &#x27;random_&#x27; + Date.now().toString(36) +
+                Math.random().toString(36).slice(2, 10);
+            switch (propDef.format) {
+            case &#x27;byte&#x27;:
+                tmp = local.utility2.stringToBase64(tmp);
+                break;
+            case &#x27;date&#x27;:
+            case &#x27;date-time&#x27;:
+                tmp = new Date().toISOString();
+                break;
+            case &#x27;email&#x27;:
+                tmp = tmp + &#x27;@random.com&#x27;;
+                break;
+            case &#x27;json&#x27;:
+                tmp = JSON.stringify({ random: tmp });
+                break;
+            }
+            // http://json-schema.org/latest/json-schema-validation.html#anchor25
+            // 5.2.  Validation keywords for strings
+            while (tmp.length &lt; (propDef.minLength || 0)) {
+                tmp += Math.random().toString(36).slice(2, 6);
+            }
+            tmp = tmp.slice(0, propDef.maxLength || Infinity);
+            break;
+        }
+        // http://json-schema.org/latest/json-schema-validation.html#anchor13
+        // 5.1.  Validation keywords for numeric instances (number and integer)
+        if (propDef.multipleOf) {
+            tmp = propDef.multipleOf * Math.floor(tmp / propDef.multipleOf);
+            if (tmp &lt; min) {
+                tmp += propDef.multipleOf;
+            }
+        }
+        // try to validate data
+        local.utility2.tryCatchOnError(function () {
+            local.swgg.validateByPropDef({
+                data: tmp,
+                key: propDef.name,
+                schema: propDef
+            });
+            dbRow[key] = tmp;
+        }, local.utility2.nop);
+    });
+    return local.utility2.jsonCopy(
+        local.utility2.objectSetOverride(dbRow, options.override(options))
+    );
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+
+local.swgg.dbRowListRandomCreate = function (options) {
+/*
+ * this function will return a dbRowList of options.length random dbRow&#x27;s
+ */
+    local.utility2.objectSetDefault(options, { dbRowList: [] });
+    for (options.ii = 0; options.ii &lt; options.length; options.ii += 1) {
+        options.dbRowList.push(local.swgg.<span class="docApiCodeKeywordSpan">dbRowRandomCreate</span>(options));
+    }
+    return options.dbRowList;
+};
+
+local.swgg.dbRowRandomCreate = function (options) {
+/*
+ * this function will return a random dbRow
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.idDomElementCreate" id="element.swgg.idDomElementCreate">
+            function <span class="docApiSignatureSpan">swgg.</span>idDomElementCreate
+            <span class="docApiSignatureSpan">(seed)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">idDomElementCreate = function (seed) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will return a unique dom-element id from the seed,
+ * that is both dom-selector and url friendly
+ */
+</span>    var id, ii;
+    id = encodeURIComponent(seed).replace((/\W/g), &#x27;_&#x27;);
+    for (ii = 2; local.swgg.idDomElementDict[id]; ii += 1) {
+        id = encodeURIComponent(seed + &#x27;_&#x27; + ii).replace((/\W/g), &#x27;_&#x27;);
+    }
+    local.swgg.idDomElementDict[id] = true;
+    return id;
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+paramDef.isSelect = true;
+paramDef.isSelectMultiple = paramDef.type === &#x27;array&#x27;;
+paramDef.selectOptionList = (paramDef.type === &#x27;boolean&#x27;
+    ? [true, false]
+    : paramDef.enum).map(function (element) {
+    paramDef.hasDefault |= paramDef.enumDefault.indexOf(element) &gt;= 0;
+    return {
+        id: local.swgg.<span class="docApiCodeKeywordSpan">idDomElementCreate</span>(&#x27;swgg_id_&#x27; + paramDef.name),
+        selected: paramDef.enumDefault.indexOf(element) &gt;= 0
+            ? &#x27;selected&#x27;
+            : &#x27;&#x27;,
+        type: paramDef.items
+            ? paramDef.items.type
+            : paramDef.type,
+        valueDecoded: element
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.jwtDecodedEncryptAndEncode" id="element.swgg.jwtDecodedEncryptAndEncode">
+            function <span class="docApiSignatureSpan">swgg.</span>jwtDecodedEncryptAndEncode
+            <span class="docApiSignatureSpan">(user)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">jwtDecodedEncryptAndEncode = function (user) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will encrypt and encode user.jwtDecrypted and user.jwtDecoded
+ */
+</span>    local.utility2.objectSetDefault(user, {
+        jwtDecoded: {},
+        jwtDecrypted: {
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            jti: local.utility2.uuidTimeCreate()
+        }
+    }, 2);
+    user.jwtDecoded.encrypted = local.utility2.sjclCipherAes128Encrypt(
+        local.utility2.envDict.JWT_SECRET || &#x27;&#x27;,
+        JSON.stringify(user.jwtDecrypted)
+    );
+    user.jwtEncoded = local.utility2.jwtHs256Encode(
+        local.utility2.envDict.JWT_SECRET || &#x27;&#x27;,
+        user.jwtDecoded
+    );
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    local.utility2.assert(
+        local.swgg.userJwtEncoded,
+        local.swgg.userJwtEncoded
+    );
+    // test userLogout&#x27;s 200 handling-behavior
+    // test jwtEncoded&#x27;s update handling-behavior
+    options = { jwtDecrypted: { sub: &#x27;admin&#x27; } };
+    local.swgg.<span class="docApiCodeKeywordSpan">jwtDecodedEncryptAndEncode</span>(options);
+    local.swgg.userLogout(options, onNext);
+    break;
+case 7:
+    // validate no error occurred
+    local.utility2.assert(!error, error);
+    // validate statusCode
+    local.utility2.assertJsonEqual(data.statusCode, 200);
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.jwtEncodedDecodeAndDecrypt" id="element.swgg.jwtEncodedDecodeAndDecrypt">
+            function <span class="docApiSignatureSpan">swgg.</span>jwtEncodedDecodeAndDecrypt
+            <span class="docApiSignatureSpan">(user)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">jwtEncodedDecodeAndDecrypt = function (user) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will decode and decrypt user.jwtEncoded
+ */
+</span>    // try to decode and decrypt jwtEncoded
+    local.utility2.tryCatchOnError(function () {
+        // decode jwt-payload in bearer-token
+        user.jwtDecoded = local.utility2.jwtHs256Decode(
+            local.utility2.envDict.JWT_SECRET || &#x27;&#x27;,
+            user.jwtEncoded
+        );
+        // decrypt jwt-payload&#x27;s encrypted-sub-payload
+        user.jwtDecrypted = JSON.parse(local.utility2.sjclCipherAes128Decrypt(
+            local.utility2.envDict.JWT_SECRET || &#x27;&#x27;,
+            user.jwtDecoded.encrypted
+        ));
+        // validate expiration date
+        local.utility2.assert(Date.now() * 0.001 &lt;= user.jwtDecrypted.exp);
+    }, function () {
+        // if error occurred, then undo decoding and decryption
+        user.jwtDecoded = user.jwtDecrypted =
+            user.jwtEncoded = user.jwtEncrypted = null;
+    });
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+user = request.swgg.user = {};
+user.jwtEncoded = request.headers.authorization &amp;&amp;
+    request.headers.authorization.replace(&#x27;Bearer &#x27;, &#x27;&#x27;);
+local.swgg.dbTableUser = local.nedb.dbTableCreate({
+    name: &#x27;User&#x27;
+});
+// decode and decrypt jwtEncoded
+local.swgg.<span class="docApiCodeKeywordSpan">jwtEncodedDecodeAndDecrypt</span>(user);
+switch (crud.operationId.split(&#x27;.&#x27;)[0]) {
+// coverage-hack - test error handling-behavior
+case &#x27;crudErrorLogin&#x27;:
+    options.onNext(local.utility2.errorDefault);
+    return;
+case &#x27;userLoginByPassword&#x27;:
+    user.password = request.urlParsed.query.password;
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.jwtEncodedSetHeader" id="element.swgg.jwtEncodedSetHeader">
+            function <span class="docApiSignatureSpan">swgg.</span>jwtEncodedSetHeader
+            <span class="docApiSignatureSpan">(request,&nbsp;response)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">jwtEncodedSetHeader = function (request,&nbsp;response) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will set the jwtEncoded-cookie in the response
+ * from request.swgg.user.jwtEncoded
+ */
+</span>    local.utility2.serverRespondHeadSet(request, response, null, {
+        &#x27;swgg-jwt-encoded&#x27;: request.swgg.user.jwtEncoded
+    });
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    user.isAuthenticated = true;
+    // https://tools.ietf.org/html/rfc7519
+    // create JSON Web Token (JWT)
+    user.jwtDecrypted = {};
+    user.jwtDecrypted.sub = user.data.username;
+    local.swgg.jwtDecodedEncryptAndEncode(user);
+    // update jwtEncoded in client
+    local.swgg.<span class="docApiCodeKeywordSpan">jwtEncodedSetHeader</span>(request, response);
+    // update jwtEncoded in dbTableUser
+    local.swgg.dbTableUser.crudUpdate({
+        username: user.jwtDecrypted.sub
+    }, { $set: { jwtEncoded: user.jwtEncoded } }, {}, options.onNext);
+    return;
+default:
+    user.data = data || {};
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.keyUniqueInit" id="element.swgg.keyUniqueInit">
+            function <span class="docApiSignatureSpan">swgg.</span>keyUniqueInit
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">keyUniqueInit = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will init options.keyAlias, options.keyUnique,
+ * and options.queryByKeyUnique
+ */
+</span>    var keyAlias, keyUnique;
+    // init keyUnique
+    options.keyAlias = options.operationId.split(&#x27;.&#x27;);
+    keyUnique = options.keyUnique = options.keyAlias[1] || &#x27;id&#x27;;
+    // init keyAlias
+    keyAlias = options.keyAlias = options.keyAlias[2] || options.keyUnique;
+    // invert queryByKeyUnique
+    if (options.modeQueryByKeyUniqueInvert) {
+        keyAlias = options.keyUnique;
+        keyUnique = options.keyAlias;
+    }
+    // init queryByKeyUnique
+    options.keyValue = (options.data &amp;&amp; options.data[keyAlias]) || options.keyValue;
+    options.queryByKeyUnique = {};
+    options.queryByKeyUnique[keyUnique] = options.keyValue;
+    return options;
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+                options[match1] = options[match1] || local.swgg.apiDict[key];
+            });
+        });
+        local.utility2.objectSetDefault(options, {
+            operationId: &#x27;undefined.id.id&#x27;
+        });
+    }
+    local.swgg.<span class="docApiCodeKeywordSpan">keyUniqueInit</span>(options);
+    // shallow-copy options
+    return local.utility2.objectSetDefault({}, options);
+};
+
+// init tests
+local.testCase_ajax_error = function (options, onError) {
+/*
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareBodyParse" id="element.swgg.middlewareBodyParse">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareBodyParse
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareBodyParse = function (request,&nbsp;response,&nbsp;nextMiddleware) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will parse request.bodyRaw
+ */
+</span>    var ii, jj, options;
+    // jslint-hack
+    local.utility2.nop(response);
+    // if request is already parsed, then goto nextMiddleware
+    if (!local.utility2.isNullOrUndefined(request.swgg.bodyParsed)) {
+        nextMiddleware();
+        return;
+    }
+    switch (String(request.headers[&#x27;content-type&#x27;]).split(&#x27;;&#x27;)[0]) {
+    // parse application/x-www-form-urlencoded, e.g.
+    // aa=hello%20world&amp;bb=bye%20world
+    case &#x27;application/x-www-form-urlencoded&#x27;:
+        request.swgg.bodyParsed = local.utility2.bufferToString(request.bodyRaw);
+        request.swgg.bodyParsed =
+            local.utility2.urlParse(&#x27;?&#x27; + request.swgg.bodyParsed, true).query;
+        break;
+    /*
+     * https://tools.ietf.org/html/rfc7578
+     * parse multipart/form-data, e.g.
+     * --Boundary\r\n
+     * Content-Disposition: form-data; name=&quot;key&quot;\r\n
+     * \r\n
+     * value\r\n
+     * --Boundary\r\n
+     * Content-Disposition: form-data; name=&quot;input1&quot;; filename=&quot;file1.png&quot;\r\n
+     * Content-Type: image/jpeg\r\n
+     * \r\n
+     * &lt;data1&gt;\r\n
+     * --Boundary\r\n
+     * Content-Disposition: form-data; name=&quot;input2&quot;; filename=&quot;file2.png&quot;\r\n
+     * Content-Type: image/jpeg\r\n
+     * \r\n
+     * &lt;data2&gt;\r\n
+     * --Boundary--\r\n
+     */
+    case &#x27;multipart/form-data&#x27;:
+        request.swgg.isMultipartFormData = true;
+        request.swgg.bodyParsed = {};
+        request.swgg.bodyMeta = {};
+        options = {};
+        options.crlf = local.utility2.bufferCreate([0x0d, 0x0a]);
+        // init boundary
+        ii = 0;
+        jj = local.utility2.bufferIndexOfSubBuffer(request.bodyRaw, options.crlf, ii);
+        if (jj &lt;= 0) {
+            break;
+        }
+        options.boundary = local.utility2.bufferConcat([
+            options.crlf,
+            request.bodyRaw.slice(ii, jj)
+        ]);
+        ii = jj + 2;
+        while (true) {
+            jj = local.utility2.bufferIndexOfSubBuffer(
+                request.bodyRaw,
+                options.boundary,
+                ii
+            );
+            if (jj &lt; 0) {
+                break;
+            }
+            options.header = local.utility2.bufferToString(
+                request.bodyRaw.slice(ii, ii + 1024)
+            ).split(&#x27;\r\n&#x27;).slice(0, 2).join(&#x27;\r\n&#x27;);
+            options.contentType = (/^content-type:(.*)/im).exec(options.header);
+            options.contentType = options.contentType &amp;&amp; options.contentType[1].trim();
+            options.filename = (/^content-disposition:.*?\bfilename=&quot;([^&quot;]+)/im)
+                .exec(options.header);
+            options.filename = options.filename &amp;&amp; options.filename[1];
+            options.name = (/^content-disposition:.*?\bname=&quot;([^&quot;]+)/im)
+                .exec(options.header);
+            options.name = options.name &amp;&amp; options.name[1];
+            ii = local.utility2.bufferIndexOfSubBuffer(
+                request.bodyRaw,
+                [0x0d, 0x0a, 0x0d, 0x0a],
+                ii + 2
+            ) + 4;
+            options.data = request.bodyRaw.slice(ii, jj);
+            request.swgg.bodyParsed[options.name] = options.data;
+            request.swgg.bodyMeta[options.name] = {
+                contentType: options.contentType,
+                filename: options.filename,
+                name: options.name
+            };
+            ii = jj + options.boundary.length + 2;
+        }
+        break;
+    default:
+        request.swgg.bodyParsed = local.utility2.bufferToString(request.bodyRaw || &#x27;&#x27;);
+        // try to JSON.parse the string
+        local.utility2.tryCatchOnError(function () {
+            request.swgg.bodyParsed = JSON.parse(request.swgg.bodyParsed);
+        }, local.utility2.nop);
+    }
+    nextMiddleware();
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">n/a</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareCrudBuiltin" id="element.swgg.middlewareCrudBuiltin">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareCrudBuiltin
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareCrudBuiltin = function (request,&nbsp;response,&nbsp;nextMiddleware) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will
+ * run the builtin crud-operations backed by nedb
+ */
+</span>    var crud, onParallel, options, tmp, user;
+    options = {};
+    local.utility2.onNext(options, function (error, data, meta) {
+        switch (options.modeNext) {
+        case 1:
+            crud = request.swgg.crud;
+            user = request.swgg.user;
+            switch (crud.operationId.split(&#x27;.&#x27;)[0]) {
+            case &#x27;crudCountManyByQuery&#x27;:
+                crud.dbTable.crudCountMany({ query: crud.queryWhere },  options.onNext);
+                break;
+            case &#x27;crudCreateOrReplaceMany&#x27;:
+                crud.dbTable.crudRemoveMany({
+                    query: { id: {
+                        $in: crud.body.map(function (dbRow) {
+                            return dbRow.id;
+                        })
+                    } }
+                }, options.onNext);
+                break;
+            case &#x27;crudCreateOrReplaceOneByKeyUnique&#x27;:
+            case &#x27;crudUpdateOneByKeyUnique&#x27;:
+                // replace keyUnique with keyAlias in body
+                delete crud.body.id;
+                delete crud.body[crud.keyUnique];
+                crud.body[crud.keyAlias] = crud.data[crud.keyUnique];
+                // replace dbRow
+                if (crud.operationId.indexOf(&#x27;Replace&#x27;) &gt;= 0) {
+                    crud.dbTable.crudUpdate(
+                        crud.queryByKeyUnique,
+                        crud.body,
+                        { upsert: true },
+                        options.onNext
+                    );
+                // update dbRow
+                } else {
+                    crud.dbTable.crudUpdate(
+                        crud.queryByKeyUnique,
+                        { $set: crud.body },
+                        {},
+                        options.onNext
+                    );
+                }
+                break;
+            // coverage-hack - test error handling-behavior
+            case &#x27;crudErrorDelete&#x27;:
+            case &#x27;crudErrorGet&#x27;:
+            case &#x27;crudErrorHead&#x27;:
+            case &#x27;crudErrorOptions&#x27;:
+            case &#x27;crudErrorPatch&#x27;:
+            case &#x27;crudErrorPost&#x27;:
+            case &#x27;crudErrorPut&#x27;:
+                options.onNext(local.utility2.errorDefault);
+                break;
+            case &#x27;crudExistsOneByKeyUnique&#x27;:
+                crud.dbTable.crudFindOne({
+                    projection: { _id: 1 },
+                    query: crud.queryWhere
+                },  options.onNext);
+                break;
+            case &#x27;crudGetManyByQuery&#x27;:
+                onParallel = local.utility2.onParallel(options.onNext);
+                onParallel.counter += 1;
+                crud.dbTable.crudFindMany({
+                    limit: crud.queryLimit,
+                    projection: crud.queryFields,
+                    query: crud.queryWhere,
+                    skip: crud.querySkip,
+                    sort: crud.querySort
+                }, function (error, data) {
+                    crud.queryData = data;
+                    onParallel(error);
+                });
+                onParallel.counter += 1;
+                crud.dbTable.crudCountMany({
+                }, function (error, data) {
+                    crud.paginationCountTotal = data;
+                    onParallel(error);
+                });
+                break;
+            case &#x27;crudGetOneByKeyUnique&#x27;:
+                crud.dbTable.crudFindOne({
+                    query: crud.queryByKeyUnique
+                },  options.onNext);
+                break;
+            case &#x27;crudGetOneByQuery&#x27;:
+                crud.dbTable.crudFindOne({
+                    projection: crud.queryFields,
+                    query: crud.queryWhere
+                },  options.onNext);
+                break;
+            case &#x27;crudNullDelete&#x27;:
+            case &#x27;crudNullGet&#x27;:
+            case &#x27;crudNullHead&#x27;:
+            case &#x27;crudNullOptions&#x27;:
+            case &#x27;crudNullPatch&#x27;:
+            case &#x27;crudNullPost&#x27;:
+            case &#x27;crudNullPut&#x27;:
+                options.onNext();
+                bre ...</pre></li>
+        <li>example usage<pre class="docApiCodePre">n/a</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareCrudEnd" id="element.swgg.middlewareCrudEnd">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareCrudEnd
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareCrudEnd = function (request,&nbsp;response,&nbsp;nextMiddleware) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will end the builtin crud-operations
+ */
+</span>    // jslint-hack
+    local.utility2.nop(response);
+    if (request.swgg.crud.endArgList) {
+        local.swgg.serverRespondJsonapi.apply(null, request.swgg.crud.endArgList);
+        return;
+    }
+    nextMiddleware();
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">n/a</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareError" id="element.swgg.middlewareError">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareError
+            <span class="docApiSignatureSpan">(error,&nbsp;request,&nbsp;response)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareError = function (error,&nbsp;request,&nbsp;response) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will
+ * handle errors according to http://jsonapi.org/format/#errors
+ */
+</span>    if (!error) {
+        error = new Error(&#x27;404 Not Found&#x27;);
+        error.statusCode = 404;
+    }
+    local.swgg.serverRespondJsonapi(request, response, error);
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">n/a</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareJsonpStateInit" id="element.swgg.middlewareJsonpStateInit">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareJsonpStateInit
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareJsonpStateInit = function (request,&nbsp;response,&nbsp;nextMiddleware) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will
+ * serve the browser-state wrapped in the given request.jsonp-callback
+ */
+</span>    var state;
+    if (request.configInit || request.stateInit || (request.urlParsed &amp;&amp;
+            request.urlParsed.pathname === &#x27;/jsonp.swgg.stateInit&#x27;)) {
+        state = { utility2: { assetsDict: {
+            &#x27;/assets.swgg.lib.json-schema.schema.json&#x27;:
+                local.utility2.assetsDict[&#x27;/assets.swgg.lib.json-schema.schema.json&#x27;],
+            &#x27;/assets.swgg.lib.swagger.petstore.json&#x27;:
+                local.utility2.assetsDict[&#x27;/assets.swgg.lib.swagger.petstore.json&#x27;],
+            &#x27;/assets.swgg.lib.swagger.schema.json&#x27;:
+                local.utility2.assetsDict[&#x27;/assets.swgg.lib.swagger.schema.json&#x27;]
+        } } };
+        if (request.configInit) {
+            return state;
+        }
+        local.utility2.objectSetDefault(
+            state,
+            local.utility2.middlewareJsonpStateInit({ stateInit: true }),
+            3
+        );
+        if (request.stateInit) {
+            return state;
+        }
+        response.end(request.urlParsed.query.callback + &#x27;(&#x27; + JSON.stringify(state) +
+            &#x27;);&#x27;);
+        return;
+    }
+    nextMiddleware();
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+/* jslint-ignore-end */
+    case &#x27;local.swgg.stateInit&#x27;:
+        return &#x27;// &#x27; + key + &#x27;\n&#x27; +
+            local.utility2.assetsDict[&#x27;/assets.utility2.rollup.content.js&#x27;]
+            .replace(
+                &#x27;/* utility2.rollup.js content */&#x27;,
+                key + &#x27;(&#x27; + JSON.stringify(
+                    local.swgg.<span class="docApiCodeKeywordSpan">middlewareJsonpStateInit</span>({ stateInit: true })
+                ) + &#x27;);&#x27;
+            );
+    default:
+        return &#x27;// &#x27; + key + &#x27;\n&#x27; + local.utility2.assetsDict[key];
+    }
+}).join(&#x27;\n\n\n\n&#x27;);
+local.utility2.assetsDict[&#x27;/assets.app.min.js&#x27;] =
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareRouter" id="element.swgg.middlewareRouter">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareRouter
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareRouter = function (request,&nbsp;response,&nbsp;nextMiddleware) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will
+ * map the request&#x27;s method-path to swagger&#x27;s tags[0]-operationId
+ */
+</span>    var tmp;
+    // jslint-hack
+    local.utility2.nop(response);
+    // init swgg object
+    local.utility2.objectSetDefault(request, {
+        swgg: { crud: { operationId: &#x27;&#x27; }, user: {} }
+    }, 2);
+    // if request.url is not prefixed with swaggerJson.basePath,
+    // then default to nextMiddleware
+    if (request.urlParsed.pathname.indexOf(local.swgg.swaggerJson.basePath) !== 0) {
+        nextMiddleware();
+        return;
+    }
+    // init pathname
+    request.swgg.pathname = request.method + &#x27; &#x27; + request.urlParsed.pathname
+        .replace(local.swgg.swaggerJson.basePath, &#x27;&#x27;);
+    // init pathObject
+    while (request.swgg.pathname !== tmp) {
+        request.swgg.pathObject =
+            local.swgg.apiDict[request.swgg.pathname] ||
+            // handle /foo/{id}/bar case
+            local.swgg.apiDict[request.swgg.pathname
+                .replace((/\/[^\/]+\/([^\/]*?)$/), &#x27;//$1&#x27;)];
+        // if pathObject exists, then break
+        if (request.swgg.pathObject) {
+            request.swgg.pathObject = local.utility2.jsonCopy(request.swgg.pathObject);
+            request.swgg.pathname = request.swgg.pathObject._keyPath;
+            // init crud.operationId
+            request.swgg.crud.operationId = request.swgg.pathObject._operationId;
+            break;
+        }
+        tmp = request.swgg.pathname;
+        request.swgg.pathname = request.swgg.pathname
+            .replace((/\/[^\/]+?(\/*?)$/), &#x27;/$1&#x27;);
+    }
+    nextMiddleware();
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">n/a</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareUserLogin" id="element.swgg.middlewareUserLogin">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareUserLogin
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareUserLogin = function (request,&nbsp;response,&nbsp;nextMiddleware) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will handle user login
+ */
+</span>    var crud, options, user;
+    options = {};
+    local.utility2.onNext(options, function (error, data) {
+        switch (options.modeNext) {
+        case 1:
+            crud = request.swgg.crud;
+            user = request.swgg.user = {};
+            user.jwtEncoded = request.headers.authorization &amp;&amp;
+                request.headers.authorization.replace(&#x27;Bearer &#x27;, &#x27;&#x27;);
+            local.swgg.dbTableUser = local.nedb.dbTableCreate({
+                name: &#x27;User&#x27;
+            });
+            // decode and decrypt jwtEncoded
+            local.swgg.jwtEncodedDecodeAndDecrypt(user);
+            switch (crud.operationId.split(&#x27;.&#x27;)[0]) {
+            // coverage-hack - test error handling-behavior
+            case &#x27;crudErrorLogin&#x27;:
+                options.onNext(local.utility2.errorDefault);
+                return;
+            case &#x27;userLoginByPassword&#x27;:
+                user.password = request.urlParsed.query.password;
+                user.username = request.urlParsed.query.username;
+                if (user.password &amp;&amp; user.username) {
+                    local.swgg.dbTableUser.crudFindOne({
+                        query: { username: user.username }
+                    },  options.onNext);
+                    return;
+                }
+                break;
+            default:
+                if (user.jwtDecrypted &amp;&amp; user.jwtDecrypted.sub) {
+                    // init username
+                    user.username = user.jwtDecrypted.sub;
+                    local.swgg.dbTableUser.crudFindOne({
+                        query: { username: user.jwtDecrypted.sub }
+                    },  options.onNext);
+                    return;
+                }
+            }
+            options.modeNext = Infinity;
+            options.onNext();
+            break;
+        case 2:
+            switch (crud.operationId.split(&#x27;.&#x27;)[0]) {
+            case &#x27;userLoginByPassword&#x27;:
+                user.data = data;
+                if (!local.utility2.sjclHashScryptValidate(
+                        user.password,
+                        user.data &amp;&amp; user.data.password
+                    )) {
+                    options.modeNext = Infinity;
+                    options.onNext();
+                    return;
+                }
+                // init isAuthenticated
+                user.isAuthenticated = true;
+                // https://tools.ietf.org/html/rfc7519
+                // create JSON Web Token (JWT)
+                user.jwtDecrypted = {};
+                user.jwtDecrypted.sub = user.data.username;
+                local.swgg.jwtDecodedEncryptAndEncode(user);
+                // update jwtEncoded in client
+                local.swgg.jwtEncodedSetHeader(request, response);
+                // update jwtEncoded in dbTableUser
+                local.swgg.dbTableUser.crudUpdate({
+                    username: user.jwtDecrypted.sub
+                }, { $set: { jwtEncoded: user.jwtEncoded } }, {}, options.onNext);
+                return;
+            default:
+                user.data = data || {};
+                local.swgg.jwtEncodedDecodeAndDecrypt(user.data);
+                if (user.data.jwtDecrypted &amp;&amp;
+                        user.data.jwtDecrypted.sub === user.jwtDecrypted.sub) {
+                    // init isAuthenticated
+                    user.isAuthenticated = true;
+                    // update jwtEncoded in client
+                    if (user.data.jwtEncoded !== user.jwtEncoded) {
+                        user.jwtEncoded = user.data.jwtEncoded;
+                        local.swgg.jwtEncodedDecodeAndDecrypt(user);
+                        local.swgg.jwtEncodedSetHeader(request, response);
+                    }
+                }
+            }
+            options.onNext();
+            break;
+        default:
+            nextMiddleware(error);
+        }
+    });
+    options.modeNext = 0;
+    options.onNext();
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">n/a</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.middlewareValidate" id="element.swgg.middlewareValidate">
+            function <span class="docApiSignatureSpan">swgg.</span>middlewareValidate
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;nextMiddleware)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">middlewareValidate = function (request,&nbsp;response,&nbsp;nextMiddleware) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will run the middleware that will validate the swagger-request
+ */
+</span>    var crud, modeNext, onNext, tmp;
+    modeNext = 0;
+    onNext = function () {
+        modeNext += 1;
+        switch (modeNext) {
+        case 1:
+            // serve swagger.json
+            if (request.method + &#x27; &#x27; + request.urlParsed.pathname ===
+                    &#x27;GET &#x27; + local.swgg.swaggerJson.basePath + &#x27;/swagger.json&#x27;) {
+                response.end(JSON.stringify(local.swgg.swaggerJson));
+                return;
+            }
+            if (!request.swgg.pathObject) {
+                modeNext = Infinity;
+                onNext();
+                return;
+            }
+            // init paramDict
+            request.swgg.paramDict = {};
+            // parse path param
+            tmp = request.urlParsed.pathname
+                .replace(local.swgg.swaggerJson.basePath, &#x27;&#x27;).split(&#x27;/&#x27;);
+            request.swgg.pathObject._path.split(&#x27;/&#x27;).forEach(function (key, ii) {
+                if ((/^\{\S*?\}$/).test(key)) {
+                    request.swgg.paramDict[key.slice(1, -1)] =
+                        decodeURIComponent(tmp[ii]);
+                }
+            });
+            request.swgg.pathObject.parameters.forEach(function (paramDef) {
+                switch (paramDef.in) {
+                // parse body param
+                case &#x27;body&#x27;:
+                    request.swgg.paramDict[paramDef.name] = request.swgg.bodyParsed ||
+                        undefined;
+                    break;
+                // parse formData param
+                case &#x27;formData&#x27;:
+                    switch (String(request.headers[&#x27;content-type&#x27;]).split(&#x27;;&#x27;)[0]) {
+                    case &#x27;application/x-www-form-urlencoded&#x27;:
+                        request.swgg.paramDict[paramDef.name] =
+                            request.swgg.bodyParsed[paramDef.name];
+                        break;
+                    }
+                    break;
+                // parse header param
+                case &#x27;header&#x27;:
+                    request.swgg.paramDict[paramDef.name] =
+                        request.headers[paramDef.name.toLowerCase()];
+                    break;
+                // parse query param
+                case &#x27;query&#x27;:
+                    request.swgg.paramDict[paramDef.name] =
+                        request.urlParsed.query[paramDef.name];
+                    break;
+                }
+                // init default param
+                if (local.utility2.isNullOrUndefined(
+                        request.swgg.paramDict[paramDef.name]
+                    ) &amp;&amp; paramDef.default !== undefined) {
+                    request.swgg.paramDict[paramDef.name] =
+                        local.utility2.jsonCopy(paramDef.default);
+                }
+            });
+            // normalize paramDict
+            local.swgg.normalizeParamDictSwagger(
+                request.swgg.paramDict,
+                request.swgg.pathObject
+            );
+            // validate paramDict
+            local.swgg.validateByParamDefList({
+                data: request.swgg.paramDict,
+                key: request.swgg.pathname,
+                paramDefList: request.swgg.pathObject.parameters
+            });
+            onNext();
+            break;
+        case 2:
+            // init crud
+            crud = request.swgg.crud;
+            // init crud.dbTable
+            crud.dbTable = request.swgg.pathObject &amp;&amp;
+                request.swgg.pathObject._schemaName &amp;&amp;
+                local.nedb.dbTableCreate({
+                    name: request.swgg.pathObject._schemaName
+                });
+            if (!crud.dbTable) {
+                nextMiddleware();
+                return;
+            }
+            // init crud.body
+            if (!request.swgg.isMultipartFormData) {
+                crud.body = local.utility2.jsonCopy(request.swgg.bodyParsed);
+            }
+            // init crud.data
+            crud.data = local.utility2.jsonCopy(request.swgg.paramDict);
+            request.swgg.pathObject.parameters.forEach(function (param) ...</pre></li>
+        <li>example usage<pre class="docApiCodePre">n/a</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.normalizeParamDictSwagger" id="element.swgg.normalizeParamDictSwagger">
+            function <span class="docApiSignatureSpan">swgg.</span>normalizeParamDictSwagger
+            <span class="docApiSignatureSpan">(data,&nbsp;pathObject)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">normalizeParamDictSwagger = function (data,&nbsp;pathObject) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will parse the data according to pathObject.parameters
+ */
+</span>    var tmp;
+    pathObject.parameters.forEach(function (paramDef) {
+        tmp = data[paramDef.name];
+        // init default value
+        if (local.utility2.isNullOrUndefined(tmp) &amp;&amp; paramDef.default !== undefined) {
+            tmp = local.utility2.jsonCopy(paramDef.default);
+        }
+        // JSON.parse paramDict
+        if (!(paramDef.type === &#x27;file&#x27; || paramDef.type === &#x27;string&#x27;) &amp;&amp;
+                (typeof tmp === &#x27;string&#x27; || tmp instanceof local.global.Uint8Array)) {
+            // try to JSON.parse the string
+            local.utility2.tryCatchOnError(function () {
+                tmp = JSON.parse(local.utility2.bufferToString(tmp));
+            }, local.utility2.nop);
+        }
+        data[paramDef.name] = tmp;
+    });
+    return data;
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    paramDict: {},
+    url: &#x27;&#x27;
+});
+// try to validate paramDict
+local.utility2.tryCatchOnError(function () {
+    local.swgg.validateByParamDefList({
+        // normalize paramDict
+        data: local.swgg.<span class="docApiCodeKeywordSpan">normalizeParamDictSwagger</span>(
+            local.utility2.jsonCopy(options.paramDict),
+            self
+        ),
+        dataReadonlyRemove: options.paramDict,
+        key: self.operationId,
+        paramDefList: self.parameters
+    });
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.onErrorJsonapi" id="element.swgg.onErrorJsonapi">
+            function <span class="docApiSignatureSpan">swgg.</span>onErrorJsonapi
+            <span class="docApiSignatureSpan">(onError)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">onErrorJsonapi = function (onError) {
+<span class="docApiCodeCommentSpan">/*
+ * http://jsonapi.org/format/#errors
+ * http://jsonapi.org/format/#document-structure-resource-objects
+ * this function will normalize the error and data to jsonapi format,
+ * and pass them to onError
+ */
+</span>    return function (error, data, meta) {
+        data = [error, data].map(function (data, ii) {
+            // if no error occurred, then return
+            if ((ii === 0 &amp;&amp; !data) ||
+                    // if data is already normalized, then return it
+                    (data &amp;&amp; data.meta &amp;&amp; data.meta.isJsonapiResponse)) {
+                return data;
+            }
+            // normalize data-list
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            // normalize error-list to contain non-null objects
+            if (ii === 0) {
+                // normalize error-list to be non-empty
+                if (!data.length) {
+                    data.push(null);
+                }
+                data = data.map(function (element) {
+                    if (!(element &amp;&amp; typeof element === &#x27;object&#x27;)) {
+                        element = { message: String(element) };
+                    }
+                    // normalize error-object to plain json-object
+                    error = local.utility2.jsonCopy(element);
+                    error.message = element.message;
+                    error.stack = element.stack;
+                    error.statusCode = Number(error.statusCode) || 500;
+                    return error;
+                });
+                error = local.utility2.jsonCopy(data[0]);
+                error.errors = data;
+                return error;
+            }
+            return { data: data };
+        });
+        // init data.meta
+        data.forEach(function (data, ii) {
+            if (!data) {
+                return;
+            }
+            data.meta = local.utility2.jsonCopy(meta || {});
+            // normalize meta-object
+            if (typeof data.meta !== &#x27;object&#x27;) {
+                data.meta = { metaData: meta };
+            }
+            data.meta.isJsonapiResponse = true;
+            if (ii === 0) {
+                data.meta.errorsLength = (data.errors &amp;&amp; data.errors.length) | 0;
+            } else {
+                data.meta.dataLength = (data.data &amp;&amp; data.data.length) | 0;
+            }
+            data.meta.statusCode = Number(data.meta.statusCode) ||
+                Number(data.statusCode) ||
+                0;
+        });
+        onError(data[0], data[1]);
+    };
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+// test redundant http-body-parse-middleware handling-behavior
+local.middleware.middlewareList.push(local.swgg.middlewareBodyParse);
+// init test-middleware
+local.middleware.middlewareList.push(function (request, response, nextMiddleware) {
+    switch (request.swgg.pathObject &amp;&amp; request.swgg.pathObject.operationId) {
+    case &#x27;onErrorJsonapi&#x27;:
+        // test redundant onErrorJsonapi handling-behavior
+        local.swgg.<span class="docApiCodeKeywordSpan">onErrorJsonapi</span>(function (error, data) {
+            local.swgg.serverRespondJsonapi(request, response, error, data);
+        })(
+            JSON.parse(request.swgg.paramDict.error || &#x27;null&#x27;),
+            JSON.parse(request.swgg.paramDict.data || &#x27;null&#x27;)
+        );
+        break;
+    case &#x27;paramBodyArray&#x27;:
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.schemaNormalizeAndCopy" id="element.swgg.schemaNormalizeAndCopy">
+            function <span class="docApiSignatureSpan">swgg.</span>schemaNormalizeAndCopy
+            <span class="docApiSignatureSpan">(schema)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">schemaNormalizeAndCopy = function (schema) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will return a normalized copy the schema
+ */
+</span>    var tmp;
+    // dereference $ref
+    if (schema.$ref) {
+        [
+            local.swgg.swaggerJson,
+            local.swgg.swaggerSchemaJson
+        ].some(function (options) {
+            local.utility2.tryCatchOnError(function () {
+                schema.$ref.replace(
+                    (/#\/(.*?)\/(.*?)$/),
+                    function (match0, match1, match2) {
+                        // jslint-hack - nop
+                        local.utility2.nop(match0);
+                        tmp = options[match1][match2];
+                    }
+                );
+            }, local.utility2.nop);
+            return tmp;
+        });
+        // validate schema
+        local.utility2.assert(tmp, schema.$ref);
+        // recurse
+        tmp = local.swgg.schemaNormalizeAndCopy(tmp);
+        schema = tmp;
+    }
+    // inherit allOf
+    if (schema.allOf) {
+        tmp = local.utility2.jsonCopy(schema);
+        delete tmp.allOf;
+        schema.allOf.reverse().forEach(function (element) {
+            local.utility2.objectSetDefault(
+                tmp,
+                // recurse
+                local.swgg.schemaNormalizeAndCopy(element),
+                2
+            );
+        });
+        schema = tmp;
+    }
+    return local.utility2.jsonCopy(schema);
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+});
+// merge options into swaggerJson
+options = local.utility2.objectSetOverride(local.swgg.swaggerJson, options, 10);
+// restore tags
+local.swgg.swaggerJson.tags = tmp;
+Object.keys(options.definitions).forEach(function (schemaName) {
+    // normalize definition
+    options.definitions[schemaName] = local.swgg.<span class="docApiCodeKeywordSpan">schemaNormalizeAndCopy</span>(
+        options.definitions[schemaName]
+    );
+});
+// init apiDict from paths
+Object.keys(options.paths).forEach(function (path) {
+    Object.keys(options.paths[path]).forEach(function (method) {
+        var self;
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.serverRespondJsonapi" id="element.swgg.serverRespondJsonapi">
+            function <span class="docApiSignatureSpan">swgg.</span>serverRespondJsonapi
+            <span class="docApiSignatureSpan">(request,&nbsp;response,&nbsp;error,&nbsp;data,&nbsp;meta)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">serverRespondJsonapi = function (request,&nbsp;response,&nbsp;error,&nbsp;data,&nbsp;meta) {
+<span class="docApiCodeCommentSpan">/*
+ * http://jsonapi.org/format/#errors
+ * http://jsonapi.org/format/#document-structure-resource-objects
+ * this function will respond in jsonapi format
+ */
+</span>    local.swgg.onErrorJsonapi(function (error, data) {
+        local.utility2.serverRespondHeadSet(
+            request,
+            response,
+            error &amp;&amp; error.statusCode,
+            { &#x27;Content-Type&#x27;: &#x27;application/json; charset=UTF-8&#x27; }
+        );
+        if (error) {
+            // debug statusCode / method / url
+            local.utility2.errorMessagePrepend(error, response.statusCode + &#x27; &#x27; +
+                request.method + &#x27; &#x27; + request.url + &#x27;\n&#x27;);
+            // print error.stack to stderr
+            local.utility2.onErrorDefault(error);
+        }
+        data = error || data;
+        data.meta.statusCode = response.statusCode =
+            data.meta.statusCode || response.statusCode;
+        response.end(JSON.stringify(data));
+    })(error, data, meta);
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+                result[element.status] += 1;
+            });
+            options.onNext(null, result);
+            break;
+        }
+        break;
+    case 3:
+        local.swgg.<span class="docApiCodeKeywordSpan">serverRespondJsonapi</span>(request, response, error, data);
+        break;
+    default:
+        nextMiddleware(error, data);
+    }
+});
+options.modeNext = 0;
+options.onNext();
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.stateInit" id="element.swgg.stateInit">
+            function <span class="docApiSignatureSpan">swgg.</span>stateInit
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">stateInit = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will init the state-options
+ */
+</span>    local.utility2.objectSetOverride(local, options, 10);
+    // init swaggerSchemaJson
+    local.swgg.swaggerSchemaJson = local.utility2.objectSetOverride(
+        JSON.parse(
+            local.utility2.assetsDict[&#x27;/assets.swgg.lib.json-schema.schema.json&#x27;]
+        ),
+        JSON.parse(
+            local.utility2.assetsDict[&#x27;/assets.swgg.lib.swagger.schema.json&#x27;]
+        ),
+        2
+    );
+    // init api
+    local.swgg.apiDictUpdate(local.swgg.swaggerJson);
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    }
+
+
+
+    // run shared js-env code - post-init
+    (function () {
+        // init state
+        local.swgg.<span class="docApiCodeKeywordSpan">stateInit</span>({});
+    }());
+}());
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.urlBaseGet" id="element.swgg.urlBaseGet">
+            function <span class="docApiSignatureSpan">swgg.</span>urlBaseGet
+            <span class="docApiSignatureSpan">()</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">urlBaseGet = function () {
+<span class="docApiCodeCommentSpan">/*
+ * this function will return the base swagger url
+ */
+</span>    return (local.swgg.swaggerJson.schemes ||
+        local.utility2.urlParse(&#x27;&#x27;).protocol.slice(0, -1)) + &#x27;://&#x27; +
+        (local.swgg.swaggerJson.host || local.utility2.urlParse(&#x27;&#x27;).host) +
+        local.swgg.swaggerJson.basePath;
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+// init headers - Authorization
+options.jwtEncoded = options.jwtEncoded || local.swgg.userJwtEncoded;
+if (options.jwtEncoded) {
+    options.headers.Authorization = options.headers.Authorization ||
+        &#x27;Bearer &#x27; + options.jwtEncoded;
+}
+// init url
+options.url = (local.swgg.<span class="docApiCodeKeywordSpan">urlBaseGet</span>() + options.inPath + &#x27;?&#x27; +
+    options.inQuery.slice(1))
+    .replace((/\?$/), &#x27;&#x27;);
+if (!(options.headers[&#x27;Content-Type&#x27;] || options.headers[&#x27;content-type&#x27;])) {
+    options.headers[&#x27;content-type&#x27;] = &#x27;application/json; charset=UTF-8&#x27;;
+}
+// send ajax-request
+return local.utility2.ajax(options, function (error, xhr) {
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.userLoginByPassword" id="element.swgg.userLoginByPassword">
+            function <span class="docApiSignatureSpan">swgg.</span>userLoginByPassword
+            <span class="docApiSignatureSpan">(options,&nbsp;onError)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">userLoginByPassword = function (options,&nbsp;onError) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will send a login-by-password request
+ */
+</span>    local.swgg.apiDict[&quot;GET /user/userLoginByPassword&quot;]._ajax({ paramDict: {
+        password: options.password,
+        username: options.username
+    } }, onError);
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+    local.swgg.userLogout(options, onNext);
+    break;
+case 2:
+    // validate error occurred
+    local.utility2.assert(error, error);
+    // test userLoginByPassword&#x27;s 401 handling-behavior
+    options = { password: &#x27;undefined&#x27;, username: &#x27;undefined&#x27; };
+    local.swgg.<span class="docApiCodeKeywordSpan">userLoginByPassword</span>(options, onNext);
+    break;
+case 3:
+    // validate error occurred
+    local.utility2.assert(error, error);
+    // validate statusCode
+    local.utility2.assertJsonEqual(data.statusCode, 401);
+    // validate userJwtEncoded does not exist
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.userLogout" id="element.swgg.userLogout">
+            function <span class="docApiSignatureSpan">swgg.</span>userLogout
+            <span class="docApiSignatureSpan">(options,&nbsp;onError)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">userLogout = function (options,&nbsp;onError) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will send a logout request
+ */
+</span>    local.swgg.apiDict[&quot;GET /user/userLogout&quot;]._ajax(options, onError);
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+modeNext += 1;
+switch (modeNext) {
+case 1:
+    // cleanup userJwtEncoded
+    delete local.swgg.userJwtEncoded;
+    // test userLogout&#x27;s default handling-behavior
+    options = {};
+    local.swgg.<span class="docApiCodeKeywordSpan">userLogout</span>(options, onNext);
+    break;
+case 2:
+    // validate error occurred
+    local.utility2.assert(error, error);
+    // test userLoginByPassword&#x27;s 401 handling-behavior
+    options = { password: &#x27;undefined&#x27;, username: &#x27;undefined&#x27; };
+    local.swgg.userLoginByPassword(options, onNext);
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.validateByParamDefList" id="element.swgg.validateByParamDefList">
+            function <span class="docApiSignatureSpan">swgg.</span>validateByParamDefList
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">validateByParamDefList = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will validate options.data against options.paramDefList
+ */
+</span>    var data, key;
+    local.utility2.tryCatchOnError(function () {
+        data = options.data;
+        // validate data
+        local.utility2.assert(data &amp;&amp; typeof data === &#x27;object&#x27;, data);
+        (options.paramDefList || []).forEach(function (paramDef) {
+            key = paramDef.name;
+            // recurse - validateByPropDef
+            local.swgg.validateByPropDef({
+                circularList: options.circularList,
+                data: data[key],
+                dataReadonlyRemove: (options.dataReadonlyRemove || {})[key],
+                key: key,
+                schema: paramDef,
+                required: paramDef.required,
+                &#x27;x-swgg-notRequired&#x27;: paramDef[&#x27;x-swgg-notRequired&#x27;]
+            });
+        });
+    }, function (error) {
+        error.statusCode = error.statusCode || 400;
+        local.utility2.errorMessagePrepend(error, options.key + &#x27;.&#x27; + key +
+            &#x27; -&gt; &#x27;);
+        throw error;
+    });
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+        /*
+* this function will test validateByParamDefList&#x27;s default handling-behavior
+*/
+   var onParallel;
+   onParallel = local.utility2.onParallel(onError);
+   onParallel.counter += 1;
+   // test nop handling-behavior
+   local.swgg.<span class="docApiCodeKeywordSpan">validateByParamDefList</span>({ data: {} });
+   options = {
+       paramDict: {
+           id: &#x27;00_test_testCase_validateByParamDefList_default&#x27;,
+           // test array-param handling-behavior
+           paramArray: [&#x27;aa&#x27;, &#x27;bb&#x27;],
+           // test body-param handling-behavior
+           paramBody: { aa: { bb: &#x27;hello body&#x27; } },
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.validateByPropDef" id="element.swgg.validateByPropDef">
+            function <span class="docApiSignatureSpan">swgg.</span>validateByPropDef
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">validateByPropDef = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will validate options.data against options.schema
+ */
+</span>    var data, prefix, propDef, tmp;
+    local.utility2.tryCatchOnError(function () {
+        data = options.data;
+        prefix = &#x27;property &#x27; + options.key;
+        propDef = options.schema;
+        // validate undefined data
+        if (local.utility2.isNullOrUndefined(data)) {
+            if (options.required &amp;&amp; !options[&#x27;x-swgg-notRequired&#x27;]) {
+                tmp = new Error(prefix + &#x27; cannot be null or undefined&#x27;);
+                tmp.options = options;
+                throw tmp;
+            }
+            return;
+        }
+        // handle $ref
+        tmp = propDef.$ref || (propDef.schema &amp;&amp; propDef.schema.$ref);
+        if (tmp) {
+            // recurse - validateBySchema
+            local.swgg.validateBySchema({
+                circularList: options.circularList,
+                data: data,
+                dataReadonlyRemove: options.dataReadonlyRemove,
+                key: tmp,
+                schema: local.swgg.schemaNormalizeAndCopy({ $ref: tmp }),
+                &#x27;x-swgg-notRequired&#x27;: options[&#x27;x-swgg-notRequired&#x27;]
+            });
+            return;
+        }
+        // handle anyOf
+        if (propDef.anyOf) {
+            tmp = propDef.anyOf.some(function (element) {
+                local.utility2.tryCatchOnError(function () {
+                    // recurse - validateBySchema
+                    local.swgg.validateBySchema({
+                        circularList: options.circularList,
+                        data: data,
+                        key: &#x27;anyOf&#x27;,
+                        schema: local.swgg.schemaNormalizeAndCopy(element),
+                        &#x27;x-swgg-notRequired&#x27;: options[&#x27;x-swgg-notRequired&#x27;]
+                    });
+                }, local.utility2.nop);
+                return !local.utility2.tryCatchErrorCaught;
+            });
+            local.utility2.assert(tmp, local.utility2.tryCatchErrorCaught);
+            return;
+        }
+        // normalize propDef
+        propDef = local.swgg.schemaNormalizeAndCopy(options.schema);
+        // init circularList
+        if (data &amp;&amp; typeof data === &#x27;object&#x27;) {
+            options.circularList = options.circularList || [];
+            if (options.circularList.indexOf(data) &gt;= 0) {
+                return;
+            }
+            options.circularList.push(data);
+        }
+        // validate propDef embedded in propDef.schema.type
+        if (!propDef.type &amp;&amp; propDef.schema &amp;&amp; propDef.schema.type) {
+            propDef = propDef.schema;
+        }
+        // http://json-schema.org/latest/json-schema-validation.html#anchor13
+        // 5.1.  Validation keywords for numeric instances (number and integer)
+        if (typeof data === &#x27;number&#x27;) {
+            if (typeof propDef.multipleOf === &#x27;number&#x27;) {
+                local.utility2.assert(
+                    data % propDef.multipleOf === 0,
+                    prefix + &#x27; must be a multiple of &#x27; + propDef.multipleOf
+                );
+            }
+            if (typeof propDef.maximum === &#x27;number&#x27;) {
+                local.utility2.assert(
+                    propDef.exclusiveMaximum
+                        ? data &lt; propDef.maximum
+                        : data &lt;= propDef.maximum,
+                    prefix + &#x27; must be &#x27; + (propDef.exclusiveMaximum
+                        ? &#x27;&lt; &#x27;
+                        : &#x27;&lt;= &#x27;) + propDef.maximum
+                );
+            }
+            if (typeof propDef.minimum === &#x27;number&#x27;) {
+                local.utility2.assert(
+                    propDef.exclusiveMinimum
+                        ? data &gt; propDef.minimum
+                        : data &gt;= propDef.minimum,
+                    prefix + &#x27; must be &#x27; + (propDef.exclusiveMinimum
+                        ? &#x27;&gt; &#x27;
+                        : &#x27;&gt;= &#x27;) + propDef.minimum
+                );
+            }
+        // http://json-schema.org/latest/json-schema-validation.html#anchor25
+        // 5.2.  Validation keywords for strings
+        } else if (typeof data === &#x27;string&#x27;) {
+            if (propDef.maxLength) {
+                local.uti ...</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+        tmp = propDef.multipleOf * Math.floor(tmp / propDef.multipleOf);
+        if (tmp &lt; min) {
+            tmp += propDef.multipleOf;
+        }
+    }
+    // try to validate data
+    local.utility2.tryCatchOnError(function () {
+        local.swgg.<span class="docApiCodeKeywordSpan">validateByPropDef</span>({
+            data: tmp,
+            key: propDef.name,
+            schema: propDef
+        });
+        dbRow[key] = tmp;
+    }, local.utility2.nop);
+});
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.validateBySchema" id="element.swgg.validateBySchema">
+            function <span class="docApiSignatureSpan">swgg.</span>validateBySchema
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">validateBySchema = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will validate options.data against options.schema
+ */
+</span>    var data, key, prefix, propDefDict, schema, tmp, validateByPropDef;
+    // recurse - validateByPropDef
+    local.swgg.validateByPropDef(options);
+    local.utility2.tryCatchOnError(function () {
+        data = options.data;
+        prefix = &#x27;schema &#x27; + options.key;
+        schema = options.schema;
+        // validate schema
+        local.utility2.assert(
+            schema &amp;&amp; typeof schema === &#x27;object&#x27;,
+            prefix + &#x27; must be an object (not &#x27; + typeof schema + &#x27;)&#x27;
+        );
+        // init propDefDict
+        propDefDict = schema.properties || {};
+        // validate data
+        local.utility2.assert(
+            (data &amp;&amp; typeof data === &#x27;object&#x27;) || !Object.keys(propDefDict).length,
+            &#x27;data for &#x27; + prefix + &#x27; must be an object (not &#x27; + typeof data + &#x27;)&#x27;
+        );
+        if (typeof data !== &#x27;object&#x27;) {
+            return;
+        }
+        validateByPropDef = function (propDef) {
+            // remove options.dataReadonlyRemove[key]
+            if (propDef.readOnly &amp;&amp;
+                    (options.dataReadonlyRemove || {}).hasOwnProperty(key)) {
+                delete options.dataReadonlyRemove[key];
+            }
+            // recurse - validateByPropDef
+            local.swgg.validateByPropDef({
+                circularList: options.circularList,
+                data: data[key],
+                dataReadonlyRemove: (options.dataReadonlyRemove || {})[key],
+                key: key,
+                schema: propDef,
+                required: schema.required &amp;&amp; schema.required.indexOf(key) &gt;= 0,
+                &#x27;x-swgg-notRequired&#x27;: options[&#x27;x-swgg-notRequired&#x27;]
+            });
+        };
+        Object.keys(propDefDict).forEach(function (_) {
+            key = _;
+            validateByPropDef(propDefDict[key]);
+        });
+        Object.keys(data).forEach(function (_) {
+            key = _;
+            if (propDefDict[key]) {
+                return;
+            }
+            tmp = Object.keys(schema.patternProperties || {}).some(function (_) {
+                if (new RegExp(_).test(key)) {
+                    validateByPropDef(schema.patternProperties[_]);
+                    return true;
+                }
+            });
+            if (tmp) {
+                return;
+            }
+            // https://tools.ietf.org/html/draft-fge-json-schema-validation-00
+            // #section-5.4.4
+            // validate additionalProperties
+            local.utility2.assert(
+                schema.additionalProperties !== false,
+                prefix + &#x27; must not have additionalProperties - &#x27; + key
+            );
+            if (schema.additionalProperties) {
+                validateByPropDef(schema.additionalProperties);
+            }
+        });
+    }, function (error) {
+        local.utility2.errorMessagePrepend(error, options.key + &#x27;.&#x27; + key + &#x27; -&gt; &#x27;);
+        throw error;
+    });
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+        element.data = local.utility2.jsonCopy(options.data);
+        element.data[element.key] = element.value;
+        element.schema = options.schema;
+        // test circular-reference handling-behavior
+        element.data.propArraySubdoc = element.data.propArraySubdoc || [element.data];
+        element.data.propObject = element.data.propObject || element.data;
+        element.data.propObjectSubdoc = element.data.propObjectSubdoc || element.data;
+        local.swgg.<span class="docApiCodeKeywordSpan">validateBySchema</span>(element);
+    });
+    onError();
+};
+
+local.testCase_validateBySchema_error = function (options, onError) {
+/*
+ * this function will test validateBySchema&#x27;s error handling-behavior
+...</pre></li>
+        </ul>
+        
+        
+        
+        <h2>
+            <a href="#element.swgg.validateBySwagger" id="element.swgg.validateBySwagger">
+            function <span class="docApiSignatureSpan">swgg.</span>validateBySwagger
+            <span class="docApiSignatureSpan">(options)</span>
+            </a>
+        </h2>
+        <ul>
+        <li>description and source code<pre class="docApiCodePre">validateBySwagger = function (options) {
+<span class="docApiCodeCommentSpan">/*
+ * this function will validate the entire swagger json object
+ */
+</span>    var key, schema, tmp, validateDefault;
+    local.swgg.validateBySchema({
+        data: options,
+        key: &#x27;swaggerJson&#x27;,
+        schema: local.swgg.swaggerSchemaJson
+    });
+    // validate default
+    validateDefault = function () {
+        if (schema.default !== undefined) {
+            return;
+        }
+        local.swgg.validateByPropDef({
+            data: schema.default,
+            key: key + &#x27;.default&#x27;,
+            schema: schema
+        });
+    };
+    Object.keys(options.definitions).forEach(function (schemaName) {
+        schema = options.definitions[schemaName];
+        key = schemaName;
+        validateDefault();
+        Object.keys(options.definitions[schemaName].properties || {
+        }).forEach(function (propName) {
+            schema = options.definitions[schemaName].properties[propName];
+            key = schemaName + &#x27;.&#x27; + propName;
+            validateDefault();
+        });
+    });
+    Object.keys(options.paths).forEach(function (pathName) {
+        Object.keys(options.paths[pathName]).forEach(function (methodName) {
+            tmp = options.paths[pathName][methodName];
+            Object.keys(tmp.parameters).forEach(function (paramName) {
+                schema = tmp.parameters[paramName];
+                key = tmp.tags[0] + &#x27;.&#x27; + tmp.operationId + &#x27;.&#x27; + paramName;
+                validateDefault();
+            });
+        });
+    });
+}</pre></li>
+        <li>example usage<pre class="docApiCodePre">...
+        /*
+* this function will test validateBySwagger&#x27;s default handling-behavior
+*/
+   options = {};
+   // test null-case handling-behavior
+   [null, undefined, {}].forEach(function (element) {
+       local.utility2.tryCatchOnError(function () {
+           local.swgg.<span class="docApiCodeKeywordSpan">validateBySwagger</span>(element);
+       }, local.utility2.nop);
+       // validate error occurred
+       local.utility2.assert(local.utility2.tryCatchErrorCaught, element);
+   });
+   options.templateData = JSON.stringify({
+       definitions: {
+           Test: {
+...</pre></li>
+        </ul>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </div>
+    
+</div>
