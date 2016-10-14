@@ -2227,14 +2227,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
  * browser example:
  *     <script src="assets.db-lite.js"></script>
  *     <script>
- *     var table1 = window.db_lite.dbTableCreate({ name: "table1" });
- *     table1.crudInsertMany([{ field1: 'hello', field2: 'world'}], console.log.bind(console));
+ *     var dbTable1 = window.db_lite.dbTableCreate({ name: "dbTable1" });
+ *     dbTable1.crudInsertMany([{ field1: 'hello', field2: 'world'}], console.log.bind(console));
  *     </script>
  *
  * node example:
  *     var db = require('./assets.db-lite.js');
- *     var table1 = window.db_lite.dbTableCreate({ name: "table1" });
- *     table1.crudInsertMany([{ field1: 'hello', field2: 'world'}], console.log.bind(console));
+ *     var dbTable1 = window.db_lite.dbTableCreate({ name: "dbTable1" });
+ *     dbTable1.crudInsertMany([{ field1: 'hello', field2: 'world'}], console.log.bind(console));
  */
 
 
@@ -2307,11 +2307,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         local.db.dbExport = function () {
         /*
-         * this function will export the database as a serialized dbTableList
+         * this function will export db as a serialized dbTableList
          */
             var data;
             data = '';
-            Object.keys(local.db.dbTableDict).map(function (key) {
+            Object.keys(local.db.dbTableDict).forEach(function (key) {
                 data += local.db.dbTableDict[key].dbTableExport() + '\n\n';
             });
             return data.slice(0, -2);
@@ -2333,29 +2333,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         /*
          * this function will reset db's persistence
          */
-            var onParallel, options;
-            options = {};
-            local.db.onNext(options, function (error) {
-                switch (options.modeNext) {
-                case 1:
-                    onParallel = local.db.onParallel(onError);
-                    onParallel.counter = 0;
-                    onParallel.counter += 1;
-                    Object.keys(local.db.dbTableDict).forEach(function (key) {
-                        // drop dbTable
-                        onParallel.counter += 1;
-                        local.db.dbTableDict[key].dbTableClear(onParallel);
-                    });
-                    onParallel.counter += 1;
-                    local.db.dbStorageClear(onParallel);
-                    onParallel();
-                    break;
-                default:
-                    onError(error);
-                }
+            Object.keys(local.db.dbTableDict).forEach(function (key) {
+                // clear dbTable
+                local.db.dbTableDict[key].dbTableClear();
             });
-            options.modeNext = 0;
-            options.onNext();
+            local.db.dbStorageClear(onError);
         };
 
         local.db.dbStorageClear = function (onError) {
@@ -2685,7 +2667,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     self.dbIndexList().forEach(function (dbIndex) {
                         dbIndex = self.dbIndexDict[dbIndex.fieldName] =
                             new local.db._DbIndex(dbIndex);
-                        dbIndex.tree = new local.db.DbTree({ unique: dbIndex.unique });
+                        dbIndex.dbTree = new local.db._DbTree({ unique: dbIndex.unique });
                         dbIndex.insert(options.tdata);
                     });
                     self.dbTablePersist();
@@ -3697,7 +3679,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * Copying
          * Querying, update
          */
-        local.db.DbTree = function (options) {
+        local.db._DbTree = function (options) {
         /**
          * Constructor of the internal DbTree
          *
@@ -3721,7 +3703,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         // Methods used to actually work on the tree
         // ============================================
 
-        local.db.DbTree.prototype.createSimilar = function (options) {
+        local.db._DbTree.prototype.createSimilar = function (options) {
         /**
          * Create a BST similar (i.e. same options except for key and value) to the current one
          * Use the same constructor (i.e. DbTree)
@@ -3732,7 +3714,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return new this.constructor(options);
         };
-        local.db.DbTree.prototype.createLeftChild = function (options) {
+        local.db._DbTree.prototype.createLeftChild = function (options) {
         /**
          * Create the left child of this BST and return it
          */
@@ -3742,7 +3724,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return leftChild;
         };
-        local.db.DbTree.prototype.createRightChild = function (options) {
+        local.db._DbTree.prototype.createRightChild = function (options) {
         /**
          * Create the right child of this BST and return it
          */
@@ -3752,7 +3734,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return rightChild;
         };
-        local.db.DbTree.prototype.insert = function (key, value) {
+        local.db._DbTree.prototype.insert = function (key, value) {
         /**
          * Insert a key, value pair in the tree while maintaining the DbTree height constraint
          * Return a pointer to the root node, which may have changed
@@ -3810,7 +3792,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return this.rebalanceAlongPath(insertPath);
         };
 
-        local.db.DbTree.prototype.delete = function (key, value) {
+        local.db._DbTree.prototype.delete = function (key, value) {
         /**
          * Delete a key or just a value and return the new root of the tree
          * @param {Key} key
@@ -3935,7 +3917,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return this.rebalanceAlongPath(deletePath);
         };
 
-        local.db.DbTree.prototype.search = function (key) {
+        local.db._DbTree.prototype.search = function (key) {
         /**
          * Search for all data corresponding to a key
          */
@@ -3958,7 +3940,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
             return [];
         };
-        local.db.DbTree.prototype.getLowerBoundMatcher = function (query) {
+        local.db._DbTree.prototype.getLowerBoundMatcher = function (query) {
         /**
          * Return a function that tells whether a given key matches a lower bound
          */
@@ -3995,7 +3977,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 return local.db.sortCompare(key, query.$gte) >= 0;
             };
         };
-        local.db.DbTree.prototype.getUpperBoundMatcher = function (query) {
+        local.db._DbTree.prototype.getUpperBoundMatcher = function (query) {
         /**
          * Return a function that tells whether a given key matches an upper bound
          */
@@ -4040,7 +4022,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 array.push(toAppend[ii]);
             }
         }
-        local.db.DbTree.prototype.betweenBounds = function (query, lbm, ubm) {
+        local.db._DbTree.prototype.betweenBounds = function (query, lbm, ubm) {
         /**
          * Get all data for a key between bounds
          * Return it in key order
@@ -4069,7 +4051,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return res;
         };
-        local.db.DbTree.prototype.deleteIfLeaf = function () {
+        local.db._DbTree.prototype.deleteIfLeaf = function () {
         /**
          * Delete the current node if it is a leaf
          * Return true if it was deleted
@@ -4093,7 +4075,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return true;
         };
-        local.db.DbTree.prototype.deleteIfOnlyOneChild = function () {
+        local.db._DbTree.prototype.deleteIfOnlyOneChild = function () {
         /**
          * Delete the current node if it has only one child
          * Return true if it was deleted
@@ -4140,7 +4122,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return true;
         };
-        local.db.DbTree.prototype.executeOnEveryNode = function (fn) {
+        local.db._DbTree.prototype.executeOnEveryNode = function (fn) {
         /**
          * Execute a function on every node of the tree, in key order
          * @param {Function} fn Signature: node.
@@ -4154,7 +4136,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 this.right.executeOnEveryNode(fn);
             }
         };
-        local.db.DbTree.prototype.balanceFactor = function () {
+        local.db._DbTree.prototype.balanceFactor = function () {
         /**
          * Return the balance factor
          */
@@ -4163,7 +4145,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return leftH - rightH;
         };
 
-        local.db.DbTree.prototype.rightRotation = function () {
+        local.db._DbTree.prototype.rightRotation = function () {
         /**
          * Perform a right rotation of the tree if possible
          * and return the root of the resulting tree
@@ -4204,7 +4186,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return p;
         };
-        local.db.DbTree.prototype.leftRotation = function () {
+        local.db._DbTree.prototype.leftRotation = function () {
         /**
          * Perform a left rotation of the tree if possible
          * and return the root of the resulting tree
@@ -4245,7 +4227,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return q;
         };
-        local.db.DbTree.prototype.rightTooSmall = function () {
+        local.db._DbTree.prototype.rightTooSmall = function () {
         /**
          * Modify the tree if its right subtree is too small compared to the left
          * Return the new root if any
@@ -4260,7 +4242,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return this.rightRotation();
         };
-        local.db.DbTree.prototype.leftTooSmall = function () {
+        local.db._DbTree.prototype.leftTooSmall = function () {
         /**
          * Modify the tree if its left subtree is too small compared to the right
          * Return the new root if any
@@ -4275,7 +4257,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             return this.leftRotation();
         };
-        local.db.DbTree.prototype.rebalanceAlongPath = function (path) {
+        local.db._DbTree.prototype.rebalanceAlongPath = function (path) {
         /**
          * Rebalance the tree along the given path.
          * The path is given reversed (as he was calculated
@@ -4353,12 +4335,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
             this.fieldName = options.fieldName;
             this.integer = options.integer;
-
-            this.unique = options.unique || false;
-            this.sparse = options.sparse || false;
-
-            // No data in the beginning
-            this.tree = new local.db.DbTree({ unique: this.unique });
+            this.sparse = options.sparse;
+            this.unique = options.unique;
+            // init dbTree
+            this.dbTree = new local.db._DbTree({ unique: this.unique });
         };
         local.db._DbIndex.prototype.insert = function (dbRow) {
         /**
@@ -4397,7 +4377,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             if (!Array.isArray(key)) {
-                self.tree = self.tree.insert(key, dbRow);
+                self.dbTree = self.dbTree.insert(key, dbRow);
             } else {
                 // If an insert fails due to a unique constraint,
                 // roll back all inserts before it
@@ -4405,7 +4385,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                 for (ii = 0; ii < keys.length; ii += 1) {
                     try {
-                        self.tree = self.tree.insert(keys[ii], dbRow);
+                        self.dbTree = self.dbTree.insert(keys[ii], dbRow);
                     } catch (errorCaught) {
                         error = errorCaught;
                         failingI = ii;
@@ -4415,7 +4395,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                 if (error) {
                     for (ii = 0; ii < failingI; ii += 1) {
-                        self.tree = self.tree.delete(keys[ii], dbRow);
+                        self.dbTree = self.dbTree.delete(keys[ii], dbRow);
                     }
 
                     throw error;
@@ -4472,10 +4452,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
 
             if (!Array.isArray(key)) {
-                self.tree = self.tree.delete(key, dbRow);
+                self.dbTree = self.dbTree.delete(key, dbRow);
             } else {
                 local.db.listUnique(key).map(projectForUnique).forEach(function (_key) {
-                    self.tree = self.tree.delete(_key, dbRow);
+                    self.dbTree = self.dbTree.delete(_key, dbRow);
                 });
             }
         };
@@ -4526,7 +4506,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
             var self = this, _res = {}, res = [];
             if (!Array.isArray(value)) {
-                return self.tree.search(value);
+                return self.dbTree.search(value);
             }
             value.forEach(function (v) {
                 self.getMatching(v).forEach(function (dbRow) {
@@ -4970,7 +4950,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         local.db._DbTable.prototype.dbIndexList = function () {
         /*
-         * this function will return all dbIndex's in dbTable
+         * this function will list all dbIndex's in dbTable
          */
             var self;
             self = this;
@@ -4994,11 +4974,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
         local.db._DbTable.prototype.dbRowList = function () {
         /*
-         * this function will return all dbRow's in dbTable
+         * this function will list all dbRow's in dbTable
          */
             var result;
+            if (!this.dbIndexDict._id) {
+                return [];
+            }
             result = [];
-            this.dbIndexDict._id.tree.executeOnEveryNode(function (node) {
+            this.dbIndexDict._id.dbTree.executeOnEveryNode(function (node) {
                 node.data.forEach(function (dbRow) {
                     result.push(dbRow);
                 });
@@ -5006,7 +4989,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return result;
         };
 
-        local.db._DbTable.prototype.dbTableClear = function (onError) {
+        local.db._DbTable.prototype.dbTableClear = function () {
         /*
          * this function will clear dbTable
          */
@@ -5014,9 +4997,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             self = this;
             delete self.timerDbTableSave;
             self.dbIndexList().forEach(function (dbIndex) {
-                dbIndex.tree = new local.db.DbTree({ unique: dbIndex.unique });
+                dbIndex.dbTree = new local.db._DbTree({ unique: dbIndex.unique });
             });
-            local.db.dbStorageRemoveItem(self.name, onError);
+            // clear persistence
+            local.db.dbStorageRemoveItem(self.name, local.db.onErrorDefault);
         };
 
         local.db._DbTable.prototype.dbTableExport = function () {
@@ -5025,34 +5009,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
             var data, self;
             self = this;
-            data = '';
+            data = '####\n';
             data += JSON.stringify(String(self.name)) + '\n';
-            self.dbRowList().forEach(function (dbRow) {
-                data += JSON.stringify(dbRow) + '\n';
-            });
-            self.dbIndexList().forEach(function (dbIndex) {
-                if (dbIndex.fieldName === '_id') {
-                    return;
-                }
-                data += JSON.stringify({ $$indexCreated: {
-                    fieldName: dbIndex.fieldName,
-                    integer: dbIndex.integer,
-                    unique: dbIndex.unique,
-                    sparse: dbIndex.sparse
-                } }) + '\n';
-            });
-            return data.slice(0, -1);
-        };
-
-        local.db._DbTable.prototype.dbTableExport2 = function () {
-        /*
-         * this function will export dbTable
-         */
-            var data, self;
-            self = this;
-            data = '';
-            data += JSON.stringify(String(self.name));
-            data += '\n\n';
+            data += '#\n';
             self.dbIndexList().forEach(function (dbIndex) {
                 switch (dbIndex.fieldName) {
                 case '_id':
@@ -5067,10 +5026,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     sparse: dbIndex.sparse
                 }) + '\n';
             });
-            data += '\n';
+            data += '#\n';
             self.dbRowList().forEach(function (dbRow) {
                 data += JSON.stringify(dbRow) + '\n';
             });
+            data += '####';
             return data;
         };
 
@@ -5081,11 +5041,20 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             var self;
             self = this;
             delete self.timerDbTableSave;
-            data = data.split('\n\n').map(function (element) {
-                return element.trim().split('\n').map(function (element) {
-                    return JSON.parse(element);
+            data = data
+                .replace((/^####/gm), '')
+                .split('\n#')
+                .map(function (element) {
+                    return element
+                        .trim()
+                        .split('\n')
+                        .filter(function (element) {
+                            return element;
+                        })
+                        .map(function (element) {
+                            return JSON.parse(element);
+                        });
                 });
-            });
             data[1].forEach(function (dbIndex) {
                 dbIndex = self.dbIndexDict[dbIndex.fieldName] = new local.db._DbIndex(dbIndex);
                 dbIndex.insert(self.dbRowList());
@@ -5192,7 +5161,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     if (usableQueryKeys.length > 0) {
                         return options.onNext(
                             null,
-                            self.dbIndexDict[usableQueryKeys[0]].tree.betweenBounds(
+                            self.dbIndexDict[usableQueryKeys[0]].dbTree.betweenBounds(
                                 query[usableQueryKeys[0]]
                             )
                         );
