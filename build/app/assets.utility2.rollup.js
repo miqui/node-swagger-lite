@@ -2287,6 +2287,18 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             throw error;
         };
 
+        local.db.dbClear = function (onError) {
+        /*
+         * this function will clear db and its persistence
+         */
+            Object.keys(local.db.dbTableDict).forEach(function (key) {
+                // clear dbTable
+                local.db.dbTableDict[key].dbTableClear();
+            });
+            // clear persistence
+            local.db.dbStorageClear(onError);
+        };
+
         local.db.dbExport = function () {
         /*
          * this function will export db as a serialized dbTableList
@@ -2294,32 +2306,21 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             var data;
             data = '';
             Object.keys(local.db.dbTableDict).forEach(function (key) {
-                data += local.db.dbTableDict[key].dbTableExport() + '\n\n';
+                data += local.db.dbTableDict[key].dbTableExport() + '\n\n\n\n';
             });
             return data.slice(0, -2);
         };
 
-        local.db.dbImport = function (dbTableList, onError) {
+        local.db.dbImport = function (dbTableList) {
         /*
          * this function will import the serialized dbTableList
          */
-            dbTableList.trim().split('\n\n').forEach(function (dbTable) {
+            dbTableList.trim().split('\n\n\n\n').forEach(function (dbTable) {
                 local.db.dbTableCreate({
-                    persistenceData: dbTable,
-                    name: JSON.parse((/.*/).exec(dbTable)[0])
-                }, onError);
+                    imported: true,
+                    name: JSON.parse((/"name":("[^"].*?")/).exec(dbTable)[1])
+                }).dbTableImport(dbTable);
             });
-        };
-
-        local.db.dbReset = function (onError) {
-        /*
-         * this function will reset db's persistence
-         */
-            Object.keys(local.db.dbTableDict).forEach(function (key) {
-                // clear dbTable
-                local.db.dbTableDict[key].dbTableClear();
-            });
-            local.db.dbStorageClear(onError);
         };
 
         local.db.dbStorageClear = function (onError) {
@@ -2571,93 +2572,19 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 case 1:
                     self = local.db.dbTableDict[options.name] =
                         local.db.dbTableDict[options.name] || new local.db._DbTable(options);
-                    if (self.initialized) {
-                        options.onNext();
+                    // import persistence
+                    if (!self.imported) {
+                        local.db.dbStorageGetItem(self.name, options.onNext);
                         return;
                     }
-                    self.initialized = 1;
-                    // validate name
-                    local.db.assert(
-                        options && options.name && typeof options.name === 'string',
-                        options && options.name
-                    );
-                    self.ttlIndexes = {};
-                    options.onNext();
-                    break;
-                // import data
-                case 2:
-                    if (self.initialized !== 1) {
-                        options.modeNext += 2;
-                        options.onNext();
-                        return;
-                    }
-                    self.initialized += 1;
-                    data = (options.persistenceData || '').trim();
-                    if (!data) {
-                        options.onNext();
-                        return;
-                    }
-                    data += '\n';
-                    data = data.slice(data.indexOf('\n') + 1);
-                    local.db.dbStorageSetItem(self.name, data, options.onNext);
-                    break;
-                // load persistence
-                case 3:
-                    local.db.dbStorageGetItem(self.name, options.onNext);
-                    break;
-                case 4:
-                    // Load the database
-                    // 1) Create all indexes
-                    // 2) Insert all data
-                    // 3) Compact the database
-                    // This means pulling data out of the data file
-                    // or creating it if it doesn't exist.
-                    // Also, all data is persisted right away,
-                    // which has the effect of compacting the database file.
-                    // This operation is very quick at startup for a big dbTable
-                    // (60ms for ~10k docs).
-
-
-
-                    // treatRawData
-                    options.dataById = {};
-                    options.tdata = [];
-                    (data || '').trim().split('\n').slice(1).forEach(function (dbRow) {
-                        try {
-                            dbRow = JSON.parse(dbRow);
-                        } catch (errorCaught) {
-                            return;
-                        }
-                        if (dbRow._id) {
-                            if (dbRow.$$deleted === true) {
-                                delete options.dataById[dbRow._id];
-                            } else {
-                                options.dataById[dbRow._id] = dbRow;
-                            }
-                        } else if (dbRow.$$indexCreated &&
-                                dbRow.$$indexCreated.fieldName !== undefined) {
-                            self.dbIndexDict[dbRow.$$indexCreated.fieldName] =
-                                dbRow.$$indexCreated;
-                        } else if (typeof dbRow.$$indexRemoved === 'string') {
-                            delete self.dbIndexDict[dbRow.$$indexRemoved];
-                        }
-                    });
-                    Object.keys(options.dataById).forEach(function (k) {
-                        options.tdata.push(options.dataById[k]);
-                    });
-                    // Fill cached database (i.e. all indexes) with data
-                    self.dbIndexList().forEach(function (dbIndex) {
-                        dbIndex = self.dbIndexDict[dbIndex.fieldName] =
-                            new local.db._DbIndex(dbIndex);
-                        dbIndex.dbTree = new local.db._DbTree({ unique: dbIndex.unique });
-                        dbIndex.insert(options.tdata);
-                    });
-                    self.dbTablePersist();
                     options.onNext();
                     break;
                 default:
                     // validate no error occurred
                     local.db.assert(!error, error);
+                    if (!self.imported) {
+                        self.dbTableImport(data);
+                    }
                     if (onError) {
                         onError(error, self);
                     }
@@ -2851,7 +2778,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         /*
          * this function will query-compare aa vs bb
          */
-            try {
+            return local.db.tryCatchOnError(function () {
                 switch (operator) {
                 case '$elemMatch':
                     // If match for array element, return true
@@ -2889,10 +2816,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 default:
                     return false;
                 }
-            } catch (errorCaught) {
-                local.db.onErrorDefault(errorCaught);
+            }, function (error) {
+                local.db.onErrorDefault(error);
                 return false;
-            }
+            });
         };
 
         local.db.sortCompare = function (aa, bb) {
@@ -2910,12 +2837,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             if (aa === bb) {
                 return 0;
             }
-            // compare null
+            // reverse compare null
             if (aa === null) {
-                return -1;
+                return 1;
             }
             if (bb === null) {
-                return 1;
+                return -1;
             }
             // compare different-types
             type1 = typeof aa;
@@ -2948,6 +2875,20 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 : 0;
         };
 
+        local.db.tryCatchOnError = function (fnc, onError) {
+        /*
+         * this function will try to run the fnc in a try-catch block,
+         * else call onError with the errorCaught
+         */
+            try {
+                local.db._debugTryCatchErrorCaught = null;
+                return fnc();
+            } catch (errorCaught) {
+                local.db._debugTryCatchErrorCaught = errorCaught;
+                return onError(errorCaught);
+            }
+        };
+
         // legacy
         local.db.isRegExp = function (obj) {
             return Object.prototype.toString.call(obj) === '[object RegExp]';
@@ -2978,54 +2919,53 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             lastStepModifierFunctions = {},
             logicalOperators = {};
 
-        function checkKey(k, v) {
-        /**
+        function checkKey(key, value) {
+        /*
          * Check a key, throw an error if the key is non valid
-         * @param {String} k key
-         * @param {Model} v value, needed to treat the Date edge case
+         * @param {String} key
+         * @param {Model} value, needed to treat the Date edge case
          * Non-treatable edge cases here:
          * if part of the object if of the form { $$date: number } or { $$deleted: true }
          * Its serialized-then-deserialized version it will transformed into a Date object
          * But you really need to want it to trigger such behaviour,
          *    even when warned not to use '$' at the beginning of the field names...
          */
-            if (typeof k === 'number') {
-                k = k.toString();
+            if (typeof key === 'number') {
+                key = key.toString();
             }
 
-            if (k[0] === '$' &&
-                    !(k === '$$date' &&
-                    typeof v === 'number') &&
-                    !(k === '$$deleted' && v === true) &&
-                    !(k === '$$indexCreated') &&
-                    !(k === '$$indexRemoved')) {
+            if (key[0] === '$' &&
+                    !(key === '$$date' &&
+                    typeof value === 'number') &&
+                    !(key === '$$deleted' && value === true) &&
+                    !(key === '$$indexCreated') &&
+                    !(key === '$$indexRemoved')) {
                 throw new Error('Field names cannot begin with the $ character');
             }
 
-            if (k.indexOf('.') !== -1) {
+            if (key.indexOf('.') !== -1) {
                 throw new Error('Field names cannot contain a .');
             }
         }
-        local.db.dbRowCheckObject = function (obj) {
-        /**
+        local.db.dbRowValidate = function (dbRow) {
+        /*
          * Check a DB object and throw an error if it's not valid
          * Works by applying the above checkKey function to all fields recursively
          */
-            if (Array.isArray(obj)) {
-                obj.forEach(function (o) {
-                    local.db.dbRowCheckObject(o);
+            if (Array.isArray(dbRow)) {
+                dbRow.forEach(function (element) {
+                    local.db.dbRowValidate(element);
                 });
             }
-
-            if (obj && typeof obj === 'object') {
-                Object.keys(obj).forEach(function (k) {
-                    checkKey(k, obj[k]);
-                    local.db.dbRowCheckObject(obj[k]);
+            if (dbRow && typeof dbRow === 'object') {
+                Object.keys(dbRow).forEach(function (key) {
+                    checkKey(key, dbRow[key]);
+                    local.db.dbRowValidate(dbRow[key]);
                 });
             }
         };
         local.db.dbRowDeepCopy = function (obj, strictKeys) {
-        /**
+        /*
          * Deep copy a DB object
          * The optional strictKeys flag (defaulting to false)
          * indicates whether to copy everything or only fields
@@ -3050,9 +2990,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
             if (typeof obj === 'object') {
                 res = {};
-                Object.keys(obj).forEach(function (k) {
-                    if (!strictKeys || (k[0] !== '$' && k.indexOf('.') === -1)) {
-                        res[k] = local.db.dbRowDeepCopy(obj[k], strictKeys);
+                Object.keys(obj).forEach(function (key) {
+                    if (!strictKeys || (key[0] !== '$' && key.indexOf('.') === -1)) {
+                        res[key] = local.db.dbRowDeepCopy(obj[key], strictKeys);
                     }
                 });
                 return res;
@@ -3065,7 +3005,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         // Updating dbRow's
         // ==============================================================
 
-        /**
+        /*
          * The signature of modifier functions is as follows
          * Their structure is always the same:
          * recursively follow the dot notation while creating
@@ -3077,19 +3017,19 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
 
         lastStepModifierFunctions.$set = function (obj, field, value) {
-        /**
+        /*
          * Set a field to a new value
          */
             obj[field] = value;
         };
         lastStepModifierFunctions.$unset = function (obj, field) {
-        /**
+        /*
          * Unset a field
          */
             delete obj[field];
         };
         lastStepModifierFunctions.$push = function (obj, field, value) {
-        /**
+        /*
          * Push an element to the end of an array field
          * Optional modifier $each instead of value to push several values
          * Optional modifier $slice to slice the resulting array,
@@ -3125,8 +3065,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     throw new Error('$each requires an array value');
                 }
 
-                value.$each.forEach(function (v) {
-                    obj[field].push(v);
+                value.$each.forEach(function (value) {
+                    obj[field].push(value);
                 });
 
                 if (value.$slice === undefined || typeof value.$slice !== 'number') {
@@ -3151,7 +3091,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         lastStepModifierFunctions.$addToSet = function (obj, field, value) {
-        /**
+        /*
          * Add an element to an array field only if it is not already in it
          * No modification if the element is already in the array
          * Note that it doesn't check whether the original array contains duplicates
@@ -3175,12 +3115,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     throw new Error('$each requires an array value');
                 }
 
-                value.$each.forEach(function (v) {
-                    lastStepModifierFunctions.$addToSet(obj, field, v);
+                value.$each.forEach(function (value) {
+                    lastStepModifierFunctions.$addToSet(obj, field, value);
                 });
             } else {
-                obj[field].forEach(function (v) {
-                    if (local.db.sortCompare(v, value) === 0) {
+                obj[field].forEach(function (value) {
+                    if (local.db.sortCompare(value, value) === 0) {
                         addToSet = false;
                     }
                 });
@@ -3190,7 +3130,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         lastStepModifierFunctions.$pop = function (obj, field, value) {
-        /**
+        /*
          * Remove the first or last element of an array
          */
             if (!Array.isArray(obj[field])) {
@@ -3210,7 +3150,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         lastStepModifierFunctions.$pull = function (obj, field, value) {
-        /**
+        /*
          * Removes all instances of a value from an existing array
          */
             var arr, ii;
@@ -3227,7 +3167,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         lastStepModifierFunctions.$inc = function (obj, field, value) {
-        /**
+        /*
          * Increment a numeric field's value
          */
             if (typeof value !== 'number') {
@@ -3246,7 +3186,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         lastStepModifierFunctions.$max = function (obj, field, value) {
-        /**
+        /*
          * Updates the value of the field,
          * only if specified field is greater than the current value of the field
          */
@@ -3258,7 +3198,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         lastStepModifierFunctions.$min = function (obj, field, value) {
-        /**
+        /*
          * Updates the value of the field,
          * only if specified field is smaller than the current value of the field
          */
@@ -3300,7 +3240,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             modifierFunctions[modifier] = createModifierFunction(modifier);
         });
         local.db.dbRowModify = function (obj, updateQuery) {
-        /**
+        /*
          * Modify a DB object according to an update query
          */
             var keys, dollarFirstChars, firstChars, modifiers, newDoc;
@@ -3342,14 +3282,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         throw new Error('Modifier ' + m + "'s argument must be an object");
                     }
 
-                    Object.keys(updateQuery[m]).forEach(function (k) {
-                        modifierFunctions[m](newDoc, k, updateQuery[m][k]);
+                    Object.keys(updateQuery[m]).forEach(function (key) {
+                        modifierFunctions[m](newDoc, key, updateQuery[m][key]);
                     });
                 });
             }
 
             // Check result is valid and return it
-            local.db.dbRowCheckObject(newDoc);
+            local.db.dbRowValidate(newDoc);
 
             if (obj._id !== newDoc._id) {
                 throw new Error("You can't change a dbRow's _id");
@@ -3361,7 +3301,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         // ==============================================================
 
         local.db.queryGetDotValue = function (obj, field) {
-        /**
+        /*
          * Get a value from object with dot notation
          * @param {Object} obj
          * @param {String} field
@@ -3408,7 +3348,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return local.db.queryGetDotValue(obj[fieldParts[0]], fieldParts.slice(1));
         };
         function areThingsEqual(aa, bb) {
-        /**
+        /*
          * Check whether 'things' are equal
          * Things are defined as any native types (string, number, boolean, null, date)
          * and objects
@@ -3462,7 +3402,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return true;
         }
         logicalOperators.$or = function (obj, query) {
-        /**
+        /*
          * Match any of the subqueries
          * @param {Model} obj
          * @param {Array of Queries} query
@@ -3482,7 +3422,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return false;
         };
         logicalOperators.$and = function (obj, query) {
-        /**
+        /*
          * Match all of the subqueries
          * @param {Model} obj
          * @param {Array of Queries} query
@@ -3502,7 +3442,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return true;
         };
         logicalOperators.$not = function (obj, query) {
-        /**
+        /*
          * Inverted match of the query
          * @param {Model} obj
          * @param {Query} query
@@ -3510,7 +3450,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return !local.db.queryMatch(obj, query);
         };
         logicalOperators.$where = function (obj, fn) {
-        /**
+        /*
          * Use a function to match
          * @param {Model} obj
          * @param {Query} query
@@ -3529,13 +3469,13 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return result;
         };
         local.db.queryMatch = function (obj, query) {
-        /**
+        /*
          * Tell if a given dbRow matches a query
          * @param {Object} obj dbRow to check
          * @param {Object} query
          */
             function matchQueryPart(obj, queryKey, queryValue, treatObjAsValue) {
-            /**
+            /*
              * Match an object against a specific { key: value } part of a query
              * if the treatObjAsValue flag is set, don't try to match every part separately,
              * but the array as a whole
@@ -3571,10 +3511,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     // where there needs to be at least one match
                     for (ii = 0; ii < objValue.length; ii += 1) {
                         if (matchQueryPart({
-                                k: objValue[ii]
-                            }, 'k', queryValue)) {
+                                key: objValue[ii]
+                            }, 'key', queryValue)) {
                             return true;
-                        } // k here could be any string
+                        } // key here could be any string
                     }
                     return false;
                 }
@@ -3655,14 +3595,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             });
         };
         // Interface
-        /**
+        /*
          * Handle models (i.e. docs)
          * Serialization/deserialization
          * Copying
          * Querying, update
          */
         local.db._DbTree = function (options) {
-        /**
+        /*
          * Constructor of the internal DbTree
          *
          * @param {Object} options Optional
@@ -3671,53 +3611,22 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * @param {Key}      options.key Initialize this DbTree's key with key
          * @param {Value}    options.value Initialize this DbTree's data with [value]
          */
-            this.left = null;
-            this.right = null;
-            this.parent = options.parent !== undefined ? options.parent : null;
+            this.parent = options.parent;
+            this.data = options.hasOwnProperty('value')
+                ? [options.value]
+                : [];
             if (options.hasOwnProperty('key')) {
                 this.key = options.key;
             }
-            this.data = options.hasOwnProperty('value') ? [options.value] : [];
-            this.unique = options.unique || false;
+            this.unique = options.unique;
 
         };
         // ============================================
         // Methods used to actually work on the tree
         // ============================================
 
-        local.db._DbTree.prototype.createSimilar = function (options) {
-        /**
-         * Create a BST similar (i.e. same options except for key and value) to the current one
-         * Use the same constructor (i.e. DbTree)
-         * @param {Object} options see constructor
-         */
-            options = options || {};
-            options.unique = this.unique;
-
-            return new this.constructor(options);
-        };
-        local.db._DbTree.prototype.createLeftChild = function (options) {
-        /**
-         * Create the left child of this BST and return it
-         */
-            var leftChild = this.createSimilar(options);
-            leftChild.parent = this;
-            this.left = leftChild;
-
-            return leftChild;
-        };
-        local.db._DbTree.prototype.createRightChild = function (options) {
-        /**
-         * Create the right child of this BST and return it
-         */
-            var rightChild = this.createSimilar(options);
-            rightChild.parent = this;
-            this.right = rightChild;
-
-            return rightChild;
-        };
         local.db._DbTree.prototype.insert = function (key, value) {
-        /**
+        /*
          * Insert a key, value pair in the tree while maintaining the DbTree height constraint
          * Return a pointer to the root node, which may have changed
          */
@@ -3752,19 +3661,25 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                 if (local.db.sortCompare(key, currentNode.key) < 0) {
                     if (!currentNode.left) {
-                        insertPath.push(currentNode.createLeftChild({
+                        currentNode.left = new local.db._DbTree({
                             key: key,
+                            unique: currentNode.unique,
                             value: value
-                        }));
+                        });
+                        currentNode.left.parent = currentNode;
+                        insertPath.push(currentNode.left);
                         break;
                     }
                     currentNode = currentNode.left;
                 } else {
                     if (!currentNode.right) {
-                        insertPath.push(currentNode.createRightChild({
+                        currentNode.right = new local.db._DbTree({
                             key: key,
+                            unique: currentNode.unique,
                             value: value
-                        }));
+                        });
+                        currentNode.right.parent = currentNode;
+                        insertPath.push(currentNode.right);
                         break;
                     }
                     currentNode = currentNode.right;
@@ -3775,7 +3690,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         local.db._DbTree.prototype.delete = function (key, value) {
-        /**
+        /*
          * Delete a key or just a value and return the new root of the tree
          * @param {Key} key
          * @param {Value} value Optional. If not set, the whole key is deleted.
@@ -3900,7 +3815,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         local.db._DbTree.prototype.search = function (key) {
-        /**
+        /*
          * Search for all data corresponding to a key
          */
             if (!this.hasOwnProperty('key')) {
@@ -3923,7 +3838,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return [];
         };
         local.db._DbTree.prototype.getLowerBoundMatcher = function (query) {
-        /**
+        /*
          * Return a function that tells whether a given key matches a lower bound
          */
             // No lower bound
@@ -3960,7 +3875,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             };
         };
         local.db._DbTree.prototype.getUpperBoundMatcher = function (query) {
-        /**
+        /*
          * Return a function that tells whether a given key matches an upper bound
          */
             // No lower bound
@@ -4005,7 +3920,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         }
         local.db._DbTree.prototype.betweenBounds = function (query, lbm, ubm) {
-        /**
+        /*
          * Get all data for a key between bounds
          * Return it in key order
          * @param {Object} query Mongo-style query
@@ -4034,7 +3949,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return res;
         };
         local.db._DbTree.prototype.deleteIfLeaf = function () {
-        /**
+        /*
          * Delete the current node if it is a leaf
          * Return true if it was deleted
          */
@@ -4058,7 +3973,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return true;
         };
         local.db._DbTree.prototype.deleteIfOnlyOneChild = function () {
-        /**
+        /*
          * Delete the current node if it has only one child
          * Return true if it was deleted
          */
@@ -4105,7 +4020,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return true;
         };
         local.db._DbTree.prototype.executeOnEveryNode = function (fn) {
-        /**
+        /*
          * Execute a function on every node of the tree, in key order
          * @param {Function} fn Signature: node.
          * Most useful will probably be node.key and node.data
@@ -4119,16 +4034,19 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         local.db._DbTree.prototype.balanceFactor = function () {
-        /**
+        /*
          * Return the balance factor
          */
-            var leftH = this.left ? this.left.height : 0,
-                rightH = this.right ? this.right.height : 0;
-            return leftH - rightH;
+            return (this.left
+                ? this.left.height
+                : 0) -
+                (this.right
+                ? this.right.height
+                : 0);
         };
 
         local.db._DbTree.prototype.rightRotation = function () {
-        /**
+        /*
          * Perform a right rotation of the tree if possible
          * and return the root of the resulting tree
          * The resulting tree's nodes' heights are also updated
@@ -4169,7 +4087,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return p;
         };
         local.db._DbTree.prototype.leftRotation = function () {
-        /**
+        /*
          * Perform a left rotation of the tree if possible
          * and return the root of the resulting tree
          * The resulting tree's nodes' heights are also updated
@@ -4210,7 +4128,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return q;
         };
         local.db._DbTree.prototype.rightTooSmall = function () {
-        /**
+        /*
          * Modify the tree if its right subtree is too small compared to the left
          * Return the new root if any
          */
@@ -4225,7 +4143,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return this.rightRotation();
         };
         local.db._DbTree.prototype.leftTooSmall = function () {
-        /**
+        /*
          * Modify the tree if its left subtree is too small compared to the right
          * Return the new root if any
          */
@@ -4240,7 +4158,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return this.leftRotation();
         };
         local.db._DbTree.prototype.rebalanceAlongPath = function (path) {
-        /**
+        /*
          * Rebalance the tree along the given path.
          * The path is given reversed (as he was calculated
          * in the insert and delete functions).
@@ -4280,7 +4198,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return newRoot;
         };
         function projectForUnique(elt) {
-        /**
+        /*
          * Type-aware projection
          */
             if (elt === null) {
@@ -4302,7 +4220,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return elt; // Arrays and objects, will check for pointer equality
         }
         local.db._DbIndex = function (options) {
-        /**
+        /*
          * Create a new index
          * All methods on an index guarantee that either
          * the whole operation was successful and the index changed
@@ -4323,7 +4241,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             this.dbTree = new local.db._DbTree({ unique: this.unique });
         };
         local.db._DbIndex.prototype.insert = function (dbRow) {
-        /**
+        /*
          * Insert a new dbRow in the index
          * If an array is passed, we insert all its elements
          * (if one insertion fails the index is not modified)
@@ -4385,7 +4303,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         local.db._DbIndex.prototype.insertMultipleDocs = function (dbRowList) {
-        /**
+        /*
          * Insert an array of dbRow's in the index
          * If a constraint is violated, the changes should be rolled back and an error thrown
          *
@@ -4412,7 +4330,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         local.db._DbIndex.prototype.remove = function (dbRow) {
-        /**
+        /*
          * Remove a dbRow from the index
          * If an array is passed, we remove all its elements
          * The remove operation is safe with regards to the 'unique' constraint
@@ -4442,7 +4360,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         local.db._DbIndex.prototype.updateMultipleDocs = function (pairs) {
-        /**
+        /*
          * Update multiple dbRow's in the index
          * If a constraint is violated, the changes need to be rolled back
          * and an error thrown
@@ -4480,7 +4398,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         local.db._DbIndex.prototype.getMatching = function (value) {
-        /**
+        /*
          * Get all dbRow's in index whose key match value (if it is a Thing)
          * or one of the elements of value (if it is an array of Things)
          * @param {Thing} value Value to match the key against
@@ -4490,8 +4408,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             if (!Array.isArray(value)) {
                 return self.dbTree.search(value);
             }
-            value.forEach(function (v) {
-                self.getMatching(v).forEach(function (dbRow) {
+            value.forEach(function (value) {
+                self.getMatching(value).forEach(function (dbRow) {
                     _res[dbRow._id] = dbRow;
                 });
             });
@@ -4503,7 +4421,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return res;
         };
         local.db.Cursor = function (db, query, onError) {
-        /**
+        /*
          * Create a new cursor for this dbTable
          * @param {Datastore} db - The datastore this cursor is bound to
          * @param {Query} query - The query this cursor will operate on
@@ -4517,14 +4435,14 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             }
         };
         local.db.Cursor.prototype.limit = function (limit) {
-        /**
+        /*
          * Set a limit to the number of results
          */
             this._limit = limit;
             return this;
         };
         local.db.Cursor.prototype.project = function (candidates) {
-        /**
+        /*
          * Apply the projection
          */
             var res = [], self = this, keepId, action, keys;
@@ -4539,11 +4457,11 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             keys = Object.keys(self._projection).filter(function (key) {
                 return key !== '_id';
             });
-            keys.forEach(function (k) {
-                if (action !== undefined && self._projection[k] !== action) {
+            keys.forEach(function (key) {
+                if (action !== undefined && self._projection[key] !== action) {
                     throw new Error("Can't both keep and omit fields except for _id");
                 }
-                action = self._projection[k];
+                action = self._projection[key];
             });
 
             // Do the actual projection
@@ -4553,10 +4471,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     toPush = {
                         $set: {}
                     };
-                    keys.forEach(function (k) {
-                        toPush.$set[k] = local.db.queryGetDotValue(candidate, k);
-                        if (toPush.$set[k] === undefined) {
-                            delete toPush.$set[k];
+                    keys.forEach(function (key) {
+                        toPush.$set[key] = local.db.queryGetDotValue(candidate, key);
+                        if (toPush.$set[key] === undefined) {
+                            delete toPush.$set[key];
                         }
                     });
                     toPush = local.db.dbRowModify({}, toPush);
@@ -4564,8 +4482,8 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     toPush = {
                         $unset: {}
                     };
-                    keys.forEach(function (k) {
-                        toPush.$unset[k] = true;
+                    keys.forEach(function (key) {
+                        toPush.$unset[key] = true;
                     });
                     toPush = local.db.dbRowModify(candidate, toPush);
                 }
@@ -4580,7 +4498,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             return res;
         };
         local.db.Cursor.prototype._exec = function (_onError) {
-        /**
+        /*
          * Get all matching elements
          * Will return pointers to matched elements (shallow copies),
          * returning full copies is the role of find or findOne
@@ -4672,15 +4590,16 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         local.db._DbTable = function (options) {
-        /**
+        /*
          * this function will create a dbTable
          */
-            local.db.objectSetDefault(this, options);
-            // validate options
+            this.name = options.name;
+            // validate name
             local.db.assert(
                 this.name && typeof this.name === 'string',
                 'invalid name - ' + this.name
             );
+            // validate unique name
             local.db.assert(
                 !local.db.dbTableDict[this.name] || local.db.dbTableDict[this.name] === this,
                 'non-unique name - ' + this.name
@@ -4693,6 +4612,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 createdAt: new local.db._DbIndex({ fieldName: 'createdAt' }),
                 updatedAt: new local.db._DbIndex({ fieldName: 'updatedAt' })
             };
+            this.dbIndexTtlDict = {};
         };
 
         local.db._DbTable.prototype.crudCountMany = function (options, onError) {
@@ -4727,7 +4647,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         local.db._DbTable.prototype.crudFindMany = function (options, onError) {
-        /**
+        /*
          * this function will find all dbRow's in dbTable with the given options
          */
             var limit, projection, result, self, skip, sort, tmp;
@@ -4833,7 +4753,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         local.db._DbTable.prototype.crudFindOne = function (options, onError) {
-        /**
+        /*
          * this function will find one dbRow in dbTable with the given options
          */
             this.crudFindMany({
@@ -4900,7 +4820,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         /*
          * this function will create an index for the given dbTable
          */
-        /**
+        /*
          * Create an index is for this field. Same parameters as lib/indexes
          * For now this function is synchronous, we need to test how much time it takes
          * We use an async API for consistency with the rest of the code
@@ -4922,7 +4842,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             // With this implementation index creation is not necessary to ensure TTL
             // but we stick with MongoDB's API here
             if (options.expireAfterSeconds !== undefined) {
-                self.ttlIndexes[options.fieldName] = options.expireAfterSeconds;
+                self.dbIndexTtlDict[options.fieldName] = options.expireAfterSeconds;
             }
             dbIndex.insert(self.dbRowList());
             // We may want to force all options to be persisted including defaults,
@@ -4992,7 +4912,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             var data, self;
             self = this;
             data = '####\n';
-            data += JSON.stringify(String(self.name)) + '\n';
+            data += JSON.stringify({ name: self.name }) + '\n';
             data += '#\n';
             self.dbIndexList().forEach(function (dbIndex) {
                 switch (dbIndex.fieldName) {
@@ -5022,6 +4942,10 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
             var self;
             self = this;
+            self.imported = true;
+            if (!data) {
+                return;
+            }
             delete self.timerDbTableSave;
             data = data
                 .replace((/^####/gm), '')
@@ -5040,6 +4964,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             data[1].forEach(function (dbIndex) {
                 dbIndex = self.dbIndexDict[dbIndex.fieldName] = new local.db._DbIndex(dbIndex);
                 dbIndex.insert(self.dbRowList());
+            });
+            // insert data
+            self.dbIndexList().forEach(function (dbIndex) {
                 dbIndex.insert(data[2]);
             });
         };
@@ -5050,7 +4977,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
             var self;
             self = this;
-            // throttle dbStorage writes to 2 every 2000 ms
+            // throttle dbStorage writes to 2 every 1000 ms
             if (self.timerDbTableSave) {
                 return;
             }
@@ -5061,12 +4988,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     self.dbTableExport(),
                     local.db.onErrorDefault
                 );
-            }, 2000);
+            }, 1000);
             local.db.dbStorageSetItem(self.name, self.dbTableExport(), local.db.onErrorDefault);
         };
 
         local.db._DbTable.prototype.dbIndexCullMany = function (query, onError) {
-        /**
+        /*
          * Return the dbRowList for a given query
          * Crude implementation for now, we return the dbRowList given
          * by the first usable index if any
@@ -5093,12 +5020,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 case 1:
                     // For a basic match
                     usableQueryKeys = [];
-                    Object.keys(query).forEach(function (k) {
-                        if (typeof query[k] === 'string' ||
-                                typeof query[k] === 'number' ||
-                                typeof query[k] === 'boolean' ||
-                                query[k] === null) {
-                            usableQueryKeys.push(k);
+                    Object.keys(query).forEach(function (key) {
+                        if (typeof query[key] === 'string' ||
+                                typeof query[key] === 'number' ||
+                                typeof query[key] === 'boolean' ||
+                                query[key] === null) {
+                            usableQueryKeys.push(key);
                         }
                     });
                     usableQueryKeys = usableQueryKeys.filter(function (element) {
@@ -5111,9 +5038,9 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                     // For a $in match
                     usableQueryKeys = [];
-                    Object.keys(query).forEach(function (k) {
-                        if (query[k] && query[k].hasOwnProperty('$in')) {
-                            usableQueryKeys.push(k);
+                    Object.keys(query).forEach(function (key) {
+                        if (query[key] && query[key].hasOwnProperty('$in')) {
+                            usableQueryKeys.push(key);
                         }
                     });
                     usableQueryKeys = usableQueryKeys.filter(function (element) {
@@ -5129,12 +5056,12 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
 
                     // For a comparison match
                     usableQueryKeys = [];
-                    Object.keys(query).forEach(function (k) {
-                        if (query[k] && (query[k].hasOwnProperty('$lt') ||
-                                query[k].hasOwnProperty('$lte') ||
-                                query[k].hasOwnProperty('$gt') ||
-                                query[k].hasOwnProperty('$gte'))) {
-                            usableQueryKeys.push(k);
+                    Object.keys(query).forEach(function (key) {
+                        if (query[key] && (query[key].hasOwnProperty('$lt') ||
+                                query[key].hasOwnProperty('$lte') ||
+                                query[key].hasOwnProperty('$gt') ||
+                                query[key].hasOwnProperty('$gte'))) {
+                            usableQueryKeys.push(key);
                         }
                     });
                     usableQueryKeys = usableQueryKeys.filter(function (element) {
@@ -5156,17 +5083,17 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                     // validate no error occurred
                     local.db.assert(!error, error);
                     var validDocs = [],
-                        ttlIndexesFieldNames = Object.keys(self.ttlIndexes);
+                        dbIndexTtlDictFieldNames = Object.keys(self.dbIndexTtlDict);
                     onParallel = local.db.onParallel(function (error) {
                         onError(error, validDocs);
                     });
                     onParallel.counter += 1;
                     data.forEach(function (dbRow) {
                         var valid = true;
-                        ttlIndexesFieldNames.forEach(function (ii) {
+                        dbIndexTtlDictFieldNames.forEach(function (ii) {
                             if (dbRow[ii] !== undefined &&
                                     Date.now() > new Date(dbRow[ii]).getTime() +
-                                    self.ttlIndexes[ii] * 1000) {
+                                    self.dbIndexTtlDict[ii] * 1000) {
                                 valid = false;
                             }
                         });
@@ -5185,7 +5112,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
         };
 
         local.db._DbTable.prototype.crudInsertMany = function (dbRowList, onError) {
-        /**
+        /*
          * Insert a new dbRow
          * @param {Function} onError - callback, signature: error, insertedDoc
          *
@@ -5198,7 +5125,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 dbRow = local.db.jsonCopy(dbRow);
                 dbRow.createdAt = dbRow.createdAt || timeNow;
                 dbRow.updatedAt = dbRow.updatedAt || timeNow;
-                local.db.dbRowCheckObject(dbRow);
+                local.db.dbRowValidate(dbRow);
                 return dbRow;
             });
             // add to indexes
@@ -5222,7 +5149,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 dbRow = local.db.jsonCopy(dbRow);
                 dbRow.createdAt = dbRow.createdAt || timeNow;
                 dbRow.updatedAt = dbRow.updatedAt || timeNow;
-                local.db.dbRowCheckObject(dbRow);
+                local.db.dbRowValidate(dbRow);
                 return dbRow;
             });
             // add to indexes
@@ -5241,7 +5168,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
             options,
             onError
         ) {
-        /**
+        /*
          * Update all docs matching query
          * @param {Object} query
          * @param {Object} updateQuery
@@ -5297,7 +5224,7 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                         var toBeInserted;
 
                         try {
-                            local.db.dbRowCheckObject(updateQuery);
+                            local.db.dbRowValidate(updateQuery);
                             // updateQuery is a simple object with no modifier,
                             // use it as the dbRow to insert
                             toBeInserted = updateQuery;
@@ -7313,7 +7240,7 @@ local.utility2.templateTestReportHtml = '\
                                 local.fs.readFileSync(options.fileCoverage, 'utf8')
                             );
                         }, local.utility2.nop);
-                        if (!local.utility2.tryCatchErrorCaught) {
+                        if (!local.utility2._debugTryCatchErrorCaught) {
                             local.utility2.istanbulCoverageMerge(
                                 local.global.__coverage__,
                                 data
@@ -7334,8 +7261,8 @@ local.utility2.templateTestReportHtml = '\
                             'utf8'
                         ));
                     }, local.utility2.nop);
-                    if (local.utility2.tryCatchErrorCaught) {
-                        onNext(local.utility2.tryCatchErrorCaught);
+                    if (local.utility2._debugTryCatchErrorCaught) {
+                        onNext(local.utility2._debugTryCatchErrorCaught);
                         return;
                     }
                     console.log('\nbrowserTest - merging test-report from ' +
@@ -7667,9 +7594,9 @@ local.utility2.templateTestReportHtml = '\
                 });
             }
             // reset db local-persistence
-            if (local.db.dbReset) {
+            if (local.db.dbClear) {
                 local.utility2.onResetBefore.counter += 1;
-                local.db.dbReset(local.utility2.onResetBefore);
+                local.db.dbClear(local.utility2.onResetBefore);
             }
             local.utility2.onResetBefore();
         };
@@ -9975,17 +9902,17 @@ tmp\\)\\(\\b\\|[_s]\\)\
             return options;
         };
 
-        local.utility2.tryCatchOnError = function (task, onError) {
+        local.utility2.tryCatchOnError = function (fnc, onError) {
         /*
-         * this function will try to run the task in a try-catch block,
+         * this function will try to run the fnc in a try-catch block,
          * else call onError with the errorCaught
          */
             try {
-                local.utility2.tryCatchErrorCaught = null;
-                task();
+                local.utility2._debugTryCatchErrorCaught = null;
+                return fnc();
             } catch (errorCaught) {
-                local.utility2.tryCatchErrorCaught = errorCaught;
-                onError(errorCaught);
+                local.utility2._debugTryCatchErrorCaught = errorCaught;
+                return onError(errorCaught);
             }
         };
 

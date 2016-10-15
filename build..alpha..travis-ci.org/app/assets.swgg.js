@@ -2135,9 +2135,9 @@ awoDQjHSelX8hQEoIrAq8p/mgC88HOS1YCl/BRgAmiD/1gn6Nu8AAAAASUVORK5CYII=\
                                 'x-swgg-notRequired': options['x-swgg-notRequired']
                             });
                         }, local.utility2.nop);
-                        return !local.utility2.tryCatchErrorCaught;
+                        return !local.utility2._debugTryCatchErrorCaught;
                     });
-                    local.utility2.assert(tmp, local.utility2.tryCatchErrorCaught);
+                    local.utility2.assert(tmp, local.utility2._debugTryCatchErrorCaught);
                     return;
                 }
                 // normalize propDef
