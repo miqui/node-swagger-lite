@@ -257,7 +257,8 @@ instruction
                     return;
                 }
                 reader.addEventListener('load', function () {
-                    local.db.dbImport(reader.result, local.utility2.ajaxProgressUpdate);
+                    local.db.dbImport(reader.result);
+                    local.utility2.ajaxProgressUpdate();
                 });
                 reader.readAsText(tmp);
                 break;

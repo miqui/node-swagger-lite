@@ -1330,7 +1330,7 @@
                     local.swgg.validateBySchema(element);
                 }, local.utility2.nop);
                 // validate error occurred
-                local.utility2.assert(local.utility2.tryCatchErrorCaught, element.data);
+                local.utility2.assert(local.utility2._debugTryCatchErrorCaught, element.data);
             });
             onError();
         };
@@ -1346,7 +1346,7 @@
                     local.swgg.validateBySwagger(element);
                 }, local.utility2.nop);
                 // validate error occurred
-                local.utility2.assert(local.utility2.tryCatchErrorCaught, element);
+                local.utility2.assert(local.utility2._debugTryCatchErrorCaught, element);
             });
             options.templateData = JSON.stringify({
                 definitions: {
@@ -1414,7 +1414,7 @@
                     ), 10);
                 }, local.utility2.nop);
                 // validate error occurred
-                local.utility2.assert(local.utility2.tryCatchErrorCaught, element);
+                local.utility2.assert(local.utility2._debugTryCatchErrorCaught, element);
             });
             onError();
         };
