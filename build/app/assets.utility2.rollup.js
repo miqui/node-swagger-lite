@@ -3603,22 +3603,23 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          */
         local.db._DbTree = function (options) {
         /*
-         * Constructor of the internal DbTree
+         * Constructor of the internal DbTree (AvlTree implementation)
          *
          * @param {Object} options Optional
+         * @param {Key}      options.key Initialize this DbTree's key with key
+         * @param {Node}     options.parent Parent node
          * @param {Boolean}  options.unique Whether to enforce a 'unique' constraint
          * on the key or not
-         * @param {Key}      options.key Initialize this DbTree's key with key
          * @param {Value}    options.value Initialize this DbTree's data with [value]
          */
-            this.parent = options.parent;
-            this.data = options.hasOwnProperty('value')
-                ? [options.value]
-                : [];
             if (options.hasOwnProperty('key')) {
                 this.key = options.key;
             }
+            this.parent = options.parent;
             this.unique = options.unique;
+            this.data = options.hasOwnProperty('value')
+                ? [options.value]
+                : [];
 
         };
         // ============================================
@@ -3630,10 +3631,16 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * Insert a key, value pair in the tree while maintaining the DbTree height constraint
          * Return a pointer to the root node, which may have changed
          */
-            var error,
-                insertPath = [],
-                currentNode = this;
-
+            var nodeCurrent, pathList;
+            nodeCurrent = this;
+            pathList = [];
+            // coerce undefined to null
+            if (key === undefined) {
+                key = null;
+            }
+            if (value === undefined) {
+                value = null;
+            }
             // Empty tree, insert as root
             if (!this.hasOwnProperty('key')) {
                 this.key = key;
@@ -3641,52 +3648,45 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
                 this.height = 1;
                 return this;
             }
-
             // Insert new leaf at the right place
             while (true) {
                 // Same key: no change in the tree structure
-                if (local.db.sortCompare(currentNode.key, key) === 0) {
-                    if (currentNode.unique) {
-                        error = new Error("Can't insert key " + key +
-                            ', it violates the unique constraint');
-                        error.key = key;
-                        error.errorType = 'uniqueViolated';
-                        throw error;
-                    }
-                    currentNode.data.push(value);
+                if (local.db.sortCompare(nodeCurrent.key, key) === 0) {
+                    local.db.assert(
+                        !nodeCurrent.unique,
+                        "Can't insert key " + key + ', it violates the unique constraint'
+                    );
+                    nodeCurrent.data.push(value);
                     return this;
                 }
-
-                insertPath.push(currentNode);
-
-                if (local.db.sortCompare(key, currentNode.key) < 0) {
-                    if (!currentNode.left) {
-                        currentNode.left = new local.db._DbTree({
+                pathList.push(nodeCurrent);
+                if (local.db.sortCompare(key, nodeCurrent.key) < 0) {
+                    if (!nodeCurrent.left) {
+                        nodeCurrent.left = new local.db._DbTree({
                             key: key,
-                            unique: currentNode.unique,
+                            parent: nodeCurrent,
+                            unique: nodeCurrent.unique,
                             value: value
                         });
-                        currentNode.left.parent = currentNode;
-                        insertPath.push(currentNode.left);
+                        pathList.push(nodeCurrent.left);
                         break;
                     }
-                    currentNode = currentNode.left;
+                    nodeCurrent = nodeCurrent.left;
                 } else {
-                    if (!currentNode.right) {
-                        currentNode.right = new local.db._DbTree({
+                    if (!nodeCurrent.right) {
+                        nodeCurrent.right = new local.db._DbTree({
                             key: key,
-                            unique: currentNode.unique,
+                            parent: nodeCurrent,
+                            unique: nodeCurrent.unique,
                             value: value
                         });
-                        currentNode.right.parent = currentNode;
-                        insertPath.push(currentNode.right);
+                        pathList.push(nodeCurrent.right);
                         break;
                     }
-                    currentNode = currentNode.right;
+                    nodeCurrent = nodeCurrent.right;
                 }
             }
-
-            return this.rebalanceAlongPath(insertPath);
+            return this.rebalanceAlongPath(pathList);
         };
 
         local.db._DbTree.prototype.delete = function (key, value) {
@@ -3696,122 +3696,110 @@ local.CSSLint = CSSLint; local.JSLINT = JSLINT; }());
          * @param {Value} value Optional. If not set, the whole key is deleted.
          * If set, only this value is deleted
          */
-            var newData = [], replaceWith, currentNode = this, deletePath = [];
-
+            var newData = [], replaceWith, nodeCurrent = this, pathList = [];
+            // Empty tree
             if (!this.hasOwnProperty('key')) {
                 return this;
-            } // Empty tree
-
+            }
             // Either no match is found and the function will return from within the loop
-            // Or a match is found and deletePath will contain the path
+            // Or a match is found and pathList will contain the path
             // from the root to the node to delete after the loop
             while (true) {
-                if (local.db.sortCompare(key, currentNode.key) === 0) {
+                if (local.db.sortCompare(key, nodeCurrent.key) === 0) {
                     break;
                 }
-
-                deletePath.push(currentNode);
-
-                if (local.db.sortCompare(key, currentNode.key) < 0) {
-                    if (currentNode.left) {
-                        currentNode = currentNode.left;
+                pathList.push(nodeCurrent);
+                if (local.db.sortCompare(key, nodeCurrent.key) < 0) {
+                    if (nodeCurrent.left) {
+                        nodeCurrent = nodeCurrent.left;
                     } else {
                         return this; // Key not found, no modification
                     }
                 } else {
-                    // local.db.sortCompare(key, currentNode.key) is > 0
-                    if (currentNode.right) {
-                        currentNode = currentNode.right;
+                    // local.db.sortCompare(key, nodeCurrent.key) is > 0
+                    if (nodeCurrent.right) {
+                        nodeCurrent = nodeCurrent.right;
                     } else {
                         return this; // Key not found, no modification
                     }
                 }
             }
-
             // Delete only a value (no tree modification)
-            if (currentNode.data.length > 1 && value) {
-                currentNode.data.forEach(function (d) {
+            if (nodeCurrent.data.length > 1 && value) {
+                nodeCurrent.data.forEach(function (d) {
                     if (d !== value) {
                         newData.push(d);
                     }
                 });
-                currentNode.data = newData;
+                nodeCurrent.data = newData;
                 return this;
             }
-
             // Delete a whole node
-
             // Leaf
-            if (!currentNode.left && !currentNode.right) {
-                if (currentNode === this) { // This leaf is also the root
-                    delete currentNode.key;
-                    currentNode.data = [];
-                    delete currentNode.height;
+            if (!nodeCurrent.left && !nodeCurrent.right) {
+                if (nodeCurrent === this) { // This leaf is also the root
+                    delete nodeCurrent.key;
+                    nodeCurrent.data = [];
+                    delete nodeCurrent.height;
                     return this;
                 }
-                if (currentNode.parent.left === currentNode) {
-                    currentNode.parent.left = null;
+                if (nodeCurrent.parent.left === nodeCurrent) {
+                    nodeCurrent.parent.left = null;
                 } else {
-                    currentNode.parent.right = null;
+                    nodeCurrent.parent.right = null;
                 }
-                return this.rebalanceAlongPath(deletePath);
+                return this.rebalanceAlongPath(pathList);
             }
             // Node with only one child
-            if (!currentNode.left || !currentNode.right) {
-                replaceWith = currentNode.left || currentNode.right;
-
+            if (!nodeCurrent.left || !nodeCurrent.right) {
+                replaceWith = nodeCurrent.left || nodeCurrent.right;
                 // This node is also the root
-                if (currentNode === this) {
+                if (nodeCurrent === this) {
                     replaceWith.parent = null;
                     // height of replaceWith is necessarily 1
                     // because the tree was balanced before deletion
                     return replaceWith;
                 }
-                if (currentNode.parent.left === currentNode) {
-                    currentNode.parent.left = replaceWith;
-                    replaceWith.parent = currentNode.parent;
+                if (nodeCurrent.parent.left === nodeCurrent) {
+                    nodeCurrent.parent.left = replaceWith;
+                    replaceWith.parent = nodeCurrent.parent;
                 } else {
-                    currentNode.parent.right = replaceWith;
-                    replaceWith.parent = currentNode.parent;
+                    nodeCurrent.parent.right = replaceWith;
+                    replaceWith.parent = nodeCurrent.parent;
                 }
-                return this.rebalanceAlongPath(deletePath);
+                return this.rebalanceAlongPath(pathList);
             }
             // Node with two children
             // Use the in-order predecessor (no need to randomize since we actively rebalance)
-            deletePath.push(currentNode);
-            replaceWith = currentNode.left;
-
+            pathList.push(nodeCurrent);
+            replaceWith = nodeCurrent.left;
             // Special case: the in-order predecessor is right below the node to delete
             if (!replaceWith.right) {
-                currentNode.key = replaceWith.key;
-                currentNode.data = replaceWith.data;
-                currentNode.left = replaceWith.left;
+                nodeCurrent.key = replaceWith.key;
+                nodeCurrent.data = replaceWith.data;
+                nodeCurrent.left = replaceWith.left;
                 if (replaceWith.left) {
-                    replaceWith.left.parent = currentNode;
+                    replaceWith.left.parent = nodeCurrent;
                 }
-                return this.rebalanceAlongPath(deletePath);
+                return this.rebalanceAlongPath(pathList);
             }
-
             // After this loop, replaceWith is the right-most leaf in the left subtree
-            // and deletePath the path from the root (inclusive) to replaceWith (exclusive)
+            // and pathList the path from the root (inclusive) to replaceWith (exclusive)
             while (true) {
                 if (replaceWith.right) {
-                    deletePath.push(replaceWith);
+                    pathList.push(replaceWith);
                     replaceWith = replaceWith.right;
                 } else {
                     break;
                 }
             }
-
-            currentNode.key = replaceWith.key;
-            currentNode.data = replaceWith.data;
-
+            nodeCurrent.key = replaceWith.key;
+            nodeCurrent.data = replaceWith.data;
             replaceWith.parent.right = replaceWith.left;
             if (replaceWith.left) {
                 replaceWith.left.parent = replaceWith.parent;
             }
-
-            return this.rebalanceAlongPath(deletePath);
+            return this.rebalanceAlongPath(pathList);
         };
 
         local.db._DbTree.prototype.search = function (key) {

@@ -1,18 +1,18 @@
-<svg height="4078" width="720" xmlns="http://www.w3.org/2000/svg">
-<rect height="4078" fill="#555" width="720"></rect>
+<svg height="4110" width="720" xmlns="http://www.w3.org/2000/svg">
+<rect height="4110" fill="#555" width="720"></rect>
 <text fill="#7f7" font-family="Courier New" font-size="12" xml:space="preserve">
 <tspan x="10" y="26"></tspan>
 <tspan x="10" y="42">&gt; swagger-lite@2016.9.2 test /home/travis/build/kaizhu256/node-swagger-lite</tspan>
 <tspan x="10" y="58">&gt; export PORT=$(utility2 shServerPortRandom) &amp;&amp; utility2 test test.js</tspan>
 <tspan x="10" y="74"></tspan>
 <tspan x="10" y="90"></tspan>
-<tspan x="10" y="106">[MODE_BUILD=npmTest] - 2016-10-15T14:50:36Z - npm-testing /home/travis/build/kaizhu256/node-swag\</tspan>
+<tspan x="10" y="106">[MODE_BUILD=npmTest] - 2016-10-15T16:35:59Z - npm-testing /home/travis/build/kaizhu256/node-swag\</tspan>
 <tspan x="10" y="122">ger-lite</tspan>
 <tspan x="10" y="138"></tspan>
 <tspan x="10" y="154"></tspan>
 <tspan x="10" y="170">covering $ /home/travis/.nvm/versions/node/v6.8.1/bin/node /home/travis/build/kaizhu256/node-swa\</tspan>
 <tspan x="10" y="186">gger-lite/test.js</tspan>
-<tspan x="10" y="202">server listening on http-port 63540</tspan>
+<tspan x="10" y="202">server listening on http-port 33207</tspan>
 <tspan x="10" y="218">rm: cannot remove `tmp/db.persistence.test/*': No such file or directory</tspan>
 <tspan x="10" y="234">&gt; [node test-case 1 of 32 passed] - testCase_validateByParamDefList_error</tspan>
 <tspan x="10" y="250">[node test-case 2 of 32 passed] - testCase_validateBySchema_default</tspan>
@@ -20,19 +20,19 @@
 <tspan x="10" y="282">[node test-case 4 of 32 passed] - testCase_validateBySwagger_default</tspan>
 <tspan x="10" y="298"></tspan>
 <tspan x="10" y="314">browserTest - created electron entry-page /home/travis/build/kaizhu256/node-swagger-lite/tmp/ele\</tspan>
-<tspan x="10" y="330">ctron.157c8d2c-8a2b-451c-87d1-67074e283ed4.html</tspan>
+<tspan x="10" y="330">ctron.157c9334-4751-4fd9-b528-f3a46128b991.html</tspan>
 <tspan x="10" y="346"></tspan>
 <tspan x="10" y="362"></tspan>
 <tspan x="10" y="378">browserTest - created electron entry-page /home/travis/build/kaizhu256/node-swagger-lite/tmp/ele\</tspan>
-<tspan x="10" y="394">ctron.157c8d2c-8e96-4b42-b84b-529e71c9467a.html</tspan>
+<tspan x="10" y="394">ctron.157c9334-4b89-4b7e-9604-6b83a6a56313.html</tspan>
 <tspan x="10" y="410"></tspan>
-<tspan x="10" y="426">[3999:1015/145039:ERROR:browser_main_loop.cc(231)] Running without the SUID sandbox! See https:/\</tspan>
+<tspan x="10" y="426">[4004:1015/163602:ERROR:browser_main_loop.cc(231)] Running without the SUID sandbox! See https:/\</tspan>
 <tspan x="10" y="442">/chromium.googlesource.com/chromium/src/+/master/docs/linux_suid_sandbox_development.md for more\</tspan>
 <tspan x="10" y="458"> information on developing with the sandbox on.</tspan>
-<tspan x="10" y="474">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
-<tspan x="10" y="490">[4002:1015/145040:ERROR:browser_main_loop.cc(231)] Running without the SUID sandbox! See https:/\</tspan>
-<tspan x="10" y="506">/chromium.googlesource.com/chromium/src/+/master/docs/linux_suid_sandbox_development.md for more\</tspan>
-<tspan x="10" y="522"> information on developing with the sandbox on.</tspan>
+<tspan x="10" y="474">[4009:1015/163603:ERROR:browser_main_loop.cc(231)] Running without the SUID sandbox! See https:/\</tspan>
+<tspan x="10" y="490">/chromium.googlesource.com/chromium/src/+/master/docs/linux_suid_sandbox_development.md for more\</tspan>
+<tspan x="10" y="506"> information on developing with the sandbox on.</tspan>
+<tspan x="10" y="522">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
 <tspan x="10" y="538">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
 <tspan x="10" y="554">[node test-case 5 of 32 passed] - testCase_crudCountManyByQuery_default</tspan>
 <tspan x="10" y="570">[node test-case 6 of 32 passed] - testCase_crudErrorXxx_default</tspan>
@@ -49,210 +49,212 @@
 <tspan x="10" y="746">[node test-case 17 of 32 passed] - testCase_validateByParamDefList_formData</tspan>
 <tspan x="10" y="762">[node test-case 18 of 32 passed] - testCase_fileUploadManyByForm_nullCase</tspan>
 <tspan x="10" y="778">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
-<tspan x="10" y="794">[3999:1015/145040:ERROR:bus.cc(432)] Failed to connect to the bus: Failed to connect to socket /\</tspan>
+<tspan x="10" y="794">[4009:1015/163603:ERROR:bus.cc(432)] Failed to connect to the bus: Failed to connect to socket /\</tspan>
 <tspan x="10" y="810">var/run/dbus/system_bus_socket: Connection refused</tspan>
-<tspan x="10" y="826">[3999:1015/145040:WARNING:audio_manager.cc(314)] Multiple instances of AudioManager detected</tspan>
-<tspan x="10" y="842">[3999:1015/145040:WARNING:audio_manager.cc(275)] Multiple instances of AudioManager detected</tspan>
-<tspan x="10" y="858">[node test-case 19 of 32 passed] - testCase_ajax_error</tspan>
-<tspan x="10" y="874">[4045:1015/145041:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple threads \</tspan>
-<tspan x="10" y="890">in process gpu-process. </tspan>
-<tspan x="10" y="906">[3999:1015/145041:ERROR:browser_gpu_channel_host_factory.cc(131)] Failed to create channel.</tspan>
-<tspan x="10" y="922">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
-<tspan x="10" y="938">[node test-case 20 of 32 passed] - testCase_fileGetOneByKeyUnique_default</tspan>
-<tspan x="10" y="954">[node test-case 21 of 32 passed] - testCase_crudCreateOrReplaceMany_default</tspan>
-<tspan x="10" y="970">[4002:1015/145041:WARNING:audio_manager.cc(314)] Multiple instances of AudioManager detected</tspan>
-<tspan x="10" y="986">[4002:1015/145041:WARNING:audio_manager.cc(275)] Multiple instances of AudioManager detected</tspan>
-<tspan x="10" y="1002">[node test-case 22 of 32 passed] - testCase_crudCreateOrReplaceOneByKeyUnique_default</tspan>
-<tspan x="10" y="1018">[4002:1015/145041:ERROR:bus.cc(432)] Failed to connect to the bus: Failed to connect to socket /\</tspan>
-<tspan x="10" y="1034">var/run/dbus/system_bus_socket: Connection refused</tspan>
-<tspan x="10" y="1050">[node test-case 23 of 32 passed] - testCase_build_app</tspan>
-<tspan x="10" y="1066">[4097:1015/145041:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple threads \</tspan>
-<tspan x="10" y="1082">in process gpu-process. </tspan>
-<tspan x="10" y="1098">[4002:1015/145041:ERROR:browser_gpu_channel_host_factory.cc(131)] Failed to create channel.</tspan>
-<tspan x="10" y="1114">[node test-case 24 of 32 passed] - testCase_crudRemoveManyByQuery_default</tspan>
-<tspan x="10" y="1130">[node test-case 25 of 32 passed] - testCase_crudRemoveOneByKeyUnique_default</tspan>
-<tspan x="10" y="1146">[node test-case 26 of 32 passed] - testCase_crudUpdateOneByKeyUnique_default</tspan>
-<tspan x="10" y="1162">[node test-case 27 of 32 passed] - testCase_fileUploadManyByForm_default</tspan>
+<tspan x="10" y="826">[4009:1015/163603:WARNING:audio_manager.cc(314)] Multiple instances of AudioManager detected</tspan>
+<tspan x="10" y="842">[4009:1015/163603:WARNING:audio_manager.cc(275)] Multiple instances of AudioManager detected</tspan>
+<tspan x="10" y="858">[4043:1015/163603:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple threads \</tspan>
+<tspan x="10" y="874">in process gpu-process. </tspan>
+<tspan x="10" y="890">[4009:1015/163603:ERROR:browser_gpu_channel_host_factory.cc(131)] Failed to create channel.</tspan>
+<tspan x="10" y="906">[4004:1015/163603:WARNING:host_discardable_shared_memory_manager.cc(132)] Less than 64MB of free\</tspan>
+<tspan x="10" y="922"> space in temporary directory for shared memory files: 63</tspan>
+<tspan x="10" y="938">Xlib:  extension "RANDR" missing on display ":99.0".</tspan>
+<tspan x="10" y="954">[4004:1015/163603:WARNING:audio_manager.cc(314)] Multiple instances of AudioManager detected</tspan>
+<tspan x="10" y="970">[4004:1015/163603:WARNING:audio_manager.cc(275)] Multiple instances of AudioManager detected</tspan>
+<tspan x="10" y="986">[4004:1015/163603:ERROR:bus.cc(432)] Failed to connect to the bus: Failed to connect to socket /\</tspan>
+<tspan x="10" y="1002">var/run/dbus/system_bus_socket: Connection refused</tspan>
+<tspan x="10" y="1018">[4096:1015/163604:ERROR:sandbox_linux.cc(343)] InitializeSandbox() called with multiple threads \</tspan>
+<tspan x="10" y="1034">in process gpu-process. </tspan>
+<tspan x="10" y="1050">[4004:1015/163604:ERROR:browser_gpu_channel_host_factory.cc(131)] Failed to create channel.</tspan>
+<tspan x="10" y="1066">[node test-case 19 of 32 passed] - testCase_ajax_error</tspan>
+<tspan x="10" y="1082">[node test-case 20 of 32 passed] - testCase_fileGetOneByKeyUnique_default</tspan>
+<tspan x="10" y="1098">[node test-case 21 of 32 passed] - testCase_crudCreateOrReplaceMany_default</tspan>
+<tspan x="10" y="1114">[node test-case 22 of 32 passed] - testCase_crudCreateOrReplaceOneByKeyUnique_default</tspan>
+<tspan x="10" y="1130">[node test-case 23 of 32 passed] - testCase_build_app</tspan>
+<tspan x="10" y="1146">[node test-case 24 of 32 passed] - testCase_crudRemoveManyByQuery_default</tspan>
+<tspan x="10" y="1162">[node test-case 25 of 32 passed] - testCase_crudRemoveOneByKeyUnique_default</tspan>
 <tspan x="10" y="1178"></tspan>
-<tspan x="10" y="1194">browserTest - opened url http://localhost:63540/?modeTest=1#!/swgg_id_pet/swgg_id_addPet</tspan>
-<tspan x="10" y="1210"></tspan>
-<tspan x="10" y="1226">[node test-case 28 of 32 passed] - testCase_crudCreateReplaceUpdateRemoveMany_default</tspan>
-<tspan x="10" y="1242">[node test-case 29 of 32 passed] - testCase_crudCreateReplaceUpdateRemoveOne_default</tspan>
-<tspan x="10" y="1258">[node test-case 30 of 32 passed] - testCase_userLoginXxx_default</tspan>
+<tspan x="10" y="1194">browserTest - opened url file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/doc.api\</tspan>
+<tspan x="10" y="1210">.html</tspan>
+<tspan x="10" y="1226"></tspan>
+<tspan x="10" y="1242">[node test-case 26 of 32 passed] - testCase_crudUpdateOneByKeyUnique_default</tspan>
+<tspan x="10" y="1258">[node test-case 27 of 32 passed] - testCase_fileUploadManyByForm_default</tspan>
 <tspan x="10" y="1274"></tspan>
-<tspan x="10" y="1290">browserTest - opened url file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/doc.api\</tspan>
-<tspan x="10" y="1306">.html</tspan>
-<tspan x="10" y="1322"></tspan>
-<tspan x="10" y="1338">[3999:1015/145042:INFO:CONSOLE(205)] "server listening on http-port 8081", source: file:///home/\</tspan>
-<tspan x="10" y="1354">travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8a2b-451c-87d1-67074e283ed4.html \</tspan>
-<tspan x="10" y="1370">(205)</tspan>
-<tspan x="10" y="1386">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 1 of 33 passed] - testCase_uiScrollTo",\</tspan>
-<tspan x="10" y="1402"> source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8a2b-451c-8\</tspan>
-<tspan x="10" y="1418">7d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1434">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 2 of 33 passed] - testCase_ui_fileMedia\</tspan>
-<tspan x="10" y="1450">", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8a2b-451c\</tspan>
-<tspan x="10" y="1466">-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1482">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 3 of 33 passed] - testCase_validateByPa\</tspan>
-<tspan x="10" y="1498">ramDefList_error", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.15\</tspan>
-<tspan x="10" y="1514">7c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1530">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 4 of 33 passed] - testCase_validateBySc\</tspan>
-<tspan x="10" y="1546">hema_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d\</tspan>
-<tspan x="10" y="1562">2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1578">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 5 of 33 passed] - testCase_validateBySc\</tspan>
-<tspan x="10" y="1594">hema_error", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c\</tspan>
-<tspan x="10" y="1610">-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1626">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 6 of 33 passed] - testCase_validateBySw\</tspan>
-<tspan x="10" y="1642">agger_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8\</tspan>
-<tspan x="10" y="1658">d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1674">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 7 of 33 passed] - testCase_ajax_error",\</tspan>
-<tspan x="10" y="1690"> source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8a2b-451c-8\</tspan>
-<tspan x="10" y="1706">7d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1722">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 8 of 33 passed] - testCase_crudCountMan\</tspan>
-<tspan x="10" y="1738">yByQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.15\</tspan>
-<tspan x="10" y="1754">7c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1770">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 9 of 33 passed] - testCase_crudErrorXxx\</tspan>
-<tspan x="10" y="1786">_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8\</tspan>
-<tspan x="10" y="1802">a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1818">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 10 of 33 passed] - testCase_crudExistsO\</tspan>
-<tspan x="10" y="1834">neByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electr\</tspan>
-<tspan x="10" y="1850">on.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1866">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 11 of 33 passed] - testCase_crudGetMany\</tspan>
-<tspan x="10" y="1882">ByQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157\</tspan>
-<tspan x="10" y="1898">c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1914">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 12 of 33 passed] - testCase_crudGetOneB\</tspan>
-<tspan x="10" y="1930">yKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
-<tspan x="10" y="1946">157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="1962">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 13 of 33 passed] - testCase_crudGetOneB\</tspan>
-<tspan x="10" y="1978">yQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c\</tspan>
-<tspan x="10" y="1994">8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2010">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 14 of 33 passed] - testCase_crudNullXxx\</tspan>
-<tspan x="10" y="2026">_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8\</tspan>
-<tspan x="10" y="2042">a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2058">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 15 of 33 passed] - testCase_onErrorJson\</tspan>
-<tspan x="10" y="2074">api_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2\</tspan>
-<tspan x="10" y="2090">c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2106">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 16 of 33 passed] - testCase_onErrorJson\</tspan>
-<tspan x="10" y="2122">api_emptyArray", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c\</tspan>
-<tspan x="10" y="2138">8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2154">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 17 of 33 passed] - testCase_onErrorJson\</tspan>
-<tspan x="10" y="2170">api_error", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-\</tspan>
-<tspan x="10" y="2186">8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2202">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 18 of 33 passed] - testCase_petstoreSto\</tspan>
-<tspan x="10" y="2218">reGetInventory_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/elect\</tspan>
-<tspan x="10" y="2234">ron.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2250">[4129:1015/145044:WARNING:webmediaplayer_impl.cc(346)] Using MultibufferDataSource</tspan>
-<tspan x="10" y="2266">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 19 of 33 passed] - testCase_validateByP\</tspan>
-<tspan x="10" y="2282">aramDefList_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron\</tspan>
-<tspan x="10" y="2298">.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2314">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 20 of 33 passed] - testCase_validateByP\</tspan>
-<tspan x="10" y="2330">aramDefList_formData", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electro\</tspan>
-<tspan x="10" y="2346">n.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2362">[4129:1015/145044:ERROR:render_media_log.cc(23)] MediaEvent: PIPELINE_ERROR demuxer: could not o\</tspan>
-<tspan x="10" y="2378">pen</tspan>
-<tspan x="10" y="2394">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 21 of 33 passed] - testCase_fileGetOneB\</tspan>
-<tspan x="10" y="2410">yKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
-<tspan x="10" y="2426">157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2442">[3999:1015/145044:INFO:CONSOLE(205)] "[browser test-case 22 of 33 passed] - testCase_fileUploadM\</tspan>
-<tspan x="10" y="2458">anyByForm_nullCase", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
-<tspan x="10" y="2474">157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2490">[3999:1015/145046:INFO:CONSOLE(205)] "[browser test-case 23 of 33 passed] - testCase_crudCreateO\</tspan>
-<tspan x="10" y="2506">rReplaceMany_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electro\</tspan>
-<tspan x="10" y="2522">n.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2538">[3999:1015/145046:INFO:CONSOLE(205)] "[browser test-case 24 of 33 passed] - testCase_crudCreateO\</tspan>
-<tspan x="10" y="2554">rReplaceOneByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/t\</tspan>
-<tspan x="10" y="2570">mp/electron.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2586"></tspan>
-<tspan x="10" y="2602">browserTest - created screen-capture file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/b\</tspan>
-<tspan x="10" y="2618">uild/screen-capture.npmTest.browser..png</tspan>
-<tspan x="10" y="2634"></tspan>
-<tspan x="10" y="2650"></tspan>
-<tspan x="10" y="2666">browserTest - created screen-capture file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/b\</tspan>
-<tspan x="10" y="2682">uild/screen-capture.npmTest.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-lite_2Ft\</tspan>
-<tspan x="10" y="2698">mp_2Fbuild_2Fdoc.api.html.png</tspan>
-<tspan x="10" y="2714"></tspan>
-<tspan x="10" y="2730"></tspan>
-<tspan x="10" y="2746">browserTest - exit-code 0 - file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/doc.\</tspan>
-<tspan x="10" y="2762">api.html</tspan>
-<tspan x="10" y="2778"></tspan>
-<tspan x="10" y="2794">[node test-case 31 of 32 passed] - testCase_build_doc</tspan>
-<tspan x="10" y="2810">[3999:1015/145047:INFO:CONSOLE(205)] "[browser test-case 25 of 33 passed] - testCase_ui_default"\</tspan>
-<tspan x="10" y="2826">, source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8a2b-451c-\</tspan>
-<tspan x="10" y="2842">87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2858">[3999:1015/145047:INFO:CONSOLE(205)] "[browser test-case 26 of 33 passed] - testCase_domAnimateS\</tspan>
-<tspan x="10" y="2874">hake_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d\</tspan>
-<tspan x="10" y="2890">2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2906">[3999:1015/145048:INFO:CONSOLE(205)] "[browser test-case 27 of 33 passed] - testCase_crudRemoveM\</tspan>
-<tspan x="10" y="2922">anyByQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
-<tspan x="10" y="2938">157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="2954">[3999:1015/145048:INFO:CONSOLE(205)] "[browser test-case 28 of 33 passed] - testCase_crudRemoveO\</tspan>
-<tspan x="10" y="2970">neByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electr\</tspan>
-<tspan x="10" y="2986">on.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="3002">[3999:1015/145048:INFO:CONSOLE(205)] "[browser test-case 29 of 33 passed] - testCase_crudUpdateO\</tspan>
-<tspan x="10" y="3018">neByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electr\</tspan>
-<tspan x="10" y="3034">on.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="3050">[3999:1015/145048:INFO:CONSOLE(205)] "[browser test-case 30 of 33 passed] - testCase_fileUploadM\</tspan>
-<tspan x="10" y="3066">anyByForm_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.1\</tspan>
-<tspan x="10" y="3082">57c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="3098">[3999:1015/145048:INFO:CONSOLE(205)] "[browser test-case 31 of 33 passed] - testCase_userLoginXx\</tspan>
-<tspan x="10" y="3114">x_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-\</tspan>
-<tspan x="10" y="3130">8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="3146">[3999:1015/145049:INFO:CONSOLE(205)] "[browser test-case 32 of 33 passed] - testCase_crudCreateR\</tspan>
-<tspan x="10" y="3162">eplaceUpdateRemoveMany_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/t\</tspan>
-<tspan x="10" y="3178">mp/electron.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="3194">[3999:1015/145049:INFO:CONSOLE(205)] "[browser test-case 33 of 33 passed] - testCase_crudCreateR\</tspan>
-<tspan x="10" y="3210">eplaceUpdateRemoveOne_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tm\</tspan>
-<tspan x="10" y="3226">p/electron.157c8d2c-8a2b-451c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="3242">[3999:1015/145050:INFO:CONSOLE(205)] "created coverage file:///tmp/build/coverage.html/index.htm\</tspan>
-<tspan x="10" y="3258">l", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c8d2c-8a2b-451\</tspan>
-<tspan x="10" y="3274">c-87d1-67074e283ed4.html (205)</tspan>
-<tspan x="10" y="3290"></tspan>
-<tspan x="10" y="3306">browserTest - exit-code 0 - http://localhost:63540/?modeTest=1#!/swgg_id_pet/swgg_id_addPet</tspan>
+<tspan x="10" y="1290">browserTest - opened url http://localhost:33207/?modeTest=1#!/swgg_id_pet/swgg_id_addPet</tspan>
+<tspan x="10" y="1306"></tspan>
+<tspan x="10" y="1322">[node test-case 28 of 32 passed] - testCase_crudCreateReplaceUpdateRemoveMany_default</tspan>
+<tspan x="10" y="1338">[node test-case 29 of 32 passed] - testCase_crudCreateReplaceUpdateRemoveOne_default</tspan>
+<tspan x="10" y="1354">[node test-case 30 of 32 passed] - testCase_userLoginXxx_default</tspan>
+<tspan x="10" y="1370">[4004:1015/163605:INFO:CONSOLE(205)] "server listening on http-port 8081", source: file:///home/\</tspan>
+<tspan x="10" y="1386">travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4751-4fd9-b528-f3a46128b991.html \</tspan>
+<tspan x="10" y="1402">(205)</tspan>
+<tspan x="10" y="1418">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 1 of 33 passed] - testCase_uiScrollTo",\</tspan>
+<tspan x="10" y="1434"> source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4751-4fd9-b\</tspan>
+<tspan x="10" y="1450">528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1466">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 2 of 33 passed] - testCase_ui_fileMedia\</tspan>
+<tspan x="10" y="1482">", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4751-4fd9\</tspan>
+<tspan x="10" y="1498">-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1514">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 3 of 33 passed] - testCase_validateByPa\</tspan>
+<tspan x="10" y="1530">ramDefList_error", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.15\</tspan>
+<tspan x="10" y="1546">7c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1562">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 4 of 33 passed] - testCase_validateBySc\</tspan>
+<tspan x="10" y="1578">hema_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c93\</tspan>
+<tspan x="10" y="1594">34-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1610">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 5 of 33 passed] - testCase_validateBySc\</tspan>
+<tspan x="10" y="1626">hema_error", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334\</tspan>
+<tspan x="10" y="1642">-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1658">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 6 of 33 passed] - testCase_validateBySw\</tspan>
+<tspan x="10" y="1674">agger_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9\</tspan>
+<tspan x="10" y="1690">334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1706">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 7 of 33 passed] - testCase_ajax_error",\</tspan>
+<tspan x="10" y="1722"> source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4751-4fd9-b\</tspan>
+<tspan x="10" y="1738">528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1754">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 8 of 33 passed] - testCase_crudCountMan\</tspan>
+<tspan x="10" y="1770">yByQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.15\</tspan>
+<tspan x="10" y="1786">7c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1802">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 9 of 33 passed] - testCase_crudErrorXxx\</tspan>
+<tspan x="10" y="1818">_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4\</tspan>
+<tspan x="10" y="1834">751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1850">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 10 of 33 passed] - testCase_crudExistsO\</tspan>
+<tspan x="10" y="1866">neByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electr\</tspan>
+<tspan x="10" y="1882">on.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1898">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 11 of 33 passed] - testCase_crudGetMany\</tspan>
+<tspan x="10" y="1914">ByQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157\</tspan>
+<tspan x="10" y="1930">c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1946">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 12 of 33 passed] - testCase_crudGetOneB\</tspan>
+<tspan x="10" y="1962">yKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
+<tspan x="10" y="1978">157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="1994">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 13 of 33 passed] - testCase_crudGetOneB\</tspan>
+<tspan x="10" y="2010">yQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c\</tspan>
+<tspan x="10" y="2026">9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2042">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 14 of 33 passed] - testCase_crudNullXxx\</tspan>
+<tspan x="10" y="2058">_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4\</tspan>
+<tspan x="10" y="2074">751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2090">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 15 of 33 passed] - testCase_onErrorJson\</tspan>
+<tspan x="10" y="2106">api_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c933\</tspan>
+<tspan x="10" y="2122">4-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2138">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 16 of 33 passed] - testCase_onErrorJson\</tspan>
+<tspan x="10" y="2154">api_emptyArray", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c\</tspan>
+<tspan x="10" y="2170">9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2186">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 17 of 33 passed] - testCase_onErrorJson\</tspan>
+<tspan x="10" y="2202">api_error", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-\</tspan>
+<tspan x="10" y="2218">4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2234">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 18 of 33 passed] - testCase_petstoreSto\</tspan>
+<tspan x="10" y="2250">reGetInventory_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/elect\</tspan>
+<tspan x="10" y="2266">ron.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2282">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 19 of 33 passed] - testCase_validateByP\</tspan>
+<tspan x="10" y="2298">aramDefList_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron\</tspan>
+<tspan x="10" y="2314">.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2330">[4004:1015/163606:INFO:CONSOLE(205)] "[browser test-case 20 of 33 passed] - testCase_validateByP\</tspan>
+<tspan x="10" y="2346">aramDefList_formData", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electro\</tspan>
+<tspan x="10" y="2362">n.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2378">[4145:1015/163606:WARNING:webmediaplayer_impl.cc(346)] Using MultibufferDataSource</tspan>
+<tspan x="10" y="2394">[4145:1015/163607:ERROR:render_media_log.cc(23)] MediaEvent: PIPELINE_ERROR demuxer: could not o\</tspan>
+<tspan x="10" y="2410">pen</tspan>
+<tspan x="10" y="2426">[4004:1015/163607:INFO:CONSOLE(205)] "[browser test-case 21 of 33 passed] - testCase_fileGetOneB\</tspan>
+<tspan x="10" y="2442">yKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
+<tspan x="10" y="2458">157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2474">[4004:1015/163607:INFO:CONSOLE(205)] "[browser test-case 22 of 33 passed] - testCase_fileUploadM\</tspan>
+<tspan x="10" y="2490">anyByForm_nullCase", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
+<tspan x="10" y="2506">157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2522">[4004:1015/163608:INFO:CONSOLE(205)] "[browser test-case 23 of 33 passed] - testCase_crudCreateO\</tspan>
+<tspan x="10" y="2538">rReplaceMany_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electro\</tspan>
+<tspan x="10" y="2554">n.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2570">[4004:1015/163608:INFO:CONSOLE(205)] "[browser test-case 24 of 33 passed] - testCase_crudCreateO\</tspan>
+<tspan x="10" y="2586">rReplaceOneByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/t\</tspan>
+<tspan x="10" y="2602">mp/electron.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2618"></tspan>
+<tspan x="10" y="2634">browserTest - created screen-capture file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/b\</tspan>
+<tspan x="10" y="2650">uild/screen-capture.npmTest.browser._2Fhome_2Ftravis_2Fbuild_2Fkaizhu256_2Fnode-swagger-lite_2Ft\</tspan>
+<tspan x="10" y="2666">mp_2Fbuild_2Fdoc.api.html.png</tspan>
+<tspan x="10" y="2682"></tspan>
+<tspan x="10" y="2698"></tspan>
+<tspan x="10" y="2714">browserTest - exit-code 0 - file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/doc.\</tspan>
+<tspan x="10" y="2730">api.html</tspan>
+<tspan x="10" y="2746"></tspan>
+<tspan x="10" y="2762">[node test-case 31 of 32 passed] - testCase_build_doc</tspan>
+<tspan x="10" y="2778">[4004:1015/163609:INFO:CONSOLE(205)] "[browser test-case 25 of 33 passed] - testCase_ui_default"\</tspan>
+<tspan x="10" y="2794">, source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4751-4fd9-\</tspan>
+<tspan x="10" y="2810">b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2826"></tspan>
+<tspan x="10" y="2842">browserTest - created screen-capture file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/b\</tspan>
+<tspan x="10" y="2858">uild/screen-capture.npmTest.browser..png</tspan>
+<tspan x="10" y="2874"></tspan>
+<tspan x="10" y="2890">[4004:1015/163609:INFO:CONSOLE(205)] "[browser test-case 26 of 33 passed] - testCase_domAnimateS\</tspan>
+<tspan x="10" y="2906">hake_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c93\</tspan>
+<tspan x="10" y="2922">34-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2938">[4004:1015/163610:INFO:CONSOLE(205)] "[browser test-case 27 of 33 passed] - testCase_crudRemoveM\</tspan>
+<tspan x="10" y="2954">anyByQuery_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.\</tspan>
+<tspan x="10" y="2970">157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="2986">[4004:1015/163610:INFO:CONSOLE(205)] "[browser test-case 28 of 33 passed] - testCase_crudRemoveO\</tspan>
+<tspan x="10" y="3002">neByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electr\</tspan>
+<tspan x="10" y="3018">on.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="3034">[4004:1015/163610:INFO:CONSOLE(205)] "[browser test-case 29 of 33 passed] - testCase_crudUpdateO\</tspan>
+<tspan x="10" y="3050">neByKeyUnique_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electr\</tspan>
+<tspan x="10" y="3066">on.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="3082">[4004:1015/163610:INFO:CONSOLE(205)] "[browser test-case 30 of 33 passed] - testCase_fileUploadM\</tspan>
+<tspan x="10" y="3098">anyByForm_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.1\</tspan>
+<tspan x="10" y="3114">57c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="3130">[4004:1015/163610:INFO:CONSOLE(205)] "[browser test-case 31 of 33 passed] - testCase_userLoginXx\</tspan>
+<tspan x="10" y="3146">x_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-\</tspan>
+<tspan x="10" y="3162">4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="3178">[4004:1015/163611:INFO:CONSOLE(205)] "[browser test-case 32 of 33 passed] - testCase_crudCreateR\</tspan>
+<tspan x="10" y="3194">eplaceUpdateRemoveMany_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/t\</tspan>
+<tspan x="10" y="3210">mp/electron.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="3226">[4004:1015/163611:INFO:CONSOLE(205)] "[browser test-case 33 of 33 passed] - testCase_crudCreateR\</tspan>
+<tspan x="10" y="3242">eplaceUpdateRemoveOne_default", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tm\</tspan>
+<tspan x="10" y="3258">p/electron.157c9334-4751-4fd9-b528-f3a46128b991.html (205)</tspan>
+<tspan x="10" y="3274">[4004:1015/163612:INFO:CONSOLE(205)] "created coverage file:///tmp/build/coverage.html/index.htm\</tspan>
+<tspan x="10" y="3290">l", source: file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/electron.157c9334-4751-4fd\</tspan>
+<tspan x="10" y="3306">9-b528-f3a46128b991.html (205)</tspan>
 <tspan x="10" y="3322"></tspan>
-<tspan x="10" y="3338"></tspan>
-<tspan x="10" y="3354">browserTest - merged coverage from /home/travis/build/kaizhu256/node-swagger-lite/tmp/coverage.n\</tspan>
-<tspan x="10" y="3370">pmTest.browser.%2F.json</tspan>
-<tspan x="10" y="3386"></tspan>
-<tspan x="10" y="3402"></tspan>
-<tspan x="10" y="3418">browserTest - merging test-report from /home/travis/build/kaizhu256/node-swagger-lite/tmp/test-r\</tspan>
-<tspan x="10" y="3434">eport.npmTest.browser.%2F.json</tspan>
-<tspan x="10" y="3450"></tspan>
-<tspan x="10" y="3466">[node test-case 32 of 32 passed] - testCase_webpage_default</tspan>
-<tspan x="10" y="3482">------------------------|-----------|-----------|-----------|-----------|</tspan>
-<tspan x="10" y="3498">File                    |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
+<tspan x="10" y="3338">browserTest - exit-code 0 - http://localhost:33207/?modeTest=1#!/swgg_id_pet/swgg_id_addPet</tspan>
+<tspan x="10" y="3354"></tspan>
+<tspan x="10" y="3370"></tspan>
+<tspan x="10" y="3386">browserTest - merged coverage from /home/travis/build/kaizhu256/node-swagger-lite/tmp/coverage.n\</tspan>
+<tspan x="10" y="3402">pmTest.browser.%2F.json</tspan>
+<tspan x="10" y="3418"></tspan>
+<tspan x="10" y="3434"></tspan>
+<tspan x="10" y="3450">browserTest - merging test-report from /home/travis/build/kaizhu256/node-swagger-lite/tmp/test-r\</tspan>
+<tspan x="10" y="3466">eport.npmTest.browser.%2F.json</tspan>
+<tspan x="10" y="3482"></tspan>
+<tspan x="10" y="3498">[node test-case 32 of 32 passed] - testCase_webpage_default</tspan>
 <tspan x="10" y="3514">------------------------|-----------|-----------|-----------|-----------|</tspan>
-<tspan x="10" y="3530">   node-swagger-lite/   |     99.08 |     99.32 |     99.04 |     99.08 |</tspan>
-<tspan x="10" y="3546">      example.js        |       100 |       100 |       100 |       100 |</tspan>
-<tspan x="10" y="3562">      index.js          |       100 |       100 |       100 |       100 |</tspan>
-<tspan x="10" y="3578">      lib.swagger-ui.js |     95.58 |     96.86 |     96.47 |     95.58 |</tspan>
-<tspan x="10" y="3594">      test.js           |       100 |       100 |       100 |       100 |</tspan>
-<tspan x="10" y="3610">------------------------|-----------|-----------|-----------|-----------|</tspan>
-<tspan x="10" y="3626">All files               |     99.08 |     99.32 |     99.04 |     99.08 |</tspan>
+<tspan x="10" y="3530">File                    |   % Stmts |% Branches |   % Funcs |   % Lines |</tspan>
+<tspan x="10" y="3546">------------------------|-----------|-----------|-----------|-----------|</tspan>
+<tspan x="10" y="3562">   node-swagger-lite/   |     99.08 |     99.32 |     99.04 |     99.08 |</tspan>
+<tspan x="10" y="3578">      example.js        |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="3594">      index.js          |       100 |       100 |       100 |       100 |</tspan>
+<tspan x="10" y="3610">      lib.swagger-ui.js |     95.58 |     96.86 |     96.47 |     95.58 |</tspan>
+<tspan x="10" y="3626">      test.js           |       100 |       100 |       100 |       100 |</tspan>
 <tspan x="10" y="3642">------------------------|-----------|-----------|-----------|-----------|</tspan>
-<tspan x="10" y="3658"></tspan>
-<tspan x="10" y="3674">created coverage file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/coverage.html/i\</tspan>
-<tspan x="10" y="3690">ndex.html</tspan>
-<tspan x="10" y="3706"></tspan>
-<tspan x="10" y="3722">-------------------------------------------------------</tspan>
-<tspan x="10" y="3738">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
-<tspan x="10" y="3754">L, like Gecko) Chrome/52.0.2743.82 Electron/1.3.7 Safari/537.36 - 2016-10-15T14:50:42.474Z</tspan>
-<tspan x="10" y="3770">|    5086 ms            0 failed       33 passed      |</tspan>
-<tspan x="10" y="3786">-------------------------------------------------------</tspan>
-<tspan x="10" y="3802">| test-report - npmTest - node - linux v6.8.1 - 2016-10-15T14:50:36.988Z</tspan>
-<tspan x="10" y="3818">|   11132 ms            0 failed       32 passed      |</tspan>
-<tspan x="10" y="3834">-------------------------------------------------------</tspan>
-<tspan x="10" y="3850">| test-report - npmTestPublished - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537\</tspan>
-<tspan x="10" y="3866">.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Electron/1.3.7 Safari/537.36 - 2016-10-15T14:50:22.3\</tspan>
-<tspan x="10" y="3882">64Z</tspan>
-<tspan x="10" y="3898">|    5827 ms            0 failed       34 passed      |</tspan>
-<tspan x="10" y="3914">-------------------------------------------------------</tspan>
-<tspan x="10" y="3930">| test-report - npmTestPublished - node - linux v6.8.1 - 2016-10-15T14:50:16.393Z</tspan>
-<tspan x="10" y="3946">|   15221 ms            0 failed       33 passed      |</tspan>
-<tspan x="10" y="3962">-------------------------------------------------------</tspan>
-<tspan x="10" y="3978"></tspan>
-<tspan x="10" y="3994">created test-report file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/test-report.\</tspan>
-<tspan x="10" y="4010">html</tspan>
-<tspan x="10" y="4026"></tspan>
-<tspan x="10" y="4042"></tspan>
-<tspan x="10" y="4058">npmTest - 0 failed tests</tspan>
+<tspan x="10" y="3658">All files               |     99.08 |     99.32 |     99.04 |     99.08 |</tspan>
+<tspan x="10" y="3674">------------------------|-----------|-----------|-----------|-----------|</tspan>
+<tspan x="10" y="3690"></tspan>
+<tspan x="10" y="3706">created coverage file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/coverage.html/i\</tspan>
+<tspan x="10" y="3722">ndex.html</tspan>
+<tspan x="10" y="3738"></tspan>
+<tspan x="10" y="3754">-------------------------------------------------------</tspan>
+<tspan x="10" y="3770">| test-report - npmTest - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM\</tspan>
+<tspan x="10" y="3786">L, like Gecko) Chrome/52.0.2743.82 Electron/1.3.7 Safari/537.36 - 2016-10-15T16:36:04.958Z</tspan>
+<tspan x="10" y="3802">|    4634 ms            0 failed       33 passed      |</tspan>
+<tspan x="10" y="3818">-------------------------------------------------------</tspan>
+<tspan x="10" y="3834">| test-report - npmTest - node - linux v6.8.1 - 2016-10-15T16:36:00.338Z</tspan>
+<tspan x="10" y="3850">|    9960 ms            0 failed       32 passed      |</tspan>
+<tspan x="10" y="3866">-------------------------------------------------------</tspan>
+<tspan x="10" y="3882">| test-report - npmTestPublished - browser - / - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537\</tspan>
+<tspan x="10" y="3898">.36 (KHTML, like Gecko) Chrome/52.0.2743.82 Electron/1.3.7 Safari/537.36 - 2016-10-15T16:35:46.8\</tspan>
+<tspan x="10" y="3914">49Z</tspan>
+<tspan x="10" y="3930">|    5121 ms            0 failed       34 passed      |</tspan>
+<tspan x="10" y="3946">-------------------------------------------------------</tspan>
+<tspan x="10" y="3962">| test-report - npmTestPublished - node - linux v6.8.1 - 2016-10-15T16:35:41.720Z</tspan>
+<tspan x="10" y="3978">|   13684 ms            0 failed       33 passed      |</tspan>
+<tspan x="10" y="3994">-------------------------------------------------------</tspan>
+<tspan x="10" y="4010"></tspan>
+<tspan x="10" y="4026">created test-report file:///home/travis/build/kaizhu256/node-swagger-lite/tmp/build/test-report.\</tspan>
+<tspan x="10" y="4042">html</tspan>
+<tspan x="10" y="4058"></tspan>
+<tspan x="10" y="4074"></tspan>
+<tspan x="10" y="4090">npmTest - 0 failed tests</tspan>
 </text>
 </svg>
